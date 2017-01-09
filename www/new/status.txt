@@ -1,0 +1,1 @@
+a:4:{i:0;a:2:{s:8:"confname";s:19:"config-everyday.php";s:6:"status";s:3:"fin";}i:1;a:2:{s:8:"confname";s:10:"config.php";s:6:"status";s:3:"fin";}i:2;a:2:{s:8:"confname";s:17:"config-golden.php";s:6:"status";s:3:"fin";}i:3;a:2:{s:8:"confname";s:16:"config-heart.php";s:6:"status";s:3:"fin";}}

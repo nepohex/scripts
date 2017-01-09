@@ -1,0 +1,47 @@
+body {
+background: url(./2560x1440.jpg) no-repeat bottom center;
+}
+
+.content {
+width: 1000px;
+margin: 0px auto;
+}
+
+.main_menu {
+background: #535967;
+margin-top: 20px;
+border-radius: 5px;
+border-top: 1px solid #fff!important;
+border-bottom: 1px solid #fff!important;
+border-left: 0!important;
+border-right: 0!important;
+margin: 30px 0 15px;
+overflow:hidden;
+color: #fff;
+font-size: 16px;
+}
+
+.main_menu ul {
+width:800px;
+float:right;
+margin: 0px;
+}
+
+.main_menu ul a {
+	color: #fff;
+}
+
+.main_menu ul a li {
+float: left;
+padding: 15px 10px;
+border-left: 1px solid #8C8C8C;
+}
+
+.main_menu ul a li :hover{
+background: #ddd;
+}
+
+#logo {
+padding: 15px 40px;
+float: left;
+}

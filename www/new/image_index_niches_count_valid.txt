@@ -1,0 +1,2403 @@
+Array
+(
+    [short] => Array
+        (
+            [words_used] => 272942
+            [valid_length] => 109898
+        )
+
+    [medium] => Array
+        (
+            [words_used] => 165263
+            [valid_length] => 47725
+        )
+
+    [long] => Array
+        (
+            [words_used] => 158539
+            [valid_length] => 59745
+        )
+
+    [black] => Array
+        (
+            [words_used] => 114246
+            [valid_length] => 38176
+        )
+
+    [curly] => Array
+        (
+            [words_used] => 84654
+            [valid_length] => 34963
+        )
+
+    [length] => Array
+        (
+            [words_used] => 79913
+            [valid_length] => 25178
+        )
+
+    [bob] => Array
+        (
+            [words_used] => 78930
+            [valid_length] => 44701
+        )
+
+    [men] => Array
+        (
+            [words_used] => 77260
+            [valid_length] => 69834
+        )
+
+    [mens] => Array
+        (
+            [words_used] => 56213
+            [valid_length] => 13239
+        )
+
+    [wedding] => Array
+        (
+            [words_used] => 54201
+            [valid_length] => 15680
+        )
+
+    [layered] => Array
+        (
+            [words_used] => 53003
+            [valid_length] => 20421
+        )
+
+    [bangs] => Array
+        (
+            [words_used] => 51858
+            [valid_length] => 23007
+        )
+
+    [cute] => Array
+        (
+            [words_used] => 48673
+            [valid_length] => 16662
+        )
+
+    [best] => Array
+        (
+            [words_used] => 40349
+            [valid_length] => 11322
+        )
+
+    [blonde] => Array
+        (
+            [words_used] => 36448
+            [valid_length] => 16465
+        )
+
+    [updo] => Array
+        (
+            [words_used] => 29378
+            [valid_length] => 14141
+        )
+
+    [straight] => Array
+        (
+            [words_used] => 28607
+            [valid_length] => 11639
+        )
+
+    [on] => Array
+        (
+            [words_used] => 28078
+            [valid_length] => 96038
+        )
+
+    [easy] => Array
+        (
+            [words_used] => 27924
+            [valid_length] => 6955
+        )
+
+    [natural] => Array
+        (
+            [words_used] => 27096
+            [valid_length] => 8856
+        )
+
+    [brown] => Array
+        (
+            [words_used] => 26457
+            [valid_length] => 7572
+        )
+
+    [the] => Array
+        (
+            [words_used] => 26430
+            [valid_length] => 4975
+        )
+
+    [wavy] => Array
+        (
+            [words_used] => 24853
+            [valid_length] => 13500
+        )
+
+    [highlights] => Array
+        (
+            [words_used] => 24387
+            [valid_length] => 5218
+        )
+
+    [girls] => Array
+        (
+            [words_used] => 24349
+            [valid_length] => 9312
+        )
+
+    [faces] => Array
+        (
+            [words_used] => 24126
+            [valid_length] => 7828
+        )
+
+    [side] => Array
+        (
+            [words_used] => 23666
+            [valid_length] => 11354
+        )
+
+    [thick] => Array
+        (
+            [words_used] => 23466
+            [valid_length] => 7171
+        )
+
+    [round] => Array
+        (
+            [words_used] => 23433
+            [valid_length] => 7446
+        )
+
+    [new] => Array
+        (
+            [words_used] => 23423
+            [valid_length] => 5412
+        )
+
+    [pixie] => Array
+        (
+            [words_used] => 21800
+            [valid_length] => 16171
+        )
+
+    [color] => Array
+        (
+            [words_used] => 21393
+            [valid_length] => 12353
+        )
+
+    [african] => Array
+        (
+            [words_used] => 20894
+            [valid_length] => 5416
+        )
+
+    [prom] => Array
+        (
+            [words_used] => 19252
+            [valid_length] => 6475
+        )
+
+    [over] => Array
+        (
+            [words_used] => 19224
+            [valid_length] => 7505
+        )
+
+    [braided] => Array
+        (
+            [words_used] => 19121
+            [valid_length] => 8017
+        )
+
+    [in] => Array
+        (
+            [words_used] => 18504
+            [valid_length] => 61171
+        )
+
+    [braids] => Array
+        (
+            [words_used] => 18496
+            [valid_length] => 4469
+        )
+
+    [trendy] => Array
+        (
+            [words_used] => 17964
+            [valid_length] => 5551
+        )
+
+    [face] => Array
+        (
+            [words_used] => 16336
+            [valid_length] => 13110
+        )
+
+    [layers] => Array
+        (
+            [words_used] => 16164
+            [valid_length] => 5880
+        )
+
+    [fine] => Array
+        (
+            [words_used] => 16140
+            [valid_length] => 6492
+        )
+
+    [cut] => Array
+        (
+            [words_used] => 16059
+            [valid_length] => 94131
+        )
+
+    [american] => Array
+        (
+            [words_used] => 15910
+            [valid_length] => 4157
+        )
+
+    [back] => Array
+        (
+            [words_used] => 15181
+            [valid_length] => 8002
+        )
+
+    [half] => Array
+        (
+            [words_used] => 15120
+            [valid_length] => 3660
+        )
+
+    [latest] => Array
+        (
+            [words_used] => 15022
+            [valid_length] => 2814
+        )
+
+    [braid] => Array
+        (
+            [words_used] => 14755
+            [valid_length] => 18272
+        )
+
+    [thin] => Array
+        (
+            [words_used] => 14624
+            [valid_length] => 5560
+        )
+
+    [fade] => Array
+        (
+            [words_used] => 13893
+            [valid_length] => 2769
+        )
+
+    [updos] => Array
+        (
+            [words_used] => 13558
+            [valid_length] => 4145
+        )
+
+    [dark] => Array
+        (
+            [words_used] => 12725
+            [valid_length] => 4988
+        )
+
+    [ponytail] => Array
+        (
+            [words_used] => 12508
+            [valid_length] => 5635
+        )
+
+    [a] => Array
+        (
+            [words_used] => 12323
+            [valid_length] => 385371
+        )
+
+    [red] => Array
+        (
+            [words_used] => 12121
+            [valid_length] => 29018
+        )
+
+    [up] => Array
+        (
+            [words_used] => 12085
+            [valid_length] => 20277
+        )
+
+    [cool] => Array
+        (
+            [words_used] => 12076
+            [valid_length] => 4643
+        )
+
+    [shoulder] => Array
+        (
+            [words_used] => 11996
+            [valid_length] => 3135
+        )
+
+    [weave] => Array
+        (
+            [words_used] => 11461
+            [valid_length] => 3456
+        )
+
+    [simple] => Array
+        (
+            [words_used] => 11311
+            [valid_length] => 6013
+        )
+
+    [girl] => Array
+        (
+            [words_used] => 10813
+            [valid_length] => 14306
+        )
+
+    [ombre] => Array
+        (
+            [words_used] => 10749
+            [valid_length] => 6433
+        )
+
+    [collection] => Array
+        (
+            [words_used] => 10625
+            [valid_length] => 797
+        )
+
+    [popular] => Array
+        (
+            [words_used] => 10431
+            [valid_length] => 2259
+        )
+
+    [how] => Array
+        (
+            [words_used] => 10355
+            [valid_length] => 2891
+        )
+
+    [cuts] => Array
+        (
+            [words_used] => 9931
+            [valid_length] => 44694
+        )
+
+    [bun] => Array
+        (
+            [words_used] => 9780
+            [valid_length] => 6372
+        )
+
+    [trends] => Array
+        (
+            [words_used] => 9296
+            [valid_length] => 2673
+        )
+
+    [asian] => Array
+        (
+            [words_used] => 8902
+            [valid_length] => 3297
+        )
+
+    [down] => Array
+        (
+            [words_used] => 8579
+            [valid_length] => 2722
+        )
+
+    [messy] => Array
+        (
+            [words_used] => 8421
+            [valid_length] => 5249
+        )
+
+    [little] => Array
+        (
+            [words_used] => 8148
+            [valid_length] => 3085
+        )
+
+    [beautiful] => Array
+        (
+            [words_used] => 8004
+            [valid_length] => 2674
+        )
+
+    [celebrity] => Array
+        (
+            [words_used] => 7747
+            [valid_length] => 4589
+        )
+
+    [mohawk] => Array
+        (
+            [words_used] => 7522
+            [valid_length] => 2410
+        )
+
+    [boys] => Array
+        (
+            [words_used] => 7130
+            [valid_length] => 2615
+        )
+
+    [choppy] => Array
+        (
+            [words_used] => 6675
+            [valid_length] => 2300
+        )
+
+    [bridal] => Array
+        (
+            [words_used] => 6416
+            [valid_length] => 2192
+        )
+
+    [most] => Array
+        (
+            [words_used] => 6383
+            [valid_length] => 593
+        )
+
+    [quick] => Array
+        (
+            [words_used] => 6350
+            [valid_length] => 1479
+        )
+
+    [afro] => Array
+        (
+            [words_used] => 6287
+            [valid_length] => 1436
+        )
+
+    [curls] => Array
+        (
+            [words_used] => 6270
+            [valid_length] => 3127
+        )
+
+    [fashion] => Array
+        (
+            [words_used] => 6113
+            [valid_length] => 1555
+        )
+
+    [oval] => Array
+        (
+            [words_used] => 5955
+            [valid_length] => 2141
+        )
+
+    [older] => Array
+        (
+            [words_used] => 5939
+            [valid_length] => 2479
+        )
+
+    [guys] => Array
+        (
+            [words_used] => 5883
+            [valid_length] => 2464
+        )
+
+    [school] => Array
+        (
+            [words_used] => 5864
+            [valid_length] => 1590
+        )
+
+    [stylish] => Array
+        (
+            [words_used] => 5742
+            [valid_length] => 2095
+        )
+
+    [pretty] => Array
+        (
+            [words_used] => 5682
+            [valid_length] => 1729
+        )
+
+    [light] => Array
+        (
+            [words_used] => 5419
+            [valid_length] => 7716
+        )
+
+    [look] => Array
+        (
+            [words_used] => 5275
+            [valid_length] => 2057
+        )
+
+    [mid] => Array
+        (
+            [words_used] => 5157
+            [valid_length] => 3161
+        )
+
+    [summer] => Array
+        (
+            [words_used] => 5146
+            [valid_length] => 2923
+        )
+
+    [colors] => Array
+        (
+            [words_used] => 5098
+            [valid_length] => 1846
+        )
+
+    [kids] => Array
+        (
+            [words_used] => 5081
+            [valid_length] => 1970
+        )
+
+    [regarding] => Array
+        (
+            [words_used] => 4906
+            [valid_length] => 117
+        )
+
+    [fave] => Array
+        (
+            [words_used] => 4879
+            [valid_length] => 24
+        )
+
+    [sides] => Array
+        (
+            [words_used] => 4854
+            [valid_length] => 813
+        )
+
+    [man] => Array
+        (
+            [words_used] => 4796
+            [valid_length] => 4015
+        )
+
+    [swept] => Array
+        (
+            [words_used] => 4768
+            [valid_length] => 2319
+        )
+
+    [elegant] => Array
+        (
+            [words_used] => 4712
+            [valid_length] => 1351
+        )
+
+    [intended] => Array
+        (
+            [words_used] => 4691
+            [valid_length] => 86
+        )
+
+    [weddings] => Array
+        (
+            [words_used] => 4687
+            [valid_length] => 1169
+        )
+
+    [step] => Array
+        (
+            [words_used] => 4681
+            [valid_length] => 753
+        )
+
+    [regard] => Array
+        (
+            [words_used] => 4504
+            [valid_length] => 162
+        )
+
+    [modern] => Array
+        (
+            [words_used] => 4496
+            [valid_length] => 1869
+        )
+
+    [all] => Array
+        (
+            [words_used] => 4417
+            [valid_length] => 8691
+        )
+
+    [woman] => Array
+        (
+            [words_used] => 4355
+            [valid_length] => 1053
+        )
+
+    [front] => Array
+        (
+            [words_used] => 4340
+            [valid_length] => 2247
+        )
+
+    [do] => Array
+        (
+            [words_used] => 4297
+            [valid_length] => 22013
+        )
+
+    [korean] => Array
+        (
+            [words_used] => 4281
+            [valid_length] => 1373
+        )
+
+    [caramel] => Array
+        (
+            [words_used] => 4239
+            [valid_length] => 857
+        )
+
+    [pertaining] => Array
+        (
+            [words_used] => 4229
+            [valid_length] => 68
+        )
+
+    [different] => Array
+        (
+            [words_used] => 4197
+            [valid_length] => 1123
+        )
+
+    [you] => Array
+        (
+            [words_used] => 4169
+            [valid_length] => 4625
+        )
+
+    [awesome] => Array
+        (
+            [words_used] => 4161
+            [valid_length] => 839
+        )
+
+    [twist] => Array
+        (
+            [words_used] => 4044
+            [valid_length] => 2574
+        )
+
+    [bobs] => Array
+        (
+            [words_used] => 4031
+            [valid_length] => 1766
+        )
+
+    [is] => Array
+        (
+            [words_used] => 4021
+            [valid_length] => 13202
+        )
+
+    [boy] => Array
+        (
+            [words_used] => 4015
+            [valid_length] => 4527
+        )
+
+    [fringe] => Array
+        (
+            [words_used] => 4010
+            [valid_length] => 1599
+        )
+
+    [good] => Array
+        (
+            [words_used] => 3994
+            [valid_length] => 1431
+        )
+
+    [undercut] => Array
+        (
+            [words_used] => 3985
+            [valid_length] => 1344
+        )
+
+    [shaved] => Array
+        (
+            [words_used] => 3957
+            [valid_length] => 1287
+        )
+
+    [indian] => Array
+        (
+            [words_used] => 3883
+            [valid_length] => 674
+        )
+
+    [tumblr] => Array
+        (
+            [words_used] => 3870
+            [valid_length] => 1593
+        )
+
+    [low] => Array
+        (
+            [words_used] => 3840
+            [valid_length] => 3548
+        )
+
+    [ladies] => Array
+        (
+            [words_used] => 3788
+            [valid_length] => 1660
+        )
+
+    [casual] => Array
+        (
+            [words_used] => 3745
+            [valid_length] => 2055
+        )
+
+    [french] => Array
+        (
+            [words_used] => 3724
+            [valid_length] => 1493
+        )
+
+    [amazing] => Array
+        (
+            [words_used] => 3700
+            [valid_length] => 837
+        )
+
+    [this] => Array
+        (
+            [words_used] => 3633
+            [valid_length] => 528
+        )
+
+    [part] => Array
+        (
+            [words_used] => 3468
+            [valid_length] => 4169
+        )
+
+    [beauty] => Array
+        (
+            [words_used] => 3453
+            [valid_length] => 512
+        )
+
+    [stacked] => Array
+        (
+            [words_used] => 3414
+            [valid_length] => 1855
+        )
+
+    [emo] => Array
+        (
+            [words_used] => 3402
+            [valid_length] => 1524
+        )
+
+    [male] => Array
+        (
+            [words_used] => 3377
+            [valid_length] => 2589
+        )
+
+    [shaggy] => Array
+        (
+            [words_used] => 3352
+            [valid_length] => 1807
+        )
+
+    [deva] => Array
+        (
+            [words_used] => 3219
+            [valid_length] => 448
+        )
+
+    [bridesmaid] => Array
+        (
+            [words_used] => 3205
+            [valid_length] => 1067
+        )
+
+    [inverted] => Array
+        (
+            [words_used] => 3165
+            [valid_length] => 1998
+        )
+
+    [my] => Array
+        (
+            [words_used] => 3161
+            [valid_length] => 911
+        )
+
+    [archives] => Array
+        (
+            [words_used] => 3152
+            [valid_length] => 107
+        )
+
+    [nice] => Array
+        (
+            [words_used] => 3133
+            [valid_length] => 1466
+        )
+
+    [teenage] => Array
+        (
+            [words_used] => 3116
+            [valid_length] => 1170
+        )
+
+    [angled] => Array
+        (
+            [words_used] => 3100
+            [valid_length] => 1501
+        )
+
+    [s] => Array
+        (
+            [words_used] => 3083
+            [valid_length] => 358852
+        )
+
+    [from] => Array
+        (
+            [words_used] => 3047
+            [valid_length] => 1149
+        )
+
+    [high] => Array
+        (
+            [words_used] => 3020
+            [valid_length] => 7497
+        )
+
+    [tips] => Array
+        (
+            [words_used] => 2979
+            [valid_length] => 712
+        )
+
+    [loose] => Array
+        (
+            [words_used] => 2922
+            [valid_length] => 1461
+        )
+
+    [braiding] => Array
+        (
+            [words_used] => 2912
+            [valid_length] => 618
+        )
+
+    [vintage] => Array
+        (
+            [words_used] => 2891
+            [valid_length] => 1357
+        )
+
+    [cornrow] => Array
+        (
+            [words_used] => 2878
+            [valid_length] => 833
+        )
+
+    [classic] => Array
+        (
+            [words_used] => 2870
+            [valid_length] => 1451
+        )
+
+    [brunette] => Array
+        (
+            [words_used] => 2862
+            [valid_length] => 1917
+        )
+
+    [gorgeous] => Array
+        (
+            [words_used] => 2827
+            [valid_length] => 919
+        )
+
+    [party] => Array
+        (
+            [words_used] => 2774
+            [valid_length] => 1364
+        )
+
+    [chic] => Array
+        (
+            [words_used] => 2742
+            [valid_length] => 1505
+        )
+
+    [asymmetrical] => Array
+        (
+            [words_used] => 2711
+            [valid_length] => 1682
+        )
+
+    [lowlights] => Array
+        (
+            [words_used] => 2679
+            [valid_length] => 513
+        )
+
+    [great] => Array
+        (
+            [words_used] => 2669
+            [valid_length] => 689
+        )
+
+    [super] => Array
+        (
+            [words_used] => 2643
+            [valid_length] => 1358
+        )
+
+    [that] => Array
+        (
+            [words_used] => 2616
+            [valid_length] => 316
+        )
+
+    [box] => Array
+        (
+            [words_used] => 2600
+            [valid_length] => 586
+        )
+
+    [naturally] => Array
+        (
+            [words_used] => 2594
+            [valid_length] => 952
+        )
+
+    [at] => Array
+        (
+            [words_used] => 2547
+            [valid_length] => 26531
+        )
+
+    [shag] => Array
+        (
+            [words_used] => 2519
+            [valid_length] => 3102
+        )
+
+    [taper] => Array
+        (
+            [words_used] => 2511
+            [valid_length] => 810
+        )
+
+    [sew] => Array
+        (
+            [words_used] => 2490
+            [valid_length] => 484
+        )
+
+    [blue] => Array
+        (
+            [words_used] => 2479
+            [valid_length] => 1394
+        )
+
+    [perfect] => Array
+        (
+            [words_used] => 2441
+            [valid_length] => 551
+        )
+
+    [rihanna] => Array
+        (
+            [words_used] => 2439
+            [valid_length] => 1648
+        )
+
+    [spiky] => Array
+        (
+            [words_used] => 2435
+            [valid_length] => 1191
+        )
+
+    [funky] => Array
+        (
+            [words_used] => 2373
+            [valid_length] => 1090
+        )
+
+    [] => Array
+        (
+            [words_used] => 2370
+            [valid_length] => 392286
+        )
+
+    [who] => Array
+        (
+            [words_used] => 2362
+            [valid_length] => 268
+        )
+
+    [sexy] => Array
+        (
+            [words_used] => 2349
+            [valid_length] => 1290
+        )
+
+    [fall] => Array
+        (
+            [words_used] => 2286
+            [valid_length] => 1709
+        )
+
+    [trend] => Array
+        (
+            [words_used] => 2267
+            [valid_length] => 9208
+        )
+
+    [colour] => Array
+        (
+            [words_used] => 2218
+            [valid_length] => 672
+        )
+
+    [jennifer] => Array
+        (
+            [words_used] => 2195
+            [valid_length] => 1449
+        )
+
+    [try] => Array
+        (
+            [words_used] => 2194
+            [valid_length] => 571
+        )
+
+    [waves] => Array
+        (
+            [words_used] => 2190
+            [valid_length] => 1407
+        )
+
+    [purple] => Array
+        (
+            [words_used] => 2141
+            [valid_length] => 1294
+        )
+
+    [hollywood] => Array
+        (
+            [words_used] => 2140
+            [valid_length] => 211
+        )
+
+    [make] => Array
+        (
+            [words_used] => 2124
+            [valid_length] => 948
+        )
+
+    [types] => Array
+        (
+            [words_used] => 2110
+            [valid_length] => 382
+        )
+
+    [as] => Array
+        (
+            [words_used] => 2109
+            [valid_length] => 36868
+        )
+
+    [anyone] => Array
+        (
+            [words_used] => 2108
+            [valid_length] => 214
+        )
+
+    [bride] => Array
+        (
+            [words_used] => 2105
+            [valid_length] => 2020
+        )
+
+    [young] => Array
+        (
+            [words_used] => 2087
+            [valid_length] => 781
+        )
+
+    [old] => Array
+        (
+            [words_used] => 2056
+            [valid_length] => 4197
+        )
+
+    [inside] => Array
+        (
+            [words_used] => 2048
+            [valid_length] => 73
+        )
+
+    [galleries] => Array
+        (
+            [words_used] => 2045
+            [valid_length] => 51
+        )
+
+    [throughout] => Array
+        (
+            [words_used] => 2042
+            [valid_length] => 46
+        )
+
+    [blunt] => Array
+        (
+            [words_used] => 2010
+            [valid_length] => 1566
+        )
+
+    [diy] => Array
+        (
+            [words_used] => 1986
+            [valid_length] => 741
+        )
+
+    [lovely] => Array
+        (
+            [words_used] => 1932
+            [valid_length] => 860
+        )
+
+    [year] => Array
+        (
+            [words_used] => 1926
+            [valid_length] => 929
+        )
+
+    [cornrows] => Array
+        (
+            [words_used] => 1919
+            [valid_length] => 341
+        )
+
+    [by] => Array
+        (
+            [words_used] => 1905
+            [valid_length] => 2010
+        )
+
+    [extensions] => Array
+        (
+            [words_used] => 1890
+            [valid_length] => 752
+        )
+
+    [page] => Array
+        (
+            [words_used] => 1889
+            [valid_length] => 634
+        )
+
+    [stunning] => Array
+        (
+            [words_used] => 1855
+            [valid_length] => 433
+        )
+
+    [dye] => Array
+        (
+            [words_used] => 1852
+            [valid_length] => 1120
+        )
+
+    [square] => Array
+        (
+            [words_used] => 1849
+            [valid_length] => 770
+        )
+
+    [micro] => Array
+        (
+            [words_used] => 1832
+            [valid_length] => 233
+        )
+
+    [bang] => Array
+        (
+            [words_used] => 1803
+            [valid_length] => 23781
+        )
+
+    [head] => Array
+        (
+            [words_used] => 1802
+            [valid_length] => 1726
+        )
+
+    [shape] => Array
+        (
+            [words_used] => 1789
+            [valid_length] => 1445
+        )
+
+    [fishtail] => Array
+        (
+            [words_used] => 1784
+            [valid_length] => 1128
+        )
+
+    [edgy] => Array
+        (
+            [words_used] => 1771
+            [valid_length] => 941
+        )
+
+    [skin] => Array
+        (
+            [words_used] => 1748
+            [valid_length] => 595
+        )
+
+    [scene] => Array
+        (
+            [words_used] => 1745
+            [valid_length] => 755
+        )
+
+    [line] => Array
+        (
+            [words_used] => 1735
+            [valid_length] => 1308
+        )
+
+    [right] => Array
+        (
+            [words_used] => 1686
+            [valid_length] => 552
+        )
+
+    [pin] => Array
+        (
+            [words_used] => 1679
+            [valid_length] => 4195
+        )
+
+    [shaped] => Array
+        (
+            [words_used] => 1671
+            [valid_length] => 750
+        )
+
+    [ngerimbat] => Array
+        (
+            [words_used] => 1668
+            [valid_length] => 258
+        )
+
+    [urban] => Array
+        (
+            [words_used] => 1668
+            [valid_length] => 203
+        )
+
+    [japanese] => Array
+        (
+            [words_used] => 1667
+            [valid_length] => 802
+        )
+
+    [hottest] => Array
+        (
+            [words_used] => 1666
+            [valid_length] => 354
+        )
+
+    [beckham] => Array
+        (
+            [words_used] => 1663
+            [valid_length] => 1028
+        )
+
+    [i] => Array
+        (
+            [words_used] => 1661
+            [valid_length] => 385772
+        )
+
+    [veil] => Array
+        (
+            [words_used] => 1659
+            [valid_length] => 589
+        )
+
+    [bridesmaids] => Array
+        (
+            [words_used] => 1651
+            [valid_length] => 408
+        )
+
+    [chocolate] => Array
+        (
+            [words_used] => 1640
+            [valid_length] => 363
+        )
+
+    [co] => Array
+        (
+            [words_used] => 1637
+            [valid_length] => 25031
+        )
+
+    [wants] => Array
+        (
+            [words_used] => 1635
+            [valid_length] => 185
+        )
+
+    [one] => Array
+        (
+            [words_used] => 1634
+            [valid_length] => 2681
+        )
+
+    [brides] => Array
+        (
+            [words_used] => 1632
+            [valid_length] => 1470
+        )
+
+    [weekly] => Array
+        (
+            [words_used] => 1629
+            [valid_length] => 97
+        )
+
+    [romantic] => Array
+        (
+            [words_used] => 1628
+            [valid_length] => 681
+        )
+
+    [pompadour] => Array
+        (
+            [words_used] => 1625
+            [valid_length] => 767
+        )
+
+    [hot] => Array
+        (
+            [words_used] => 1619
+            [valid_length] => 5360
+        )
+
+    [unique] => Array
+        (
+            [words_used] => 1578
+            [valid_length] => 417
+        )
+
+    [jessica] => Array
+        (
+            [words_used] => 1577
+            [valid_length] => 1117
+        )
+
+    [female] => Array
+        (
+            [words_used] => 1574
+            [valid_length] => 997
+        )
+
+    [fades] => Array
+        (
+            [words_used] => 1567
+            [valid_length] => 136
+        )
+
+    [does] => Array
+        (
+            [words_used] => 1567
+            [valid_length] => 71
+        )
+
+    [fat] => Array
+        (
+            [words_used] => 1555
+            [valid_length] => 586
+        )
+
+    [beard] => Array
+        (
+            [words_used] => 1547
+            [valid_length] => 502
+        )
+
+    [sleek] => Array
+        (
+            [words_used] => 1530
+            [valid_length] => 1186
+        )
+
+    [out] => Array
+        (
+            [words_used] => 1530
+            [valid_length] => 3398
+        )
+
+    [celebrities] => Array
+        (
+            [words_used] => 1521
+            [valid_length] => 672
+        )
+
+    [balayage] => Array
+        (
+            [words_used] => 1510
+            [valid_length] => 643
+        )
+
+    [she] => Array
+        (
+            [words_used] => 1510
+            [valid_length] => 402
+        )
+
+    [cms] => Array
+        (
+            [words_used] => 1508
+            [valid_length] => 375
+        )
+
+    [trending] => Array
+        (
+            [words_used] => 1506
+            [valid_length] => 248
+        )
+
+    [makeup] => Array
+        (
+            [words_used] => 1499
+            [valid_length] => 424
+        )
+
+    [really] => Array
+        (
+            [words_used] => 1493
+            [valid_length] => 404
+        )
+
+    [dodies] => Array
+        (
+            [words_used] => 1487
+            [valid_length] => 629
+        )
+
+    [winter] => Array
+        (
+            [words_used] => 1479
+            [valid_length] => 912
+        )
+
+    [ash] => Array
+        (
+            [words_used] => 1478
+            [valid_length] => 3533
+        )
+
+    [pink] => Array
+        (
+            [words_used] => 1471
+            [valid_length] => 1214
+        )
+
+    [classy] => Array
+        (
+            [words_used] => 1468
+            [valid_length] => 812
+        )
+
+    [blog] => Array
+        (
+            [words_used] => 1464
+            [valid_length] => 352
+        )
+
+    [spring] => Array
+        (
+            [words_used] => 1462
+            [valid_length] => 766
+        )
+
+    [retro] => Array
+        (
+            [words_used] => 1455
+            [valid_length] => 896
+        )
+
+    [ponytails] => Array
+        (
+            [words_used] => 1439
+            [valid_length] => 462
+        )
+
+    [big] => Array
+        (
+            [words_used] => 1434
+            [valid_length] => 583
+        )
+
+    [guide] => Array
+        (
+            [words_used] => 1433
+            [valid_length] => 133
+        )
+
+    [decor] => Array
+        (
+            [words_used] => 1424
+            [valid_length] => 53
+        )
+
+    [hd] => Array
+        (
+            [words_used] => 1414
+            [valid_length] => 183
+        )
+
+    [get] => Array
+        (
+            [words_used] => 1409
+            [valid_length] => 517
+        )
+
+    [beach] => Array
+        (
+            [words_used] => 1406
+            [valid_length] => 912
+        )
+
+    [parted] => Array
+        (
+            [words_used] => 1393
+            [valid_length] => 1065
+        )
+
+    [world] => Array
+        (
+            [words_used] => 1386
+            [valid_length] => 179
+        )
+
+    [incredible] => Array
+        (
+            [words_used] => 1383
+            [valid_length] => 40
+        )
+
+    [people] => Array
+        (
+            [words_used] => 1372
+            [valid_length] => 511
+        )
+
+    [waterfall] => Array
+        (
+            [words_used] => 1368
+            [valid_length] => 608
+        )
+
+    [dreadlocks] => Array
+        (
+            [words_used] => 1367
+            [valid_length] => 374
+        )
+
+    [platinum] => Array
+        (
+            [words_used] => 1361
+            [valid_length] => 685
+        )
+
+    [will] => Array
+        (
+            [words_used] => 1353
+            [valid_length] => 507
+        )
+
+    [buns] => Array
+        (
+            [words_used] => 1351
+            [valid_length] => 564
+        )
+
+    [looking] => Array
+        (
+            [words_used] => 1349
+            [valid_length] => 457
+        )
+
+    [highlight] => Array
+        (
+            [words_used] => 1342
+            [valid_length] => 6227
+        )
+
+    [underneath] => Array
+        (
+            [words_used] => 1342
+            [valid_length] => 182
+        )
+
+    [punk] => Array
+        (
+            [words_used] => 1327
+            [valid_length] => 833
+        )
+
+    [magazine] => Array
+        (
+            [words_used] => 1325
+            [valid_length] => 221
+        )
+
+    [temp] => Array
+        (
+            [words_used] => 1322
+            [valid_length] => 195
+        )
+
+    [auburn] => Array
+        (
+            [words_used] => 1314
+            [valid_length] => 604
+        )
+
+    [magment] => Array
+        (
+            [words_used] => 1299
+            [valid_length] => 80
+        )
+
+    [home] => Array
+        (
+            [words_used] => 1296
+            [valid_length] => 933
+        )
+
+    [fancy] => Array
+        (
+            [words_used] => 1294
+            [valid_length] => 339
+        )
+
+    [selena] => Array
+        (
+            [words_used] => 1288
+            [valid_length] => 778
+        )
+
+    [graduated] => Array
+        (
+            [words_used] => 1283
+            [valid_length] => 881
+        )
+
+    [center] => Array
+        (
+            [words_used] => 1281
+            [valid_length] => 735
+        )
+
+    [event] => Array
+        (
+            [words_used] => 1269
+            [valid_length] => 669
+        )
+
+    [blond] => Array
+        (
+            [words_used] => 1259
+            [valid_length] => 17416
+        )
+
+    [guy] => Array
+        (
+            [words_used] => 1259
+            [valid_length] => 3153
+        )
+
+    [no] => Array
+        (
+            [words_used] => 1258
+            [valid_length] => 3120
+        )
+
+    [gomez] => Array
+        (
+            [words_used] => 1252
+            [valid_length] => 775
+        )
+
+    [textured] => Array
+        (
+            [words_used] => 1244
+            [valid_length] => 738
+        )
+
+    [ways] => Array
+        (
+            [words_used] => 1234
+            [valid_length] => 539
+        )
+
+    [full] => Array
+        (
+            [words_used] => 1232
+            [valid_length] => 473
+        )
+
+    [coloring] => Array
+        (
+            [words_used] => 1226
+            [valid_length] => 168
+        )
+
+    [styling] => Array
+        (
+            [words_used] => 1226
+            [valid_length] => 348
+        )
+
+    [love] => Array
+        (
+            [words_used] => 1225
+            [valid_length] => 1075
+        )
+
+    [sassy] => Array
+        (
+            [words_used] => 1210
+            [valid_length] => 666
+        )
+
+    [faux] => Array
+        (
+            [words_used] => 1209
+            [valid_length] => 623
+        )
+
+    [twisted] => Array
+        (
+            [words_used] => 1207
+            [valid_length] => 827
+        )
+
+    [colored] => Array
+        (
+            [words_used] => 1188
+            [valid_length] => 833
+        )
+
+    [thinning] => Array
+        (
+            [words_used] => 1176
+            [valid_length] => 205
+        )
+
+    [well] => Array
+        (
+            [words_used] => 1175
+            [valid_length] => 253
+        )
+
+    [fabulous] => Array
+        (
+            [words_used] => 1167
+            [valid_length] => 353
+        )
+
+    [white] => Array
+        (
+            [words_used] => 1164
+            [valid_length] => 650
+        )
+
+    [miley] => Array
+        (
+            [words_used] => 1158
+            [valid_length] => 719
+        )
+
+    [looks] => Array
+        (
+            [words_used] => 1155
+            [valid_length] => 437
+        )
+
+    [golden] => Array
+        (
+            [words_used] => 1136
+            [valid_length] => 466
+        )
+
+    [glasses] => Array
+        (
+            [words_used] => 1134
+            [valid_length] => 469
+        )
+
+    [homecoming] => Array
+        (
+            [words_used] => 1131
+            [valid_length] => 397
+        )
+
+    [heart] => Array
+        (
+            [words_used] => 1120
+            [valid_length] => 418
+        )
+
+    [cyrus] => Array
+        (
+            [words_used] => 1118
+            [valid_length] => 698
+        )
+
+    [list] => Array
+        (
+            [words_used] => 1115
+            [valid_length] => 1072
+        )
+
+    [grey] => Array
+        (
+            [words_used] => 1114
+            [valid_length] => 802
+        )
+
+    [chin] => Array
+        (
+            [words_used] => 1112
+            [valid_length] => 1091
+        )
+
+    [curl] => Array
+        (
+            [words_used] => 1105
+            [valid_length] => 38872
+        )
+
+    [razor] => Array
+        (
+            [words_used] => 1102
+            [valid_length] => 560
+        )
+
+    [brilliant] => Array
+        (
+            [words_used] => 1099
+            [valid_length] => 25
+        )
+
+    [burgundy] => Array
+        (
+            [words_used] => 1093
+            [valid_length] => 469
+        )
+
+    [day] => Array
+        (
+            [words_used] => 1093
+            [valid_length] => 1185
+        )
+
+    [or] => Array
+        (
+            [words_used] => 1089
+            [valid_length] => 212533
+        )
+
+    [twists] => Array
+        (
+            [words_used] => 1085
+            [valid_length] => 317
+        )
+
+    [it] => Array
+        (
+            [words_used] => 1077
+            [valid_length] => 54382
+        )
+
+    [highlighted] => Array
+        (
+            [words_used] => 1077
+            [valid_length] => 632
+        )
+
+    [guest] => Array
+        (
+            [words_used] => 1075
+            [valid_length] => 278
+        )
+
+    [teen] => Array
+        (
+            [words_used] => 1066
+            [valid_length] => 1812
+        )
+
+    [weaves] => Array
+        (
+            [words_used] => 1061
+            [valid_length] => 282
+        )
+
+    [fresh] => Array
+        (
+            [words_used] => 1057
+            [valid_length] => 281
+        )
+
+    [longer] => Array
+        (
+            [words_used] => 1054
+            [valid_length] => 498
+        )
+
+    [are] => Array
+        (
+            [words_used] => 1048
+            [valid_length] => 1665
+        )
+
+    [perm] => Array
+        (
+            [words_used] => 1047
+            [valid_length] => 502
+        )
+
+    [charming] => Array
+        (
+            [words_used] => 1044
+            [valid_length] => 517
+        )
+
+    [perms] => Array
+        (
+            [words_used] => 1031
+            [valid_length] => 102
+        )
+
+    [taylor] => Array
+        (
+            [words_used] => 1029
+            [valid_length] => 789
+        )
+
+    [libs] => Array
+        (
+            [words_used] => 1018
+            [valid_length] => 183
+        )
+
+    [mohawks] => Array
+        (
+            [words_used] => 1012
+            [valid_length] => 118
+        )
+
+    [mother] => Array
+        (
+            [words_used] => 1003
+            [valid_length] => 140
+        )
+
+    [kardashian] => Array
+        (
+            [words_used] => 1001
+            [valid_length] => 604
+        )
+
+    [some] => Array
+        (
+            [words_used] => 1000
+            [valid_length] => 1075
+        )
+
+    [v] => Array
+        (
+            [words_used] => 986
+            [valid_length] => 52745
+        )
+
+    [alba] => Array
+        (
+            [words_used] => 982
+            [valid_length] => 658
+        )
+
+    [protective] => Array
+        (
+            [words_used] => 981
+            [valid_length] => 191
+        )
+
+    [emma] => Array
+        (
+            [words_used] => 974
+            [valid_length] => 797
+        )
+
+    [bald] => Array
+        (
+            [words_used] => 968
+            [valid_length] => 350
+        )
+
+    [appearance] => Array
+        (
+            [words_used] => 967
+            [valid_length] => 216
+        )
+
+    [gray] => Array
+        (
+            [words_used] => 960
+            [valid_length] => 619
+        )
+
+    [receding] => Array
+        (
+            [words_used] => 954
+            [valid_length] => 96
+        )
+
+    [using] => Array
+        (
+            [words_used] => 952
+            [valid_length] => 138
+        )
+
+    [now] => Array
+        (
+            [words_used] => 942
+            [valid_length] => 352
+        )
+
+    [quiff] => Array
+        (
+            [words_used] => 942
+            [valid_length] => 333
+        )
+
+    [eyes] => Array
+        (
+            [words_used] => 942
+            [valid_length] => 299
+        )
+
+    [library] => Array
+        (
+            [words_used] => 937
+            [valid_length] => 26
+        )
+
+    [names] => Array
+        (
+            [words_used] => 935
+            [valid_length] => 345
+        )
+
+    [be] => Array
+        (
+            [words_used] => 935
+            [valid_length] => 24122
+        )
+
+    [encourage] => Array
+        (
+            [words_used] => 932
+            [valid_length] => 15
+        )
+
+    [honey] => Array
+        (
+            [words_used] => 929
+            [valid_length] => 313
+        )
+
+    [magz] => Array
+        (
+            [words_used] => 906
+            [valid_length] => 16
+        )
+
+    [kim] => Array
+        (
+            [words_used] => 899
+            [valid_length] => 668
+        )
+
+    [attractive] => Array
+        (
+            [words_used] => 899
+            [valid_length] => 329
+        )
+
+    [tag] => Array
+        (
+            [words_used] => 899
+            [valid_length] => 1481
+        )
+
+    [feathered] => Array
+        (
+            [words_used] => 899
+            [valid_length] => 288
+        )
+
+    [me] => Array
+        (
+            [words_used] => 896
+            [valid_length] => 128065
+        )
+
+    [flower] => Array
+        (
+            [words_used] => 893
+            [valid_length] => 844
+        )
+
+    [hawk] => Array
+        (
+            [words_used] => 888
+            [valid_length] => 2927
+        )
+
+    [teens] => Array
+        (
+            [words_used] => 874
+            [valid_length] => 283
+        )
+
+    [reference] => Array
+        (
+            [words_used] => 868
+            [valid_length] => 26
+        )
+
+    [slicked] => Array
+        (
+            [words_used] => 864
+            [valid_length] => 494
+        )
+
+    [can] => Array
+        (
+            [words_used] => 862
+            [valid_length] => 6155
+        )
+
+    [flat] => Array
+        (
+            [words_used] => 862
+            [valid_length] => 495
+        )
+
+    [glamorous] => Array
+        (
+            [words_used] => 859
+            [valid_length] => 419
+        )
+
+    [tapered] => Array
+        (
+            [words_used] => 855
+            [valid_length] => 333
+        )
+
+    [frizzy] => Array
+        (
+            [words_used] => 838
+            [valid_length] => 314
+        )
+
+    [free] => Array
+        (
+            [words_used] => 837
+            [valid_length] => 234
+        )
+
+    [work] => Array
+        (
+            [words_used] => 834
+            [valid_length] => 340
+        )
+
+    [two] => Array
+        (
+            [words_used] => 833
+            [valid_length] => 520
+        )
+
+    [david] => Array
+        (
+            [words_used] => 822
+            [valid_length] => 510
+        )
+
+    [females] => Array
+        (
+            [words_used] => 821
+            [valid_length] => 243
+        )
+
+    [choose] => Array
+        (
+            [words_used] => 820
+            [valid_length] => 44
+        )
+
+    [swift] => Array
+        (
+            [words_used] => 819
+            [valid_length] => 652
+        )
+
+    [rock] => Array
+        (
+            [words_used] => 814
+            [valid_length] => 542
+        )
+
+    [dreads] => Array
+        (
+            [words_used] => 813
+            [valid_length] => 156
+        )
+
+    [human] => Array
+        (
+            [words_used] => 813
+            [valid_length] => 148
+        )
+
+    [gurl] => Array
+        (
+            [words_used] => 807
+            [valid_length] => 1
+        )
+
+    [curled] => Array
+        (
+            [words_used] => 805
+            [valid_length] => 337
+        )
+
+    [bella] => Array
+        (
+            [words_used] => 805
+            [valid_length] => 172
+        )
+
+    [glamour] => Array
+        (
+            [words_used] => 804
+            [valid_length] => 110
+        )
+
+    [care] => Array
+        (
+            [words_used] => 804
+            [valid_length] => 403
+        )
+
+    [comb] => Array
+        (
+            [words_used] => 803
+            [valid_length] => 606
+        )
+
+    [middle] => Array
+        (
+            [words_used] => 802
+            [valid_length] => 541
+        )
+
+    [kinky] => Array
+        (
+            [words_used] => 799
+            [valid_length] => 264
+        )
+
+    [have] => Array
+        (
+            [words_used] => 797
+            [valid_length] => 1621
+        )
+
+    [hipster] => Array
+        (
+            [words_used] => 786
+            [valid_length] => 392
+        )
+
+    [fashionable] => Array
+        (
+            [words_used] => 781
+            [valid_length] => 321
+        )
+
+    [wigs] => Array
+        (
+            [words_used] => 775
+            [valid_length] => 210
+        )
+
+    [what] => Array
+        (
+            [words_used] => 775
+            [valid_length] => 234
+        )
+
+    [tiara] => Array
+        (
+            [words_used] => 772
+            [valid_length] => 242
+        )
+
+    [salon] => Array
+        (
+            [words_used] => 768
+            [valid_length] => 240
+        )
+
+)
