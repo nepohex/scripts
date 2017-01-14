@@ -25,7 +25,9 @@ Allow From All
 
 //error_reporting(0);
 $address = $_SERVER['REMOTE_ADDR'];
-$ref = $_SERVER['HTTP_REFERER'];
+if ($_SERVER['HTTP_REFERER']) {
+    $ref = $_SERVER['HTTP_REFERER'];
+}
 $url = urldecode($_SERVER['REQUEST_URI']);
 $limit = 20; // Максимально допустимое количество обращений к сайту с одного IP-адреса в минуту.
 $timenow = time();
