@@ -5,6 +5,8 @@
  * Date: 25.11.2016
  * Time: 0:35
  */
+#todo PostParent для картинок в базу wp_posts, иначе не работает Udinara Sitemap.
+#todo img title для картинок для Udinara Sitemap
 #todo Spinner прогон и загон шаблонов
 #todo Генерация текстов из THR
 #todo Разнести функции в отдельный инклуд

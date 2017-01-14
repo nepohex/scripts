@@ -9,6 +9,8 @@
 $start = microtime(true);
 $link = mysqli_init();
 $image_niches = 'image_trh_niches.txt';
+$image_niches_full_text = 'image_trh_niches_full_text.txt';
+$bad_symbols = array('$', '%', '^','&', '(', ')', '=', '+', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '.','"', '  '); //Заменим эти символы в имени файла на пробелы
 if (!mysqli_real_connect($link, 'localhost', 'root', '', 'hair_spin')) {
     die('Ошибка подключения (' . mysqli_connect_errno() . ') '
         . mysqli_connect_error());
@@ -68,7 +70,16 @@ function dbquery($queryarr)
 $fp = fopen('images_trh_com_clean.csv', 'r');
 while ($tmp = fgetcsv($fp, '', ';')) {
     $csv[] = $tmp;
+    $tmp2 = explode(" ", $tmp[2]);
+    foreach ($tmp2 as $word) {
+        $word = str_ireplace($bad_symbols,'',$word);
+        $words_used[trim(strtolower($word))] += 1;
+    }
 }
+arsort($words_used);
+reset($words_used);
+echo3("Посчитали слова, записали результат в файл " . $image_niches_full_text);
+file_put_contents($image_niches_full_text, print_r($words_used, true));
 
 echo_time_wasted();
 
