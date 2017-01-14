@@ -11,8 +11,17 @@
 # Скрипт служит для защиты сайта от тотального скачивания "под корень". #
 # Запись запрещающей строки в .htaccess осуществляется автоматически.   #
 # --------------------------------------------------------------------- #
-# Aleksey | https://kwork.ru/user/iweb     #
+# Взято из инета, куплено у уебка за 500р который неправильно настроил  #
+# его и пришлось править и он не работал. https://kwork.ru/user/iweb    #
 #########################################################################
+/*
+1. проверить чтобы в конце файла .htaccess было
+Order Allow,Deny
+Allow From All
+2. Создать-проверить папки, выставить 777 права для $dirfiles , /antirip/logfiles/
+3. Инклуд в index.php , код include ('antiddos_kwork.php');
+4. Проверять через 29+ запросов к сайту, должен появиться белый экран. Потом проверить через CTRL + f5, будет 403 ошибка.
+*/
 
 //error_reporting(0);
 $address = $_SERVER['REMOTE_ADDR'];
@@ -21,29 +30,31 @@ $url = urldecode($_SERVER['REQUEST_URI']);
 $limit = 20; // Максимально допустимое количество обращений к сайту с одного IP-адреса в минуту.
 $timenow = time();
 $browser = $_SERVER['HTTP_USER_AGENT'];
-$htaccess = $_SERVER['DOCUMENT_ROOT']."/.htaccess";
+$htaccess = $_SERVER['DOCUMENT_ROOT']."/.htaccess"; //Проверить чтобы в конце файла было
 $dirfiles = $_SERVER['DOCUMENT_ROOT']."/antirip/logfiles/";
 $logfiles = "$dirfiles".$address;
 $hostname = gethostbyaddr($address);
 $datetime = date("Y-m-d H:i:s");
 $ip1 = getenv("HTTP_X_FORWARDED_FOR");
 $ip2 = getenv("REMOTE_ADDR");
-$hostip1 = gethostbyaddr($ip1);
+if ($ip1 !== false) {
+    $hostip1 = gethostbyaddr($ip1);
+}
 $hostip2 = gethostbyaddr($ip2);
 if ($ip1 != $ip2) {
-    $htstring = NULL;
+    $htstring = PHP_EOL;
     if (!empty($ip1)) {
         preg_match_all('/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/', $ip1, $ip1);
         $ip1 = array_unique($ip1[0]);
         foreach ($ip1 as $v) {
-            $htstring.="Deny from ".$v."	\\\\ Заблокирован Внутренний IP	\\\\ $hostip1\r\n";
+            $htstring.="Deny from ".$v." #	\\\\ Заблокирован Внутренний IP	\\\\ $hostip1\r\n";
         }
     }
     if (!empty($ip2)) {
-        $htstring.="Deny from ".$ip2."	\\\\ Заблокирован IP Proxy	\\\\ $hostip2\r\n";
+        $htstring.="Deny from ".$ip2." #	\\\\ Заблокирован IP Proxy	\\\\ $hostip2\r\n";
     }
 } else {
-    $htstring = "Deny from ".$address."	\\\\ Заблокирован Внешний IP	\\\\ $hostname\r\n";
+    $htstring = "Deny from ".$address." #	\\\\ Заблокирован Внешний IP	\\\\ $hostname\r\n";
 }
 $excludes = array(
     "yandex.ru",
