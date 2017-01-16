@@ -9,6 +9,18 @@
 //include "mysqli_connect.php";
 $start = microtime(true);
 include("../nokogiri.php");
+include ("123_conf_debug_config.php");
+$tmp = array_merge($filter_words,$uniq_addings,$uniq_addings_nch,$autocat_exclude_words,$autocat_strict_word_exclude);
+
+$tmp = array_map('trim',$tmp);
+$tmp = array_unique($tmp);
+foreach ( $tmp as $tmp2) {
+    if ($tmp2 == $keyword ) { // Удалим из массива главный ключ сайта.
+    } else {
+        $exclude_words[] = trim($tmp2);
+    }
+}
+$exclude_words = array_unique($exclude_words);
 
 //$z = file_get_contents('../nokogiri_xml.xml');
 //Убираем ебаное гавно

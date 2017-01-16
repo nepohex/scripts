@@ -5,16 +5,22 @@
  * Date: 25.11.2016
  * Time: 0:35
  */
-ini_set('error_reporting', 0); // Нужно чтобы авторедирект работал нормально между файлами
+//ini_set('error_reporting', 0); // Нужно чтобы авторедирект работал нормально между файлами
+$debug_mode = 1; // 1 = debug , 0 = not. Регулирует вывод в Лог файл (бой), дебуг - обычный вывод.
+
 $start = microtime(true);
+include "includes/spin_tpls.php";
+include "includes/functions.php";
 
 //Обязательные к изменению функции от сайта к сайту
-$site_name = 'rockhairstyles2.us'; // Без слешей, только домен
-$keyword = "over";
+//$site_name = 'rockhairstyles2.us'; // Без слешей, только домен
+$site_name = 'highlighted-hair.com';
+$keyword = "highlight";
 $blogname = ucwords($keyword." hairstyles 2017");
 $blogdescription = $blogname.". Choose your best hairstyle to rock every day and stay trendy in new year.";
 $wp_conf_db_prefix = 'wtfowned_';
 $wpcachehome = '/home/wtfowned/web/'.$site_name.'/public_html/cache/';
+$mega_spin = 1 ; // Запуск SPIN из шаблонов дополнительной базы, если есть таблицы с текстами под разные картинки, выбираться будут по маске.
 
 // Основные функции с которыми можно "играться" и менять от сайта к сайту
 $images_per_site = 200; // Сколько картинок брать на 1 сайт (без учета их размера, еще может сильно сократиться, обычно на 20% в итоге выходит)
@@ -78,6 +84,8 @@ $db_host = 'localhost';
 $db_pwd = '';
 $wp_conf_tpl = 'wp_conf_empty.txt';
 $wp_conf_cache_tpl = 'wp-cache-conf_empty.txt';
+// База со спинами
+$db_name_spin = 'hair_spin';
 
 // Загоняем в массив чтобы создать все диры функцией
 $project_dirs = array(
@@ -105,14 +113,14 @@ $autocat_analyse = "words_used.txt"; //Сюда запишем какие сло
 
 //Переменные для уникализации
 //Это слова которые будут использоваться для добавления вначале заголовка для уникализации тех тайтлов которые не уникальны
-$filter_words = array ('hairstyles','hairstyle ',' hair ',' for ',' hairs '); // Слова которые будем заменять на регулярку при поиске, чтобы расширить семантику
+$filter_words = array ('hairstyles','hairstyle ','haircuts','haircut ',' hair ',' for ',' hairs '); // Слова которые будем заменять на регулярку при поиске, чтобы расширить семантику
 $uniq_addings = array (' 2017 ',' 2017 ',' 2017 ',' 2017 ',' 2017 ',' 2017 ',' 2017 ',' 2017 ',' 2017 ',' cute ',' cute ',' cute ',' cute ',' cute ',' cute ',' easy ',' easy ',' easy ',' easy ',' easy ',' easy ',' natural ',' natural ',' natural ',' natural ',' natural ',' natural ',' best ',' best ',' best ',' best ',' best ',' best ',' new ',' new ',' new ',' cool ',' cool ',' cool ',' cool ',' quick ',' quick ',' quick ',' latest ',' latest ',' latest ',' formal ',' formal ',' formal ',' pretty ',' popular ',' modern ',' nice ',' trendy ',' teens ',' elegant ',' trending ',' hot ',' everyday ',' really ',' really quick ',' really easy ',' really simple ',' really nice ',' really cool ',' unique ',' fast ',' classic ',' young ',' fancy ',' stylish ',' awesome ',' chic ',' romantic ',' sexiest ',' gorgeous ',' red carpet ',' celebrity red carpet ',' lazy ',' easy lazy ',' cute lazy ',' overnight ',' coolest ',' cutest ',' attractive ',' youth ');
 $uniq_addings_nch = array(' casual ' , ' everyday ' , ' super ' , ' retro ' , ' fancy ' , ' mature ' , ' stylish ' , ' public ' , ' hipster ' , ' goddess ' , ' perfect ' , ' fifties ' , ' hottest ' , ' famous ' , ' bohemian ' , ' amazing ' , ' romantic ' , ' creative ' , ' instagram ' , ' mexican ' , ' gorgeous ' , ' ebony ' , ' spanish ' , ' sixties ' , ' glamorous ' , ' feminine ' , ' ghetto ' , ' easy lazy ' , ' european ' , ' glam ' , ' recent ' , ' gypsy ' , ' universal ' , ' sixteen ' );
 //Здесь аккуратней с 2-3 буквенными словами, или придется вручную удалять категории потом, что наверное даже лучше
 $year_pattern = "/(201[0-9])/"; //Находим в заголовках год, чтобы его заменить
 $year_to_replace = 2017; // Год на который меняем
-$autocat_exclude_words = array($keyword, $year_to_replace, 'length', 'choose','when','youtube','amp','inspir','gallery','view','pic','about','your','idea', 'design', 'hair','style','women','very','with','picture','image','pinterest','woman','tumblr','from', 'side'); // Это слова которые будут исключены из автосоздания категорий. Исключение идет по маске!
-$autocat_strict_word_exclude = array('a','cut','to','in','the','on','what','of','for','at','by','is','in','and'); //Строгое исключение данных слов в качестве категории
+$autocat_exclude_words = array($keyword, $year_to_replace, 'length', 'choose','when','youtube','amp','inspir','gallery','view','pic','about','your','idea', 'design', 'hair','style','women','very','with','picture','image','pinterest','woman','tumblr','from', 'side','pictures','ideas','style'); // Это слова которые будут исключены из автосоздания категорий. Исключение идет по маске!
+$autocat_strict_word_exclude = array('a','cut','to','in','the','on','what','of','for','at','by','is','in','and','do','how','this','that','can','part','new','with','in','can','be','or','as','its','as','an','its','will','by'); //Строгое исключение данных слов в качестве категории
 
 // Синонимы названий категорий. Важно первым элементом использовать существующую категорию из WP, иначе не сработает
 $synonims[] = array ('fine','thick','thin');
@@ -127,125 +135,3 @@ $synonims[] = array ('girl', 'girls');
 $synonims[] = array ('medium', 'mid','shoulder');
 $synonims[] = array ('updo','updos');
 $synonims[] = array ('color','colors','colored');
-
-$spin_tpls = array(
-    'any' => array(
-        '{Haircut|Hairstyle} {also|still} {suitable|{perfect|wonderful|excellent|great}|{ideal|preferred}|acceptable|{okay|fine}} for {young|older|any} {women|girl|teen|teenager|lady} with {round|oval|square|heart|long} face shape.',
-    ),
-    'not end' => array(
-        '{{The choice|Your pick} of {haircut|hairstyle} can {really|actually|dramatically|effective} {transform|renew|convert|remake} your look and make you {shine|sparkle}.| The {right|correct|suitable|best|ideal|perfect|proper} haircut is {something|a little something|a thing} that {can|may|can certainly|will} {quickly|fast|instantly|immediately} and easily {change|modify|transform} {your whole|the whole|your entire|the entire} look for {the better|more suitable|the more effective}.}',
-    ),
-    'not start' => array(
-        //'You spent {just|right|equal|honestly|completely|precisely} {5-20 minutes|a few moments|a couple minutes} to {create|make} a look, but {feels|seems} like much more.',
-    ),
-    'end' => array(
-        '{Well|Properly|Clearly|Good}, {after|once} {viewing|watching|browsing} these haircuts you {should|will need to|should really|have to|need to} seriously {think about|think of} {joining|signing up for} the %post_title% club. {Sleek|Smooth} and {glossy|shiny} or shattered and slightly tousled, they {always|generally|constantly} look {fresh|new|refreshing} {and|and also|plus} {original|classic}.',
-    ),
-    'start' => array(
-        '%post_title% haircuts {no longer|no more} need {any|any specific|almost any|just about any|any kind of} introduction, {and|and also|as well as} neither do other {hairstyles|hairdos|hair|hair styles}. {That’s|That is} {because|mainly because|simply because} {they’ve|they have} {been around|been with us|been known} {long enough|for a long time|so long|for long} to have {taken|obtained|used} on {many|countless|lots of|numerous} {creative|very creative|inspiring}, {versatile|flexible} {guises|shapes}.',
-    ),
-    'tip' => array (
-        '{Avoid|Stop} {daily|regular} blow-drying or hair smoothing without first {applying|using} {the proper|the right} products. {It would be|It will be} {ideal|perfect} to {let|allow} the hair air-dry and use {heated|hot} rollers {only|just} {now|at this point|at this moment} {and then|and after that} to style the hair for {special|particular|specific} {occasions|events}.',
-    ),
-);
-
-function convert($memory_usage)
-{
-    $unit=array('b','kb','mb','gb','tb','pb');
-    return @round($memory_usage/pow(1024,($i=floor(log($memory_usage,1024)))),2).' '.$unit[$i];
-}
-
-function echo_time_wasted($i = null) {
-    global $start;
-    $time = microtime(true) - $start;
-    if ($i) {
-        echo2 ("Идем по строке ".$i." Скрипт выполняется уже ".number_format($time, 2)." сек"." Памяти выделено в пике ".convert(memory_get_peak_usage(true)) );
-    } else {
-        echo2 ("Скрипт выполняется уже ".number_format($time, 2)." сек"." Памяти выделено в пике ".convert(memory_get_peak_usage(true)) );
-    }
-
-}
-
-function print_r2($val) {
-    echo '<pre>';
-    print_r($val);
-    echo  '</pre>';
-    flush();
-}
-
-function echo2 ($str) {
-    global $fp_log;
-    fwrite($fp_log,date("d-m-Y H:i:s")." - ".$str."\n");
-}
-
-function next_script ($php_self, $fin = null) {
-    global $scripts_chain;
-    if ($fin == true) {
-        echo2 ("Достигли конца генерации сайта, пробуем перейти на новый круг! ".$php_self);
-        return header('Location: ' . array_shift($scripts_chain));
-    }
-    $i = 0;
-    $php_self = array_pop(explode('/', $php_self));
-    foreach ($scripts_chain as $script) {
-        if ($script == $php_self) {
-            return header('Location: ' . $scripts_chain[$i + 1]);
-        }
-        $i++;
-    }
-    echo2 ("Не можем найти следующего скрипта после ".$php_self);
-}
-
-function mkdir2 ($dir) {
-    echo2 ("Пробуем создать директорию ".$dir);
-    if (!is_dir($dir)) {
-        if (mkdir($dir, 0777, true)) {
-            echo2("Создали директорию " . $dir);
-        } else {
-            echo2("Директорию " . $dir . " создать не удалось и ее не существует");
-        }
-    } else {
-        echo2("Директория " . $dir . " уже существует, все ок");
-    }
-}
-
-function pwdgen( $length ) {
-
-    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    return substr(str_shuffle($chars),0,$length);
-
-}
-
-function dbquery($queryarr)
-{
-    global $link;
-    if (is_array($queryarr)) {
-        foreach ($queryarr as $query) {
-            $sqlres = mysqli_query($link, $query);
-            if ($error = mysqli_error($link)) {
-                echo2("Mysqli error $error в запросе $query");
-            }
-        }
-    } else {
-        mysqli_query($link, $queryarr);
-        if ($error = mysqli_error($link)) {
-            echo2("Mysqli error $error в запросе $queryarr");
-        }
-    }
-}
-
-function gen_wp_db_conf()
-{
-    global $site_name, $keyword, $wp_conf_db_prefix;
-    global $wp_conf_db_name, $wp_conf_db_usr, $wp_conf_db_pwd;
-    $tmp = strlen($wp_conf_db_prefix . $keyword);
-    if ($tmp < 16) {
-        $wp_conf_db_name = $wp_conf_db_prefix . $keyword . pwdgen(15 - $tmp);
-        $wp_conf_db_usr = $wp_conf_db_prefix . $keyword . pwdgen(15 - $tmp);
-    } elseif ($tmp >= 16) {
-        $wp_conf_db_name = substr($wp_conf_db_prefix . $keyword, 0, 16);
-        $wp_conf_db_usr = substr($wp_conf_db_prefix . $keyword, 0, 14) . pwdgen(2);
-    }
-    $wp_conf_db_pwd = pwdgen(12);
-}
-
-?>
