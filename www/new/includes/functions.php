@@ -9,7 +9,7 @@
 function mysqli_connect2($db_name = null)
 {
     //Возвращает $link - соединение с DB.
-    global $db_pwd, $db_usr,$link;
+    global $db_pwd, $db_usr, $link;
     if ($db_name == null) {
         global $db_name;
     }
@@ -59,9 +59,9 @@ function print_r2($val)
 
 function echo2($str)
 {
-    global $fp_log,$debug_mode;
+    global $fp_log, $debug_mode;
     if ($debug_mode == 'true' | $debug_mode == '1') {
-        echo "$str".PHP_EOL;
+        echo "$str" . PHP_EOL;
         flush();
     } else {
         fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
@@ -108,10 +108,11 @@ function pwdgen($length)
 
 }
 
-function dbquery($queryarr)
+function dbquery($queryarr, $fetch_row_not_assoc = null)
     /**
      * Можно отправлять массив или строку Insert / Update запросов.
-     * Можно оптравить SELECT запрос, возвращает ассоциативный массив с результатами.
+     * Можно отправить SELECT запрос, возвращает ассоциативный массив с результатами по дефолту
+     * 2ой параметр - fetch_row, передавать нужно любую не пустую переменную.
      * Оповещает об ошибках.
      */
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
@@ -130,8 +131,14 @@ function dbquery($queryarr)
             echo2("Mysqli error $error в запросе $queryarr");
         }
         if (strstr($queryarr, "SELECT")) {
-            while ($tmp = mysqli_fetch_assoc($sqlres)) {
-                $result[] = $tmp;
+            if ($fetch_row_not_assoc) {
+                while ($tmp = mysqli_fetch_row($sqlres)) {
+                    $result[] = $tmp;
+                }
+            } else {
+                while ($tmp = mysqli_fetch_assoc($sqlres)) {
+                    $result[] = $tmp;
+                }
             }
         }
         return $result;
