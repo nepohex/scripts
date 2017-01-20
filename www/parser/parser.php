@@ -39,7 +39,7 @@ function echo2 ($str) {
     fwrite($fp_log,date("d-m-Y H:i:s")." - ".$str."\n");
 }
 
-// Получение списка статей для парсинга, sitemap
+// Получение списка статей для парсинга, sitemap , многоуровневая SITEMAP
 //$sitemap = file_get_contents('http://therighthairstyles.com/sitemap.xml');
 //$saw = new nokogiri($sitemap);
 //$sitemap_items = $saw ->get('loc')->toArray();
@@ -78,13 +78,14 @@ $bad_symbols2 = array('â','ГўВЂВ”'); ;
 //$z = 'Itâs a pity to cut beautiful curly hair. If itâs healthy and features sufficient thickness, why not to retain the length? Susan Sarandon shows us a good example of medium curly haircut for women over 60. Such whimsical waves can be achieved with mousse or any other curl-enhancer, applied to damp locks.';
 //$p = 'New tendencies in hair styles for 2016 guide us towards livelier and more textured looks, like Diane Keatonâs âenergeticâ bob hairstyle. It appears spontaneous and present day, but fresh and appropriate for Dianeâs age and appearance.';
 //$p = str_replace($bad_symbols,'\'',$p);
+//â¦ = ...
 
 $sitemap = explode(PHP_EOL,file_get_contents("sitemap_trh_com.txt"));
 $i = 0;
 $counter_articles = 0;
 $fp = fopen("images_trh_com.csv",'a');
 foreach ($sitemap as $article) {
-    $saw = new nokoiri(file_get_contents($article));
+    $saw = new nokogiri(file_get_contents($article));
     sleep(2);
 $counter_articles++;
     //slider content
@@ -113,7 +114,7 @@ $counter_articles++;
     }
     if (in_array('0',$debug)) {
         unset($items_all,$items_p,$items_h3,$items_img,$debug);
-        echo "Не получилось получить итемы, что-то пошло не так. Урл $url".PHP_EOL;
+        echo "Не получилось получить итемы, что-то пошло не так. Урл $article".PHP_EOL;
     }
     if (is_array($items_all) && (count($items_all[0]['h3']) == count($items_all[0]['div']))) {
         $z = 0;
@@ -131,7 +132,7 @@ $counter_articles++;
             $i++;
             $z++;
         }
-        echo "На странице $url получили ";
+        echo "На странице $article получили ";
         echo '<pre>',print_r($debug,1),'</pre>'; flush();
         foreach ($images as $image) {
             fputcsv($fp,$image,';');

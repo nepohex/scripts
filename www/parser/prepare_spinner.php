@@ -8,6 +8,7 @@
  * Прогоняем тексты через список слов которые не нужно спинить, добавляем им символов, чтобы не спинились в программе.
  * 8500 текстов объемом в среднем 250 символов, 2800 слов которые не спинить. Прогонка 100 строк занимает 25 сек.
  * Итого на 8500 текстов уходит ~35 минут.
+ * Полученный файл вручную загоняем построчно в SpinnerChief, получаем тот же файл только уже с шаблонами.
  */
 $start = microtime(true);
 include('../new/includes/functions.php');
@@ -69,4 +70,6 @@ foreach ($texts as $text) {
     $tested_texts[$text[0]] = implode(' ',$tmp);
 }
 echo2 ("Всего пробежались по всем текстам, в них было $counter_words_total слов, заменили $counter_words_changed и не будем уникализировать.");
-file_put_contents("prepared_texts.txt",serialize($tested_texts));
+$ser_texts = serialize($tested_texts);
+file_put_contents("prepared_texts.txt",$ser_texts);
+file_put_contents("prepared_texts2.txt",print_r($tested_texts,1));
