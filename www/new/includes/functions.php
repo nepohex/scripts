@@ -12,7 +12,11 @@ function mysqli_connect2($db_name = null)
     global $db_pwd, $db_usr, $link;
     if ($db_name == null) {
         global $db_name;
+        if ($db_name == false) {
+            echo2 ("Не указана переменная db_name которая нужна для связи с mysql функции mysqli_connect2");
+        }
     }
+
     $link = mysqli_init();
 
     if (!$link) {
@@ -110,14 +114,26 @@ function pwdgen($length)
 
 function dbquery($queryarr, $fetch_row_not_assoc = null)
     /**
+     * На входе нужен sql resource $link , mysqli_init
      * Можно отправлять массив или строку Insert / Update запросов.
      * Можно отправить SELECT запрос, возвращает ассоциативный массив с результатами по дефолту
      * 2ой параметр - fetch_row, передавать нужно любую не пустую переменную.
+     * Если нет связи с DB, пробует соединиться по глобальной переменной db_name.
+     * Если результат SELECT - единичное поле - возвращает STRING
      * Оповещает об ошибках.
      */
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
 {
-    global $link;
+    global $link,$db_name;
+
+    //Проверяем есть ли связь с базой, если нет - пробуем приконнектиться. Для этого глобально должно быть указано $db_name
+    if ($link == false) {
+        mysqli_connect2($db_name);
+        if ($link == false) {
+            exit ("В функции dbquery нет переменной коннекта к базе link - она пустая. Связи нет с DB.");
+        }
+    }
+    //Если передали массив с запросами, то выполняем каждый из них.
     if (is_array($queryarr)) {
         foreach ($queryarr as $query) {
             $sqlres = mysqli_query($link, $query);
@@ -125,7 +141,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
                 echo2("Mysqli error $error в запросе $query");
             }
         }
-    } else {
+    } else { //Если не массив, то может быть и SELECT, можно вернуть значение.
         $sqlres = mysqli_query($link, $queryarr);
         if ($error = mysqli_error($link)) {
             echo2("Mysqli error $error в запросе $queryarr");
@@ -140,6 +156,17 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
                     $result[] = $tmp;
                 }
             }
+        }
+        // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
+        if (count($result) == 1 && count($result[0]) == 1) {
+            foreach ($result as $value) {
+                foreach ($value as $key => $item) {
+                    return $item;
+                }
+            }
+        }
+        if ($result == false) {
+            echo2 ("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
         }
         return $result;
     }
