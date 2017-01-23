@@ -13,7 +13,7 @@ function mysqli_connect2($db_name = null)
     if ($db_name == null) {
         global $db_name;
         if ($db_name == false) {
-            echo2 ("Не указана переменная db_name которая нужна для связи с mysql функции mysqli_connect2");
+            echo2("Не указана переменная db_name которая нужна для связи с mysql функции mysqli_connect2");
         }
     }
 
@@ -124,7 +124,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
      */
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
 {
-    global $link,$db_name;
+    global $link, $db_name;
 
     //Проверяем есть ли связь с базой, если нет - пробуем приконнектиться. Для этого глобально должно быть указано $db_name
     if ($link == false) {
@@ -156,19 +156,19 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
                     $result[] = $tmp;
                 }
             }
-        }
-        // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
-        if (count($result) == 1 && count($result[0]) == 1) {
-            foreach ($result as $value) {
-                foreach ($value as $key => $item) {
-                    return $item;
+            // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
+            if (count($result) == 1 && count($result[0]) == 1) {
+                foreach ($result as $value) {
+                    foreach ($value as $key => $item) {
+                        return $item;
+                    }
                 }
             }
+            if ($result == false) {
+                echo2("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
+            }
+            return $result;
         }
-        if ($result == false) {
-            echo2 ("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
-        }
-        return $result;
     }
 }
 
@@ -187,7 +187,8 @@ function gen_wp_db_conf()
     $wp_conf_db_pwd = pwdgen(12);
 }
 
-function printr_to_array($str) {
+function printr_to_array($str)
+{
     /**
      * Чужая функция, одномерный массив в формате print_r вернуть с ключами обратно в массив.
      */
@@ -197,7 +198,7 @@ function printr_to_array($str) {
     $output = array();
 
     //Is it an array?
-    if( substr($str, 0, 5) == 'Array' ) {
+    if (substr($str, 0, 5) == 'Array') {
 
         //Let's parse it (hopefully it won't clash)
         $array_contents = substr($str, 7, -2);
@@ -205,13 +206,13 @@ function printr_to_array($str) {
         $array_fields = explode("#!#", $array_contents);
 
         //For each array-field, we need to explode on the delimiters I've set and make it look funny.
-        for($i = 0; $i < count($array_fields); $i++ ) {
+        for ($i = 0; $i < count($array_fields); $i++) {
 
             //First run is glitched, so let's pass on that one.
-            if( $i != 0 ) {
+            if ($i != 0) {
 
                 $bits = explode('#?#', $array_fields[$i]);
-                if( $bits[0] != '' ) $output[$bits[0]] = $bits[1];
+                if ($bits[0] != '') $output[$bits[0]] = $bits[1];
 
             }
         }

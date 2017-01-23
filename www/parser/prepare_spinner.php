@@ -21,7 +21,7 @@ $debug_mode = 1;
 mysqli_connect2();
 $words_not_spin = file("not_spin_words.txt",FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-$query = "SELECT `id`,`text_start`,`h3`,`img_alt` FROM `data`";
+$query = "SELECT `id`,`text_start`,`h3`,`img_alt` FROM `data` WHERE `text_template` = '';";
 $texts = dbquery ($query, $debug_mode);
 
 $counter_post_titles = 0;
@@ -71,5 +71,5 @@ foreach ($texts as $text) {
 }
 echo2 ("Всего пробежались по всем текстам, в них было $counter_words_total слов, заменили $counter_words_changed и не будем уникализировать.");
 $ser_texts = serialize($tested_texts);
-file_put_contents("prepared_texts.txt",$ser_texts);
-file_put_contents("prepared_texts2.txt",print_r($tested_texts,1));
+file_put_contents("prepared_texts3.txt",$ser_texts);
+file_put_contents("prepared_texts4.txt",print_r($tested_texts,1));

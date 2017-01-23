@@ -18,18 +18,22 @@ $db_name = 'hair_spin';
 $db_pwd = '';
 $db_usr = 'root';
 
-$domain_name = 'machohairstyles.com';
+$domain_name = 'pophaircuts.com';
 $result_dir = 'result';
 $result_fname = $result_dir . '/texts_' . $domain_name . '.csv';
 $result_sitename_fp = $result_dir . "/sitemap_" . $domain_name . ".txt";
 $image_niches = $result_dir . '/image_' . $domain_name . '_niches.txt';
 $image_niches_full_text = $result_dir . '/image_' . $domain_name . '_niches_full_text.txt';
 // Плохие символы кавычки одинарные, двойные.
-$bad_symbols = array('$', '%', '^', '&', '(', ')', '=', '+', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '.', '"', '  '); //Заменим эти символы в имени файла на пробелы
+$bad_symbols = array('-','_','#','$', '%', '^', '&', '(', ')', '=', '+', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '.', '"', '  '); //Заменим эти символы в имени файла на пробелы
 
-if (is_file($result_fname) == false) {
+if (is_file($image_niches) == false) {
     $fp = fopen($result_fname, 'r');
     while ($tmp = fgetcsv($fp, '', ';')) {
+        $tmp[1] = str_replace($bad_symbols,' ',$tmp[1]);
+        $tmp[4] = str_replace($bad_symbols,' ',$tmp[4]);
+        $tmp[1] = preg_replace('/\d/','',$tmp[1]);
+        $tmp[4] = preg_replace('/\d/','',$tmp[4]);
         $csv[] = $tmp;
         $tmp2 = explode(" ", $tmp[2]);
         foreach ($tmp2 as $word) {
@@ -46,6 +50,10 @@ if (is_file($result_fname) == false) {
 } else {
     $fp = fopen($result_fname, 'r');
     while ($tmp = fgetcsv($fp, '', ';')) {
+        $tmp[1] = str_replace($bad_symbols,' ',$tmp[1]);
+        $tmp[4] = str_replace($bad_symbols,' ',$tmp[4]);
+        $tmp[1] = preg_replace('/\d/','',$tmp[1]);
+        $tmp[4] = preg_replace('/\d/','',$tmp[4]);
         $csv[] = $tmp;
     }
     echo2("Использованные слова для домена $domain_name уже посчитали, записали в файл $image_niches_full_text");
