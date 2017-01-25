@@ -11,39 +11,6 @@ include "multiconf.php";
 mysqli_connect2($db_name_spin);
 echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
 
-/**
- * Spintax - A helper class to process Spintax strings.
- * @name Spintax
- * @author Jason Davis - https://www.codedevelopr.com/
- * Tutorial: https://www.codedevelopr.com/articles/php-spintax-class/
- */
-class Spintax
-{
-    public function process($text)
-    {
-        return preg_replace_callback(
-            '/\{(((?>[^\{\}]+)|(?R))*)\}/x',
-            array($this, 'replace'),
-            $text
-        );
-    }
-
-    public function replace($text)
-    {
-        $text = $this->process($text[1]);
-        $parts = explode('|', $text);
-        return $parts[array_rand($parts)];
-    }
-}
-
-/* EXAMPLE USAGE */
-// $spintax = new Spintax();
-// $string = '{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {Smith|Williams|Davis}!';
-// echo $spintax->process($string);
-
-/* NESTED SPINNING EXAMPLE */
-// echo $spintax->process('{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {{Jason|Malina|Sara}|Williams|Davis}');
-
 echo2("Проверяем какие из шаблонов Спинтакса уже есть в базе, каких нет. Тех которых нет - просчитываем и загружаем.");
 $query = "SELECT `text`,`variants`,`used` FROM `my_spintax`";
 $sqlres = mysqli_query($link, $query);

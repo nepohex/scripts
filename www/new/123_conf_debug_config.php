@@ -13,8 +13,8 @@ include "includes/spin_tpls.php";
 include "includes/functions.php";
 
 //Обязательные к изменению функции от сайта к сайту
-//$site_name = 'rockhairstyles2.us'; // Без слешей, только домен
-$site_name = 'highlighted-hair.com';
+$site_name = 'rockhairstyles2.us'; // Без слешей, только домен
+//$site_name = 'highlighted-hair.com';
 $keyword = "highlight";
 $blogname = ucwords($keyword." hairstyles 2017");
 $blogdescription = $blogname.". Choose your best hairstyle to rock every day and stay trendy in new year.";
