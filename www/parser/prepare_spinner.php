@@ -18,10 +18,15 @@ $db_usr = 'root';
 $db_name = 'hair_spin';
 $debug_mode = 1;
 
+$domain_name = 'pophaircuts.com'; // Не принципиально. Важно только для названия вывода файлов. Если несколько доменов - можно mix прописать.
+$result_dir = 'result';
+$result_fname = $result_dir . '/prepared_texts_ser_' . $domain_name . '_'.pwdgen(3).'_.csv';
+$result_fname2 = $result_dir . '/prepared_texts_arr_' . $domain_name . '_'.pwdgen(3).'_.csv';
+
 mysqli_connect2();
 $words_not_spin = file("not_spin_words.txt",FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-$query = "SELECT `id`,`text_start`,`h3`,`img_alt` FROM `data` WHERE `text_template` = '';";
+$query = "SELECT `id`,`text_start` FROM `data` WHERE `text_template` = '';";
 $texts = dbquery ($query, $debug_mode);
 
 $counter_post_titles = 0;
@@ -70,6 +75,5 @@ foreach ($texts as $text) {
     $tested_texts[$text[0]] = implode(' ',$tmp);
 }
 echo2 ("Всего пробежались по всем текстам, в них было $counter_words_total слов, заменили $counter_words_changed и не будем уникализировать.");
-$ser_texts = serialize($tested_texts);
-file_put_contents("prepared_texts3.txt",$ser_texts);
-file_put_contents("prepared_texts4.txt",print_r($tested_texts,1));
+file_put_contents($result_fname,serialize($tested_texts));
+file_put_contents($result_fname2,print_r($tested_texts,1));
