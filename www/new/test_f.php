@@ -7,6 +7,23 @@
  */
 //include "config.php";
 //include "mysqli_connect.php";
+$str = 'If you&#8217;re blessed with lovely long locks, whether they&#8217;re real or thanks to some lovely hair extensions, then there are almost an endless array of hairstyles you can recreate to simply transform your look. From up dos to braided styles, elaborate curls or straight and sleek, long locks provide an incredibly versatile canvas which can help you create a range of different styles, time and time again. The Popular Haircuts team have selected some of our favourite pretty long hairstyles to add to this gallery, readily available for your inspiration.';
+
+$code = utf8_decode($str);
+$enc = html_entity_decode($str, ENT_QUOTES, 'UTF-8');
+$fp = fopen($result_fname, 'r');
+while ($tmp = fgetcsv($fp, '', ';')) {
+    $tmp[1] = str_replace($bad_symbols,' ',$tmp[1]);
+    $tmp[4] = str_replace($bad_symbols,' ',$tmp[4]);
+    $tmp[1] = preg_replace('/\d/','',$tmp[1]);
+    $tmp[4] = preg_replace('/\d/','',$tmp[4]);
+    $csv[] = $tmp;
+    $tmp2 = explode(" ", $tmp[2]);
+    foreach ($tmp2 as $word) {
+        $word = str_ireplace($bad_symbols, '', $word);
+        $words_used[trim(strtolower($word))] += 1;
+    }
+}
 $start = microtime(true);
 include("../nokogiri.php");
 include ("123_conf_debug_config.php");

@@ -104,22 +104,26 @@ function mkdir2($dir)
     }
 }
 
-function pwdgen($length)
+function pwdgen($length, $include_punctuation = null)
 {
-
+#todo дописать сюда знаки препинания для пущей надежности.
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    return substr(str_shuffle($chars), 0, $length);
+    if ($include_punctuation) {
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-+*=@#$%^&.,;:?!()[]{}";
+    }
+    $pwd = substr(str_shuffle($chars), 0, $length);
+    return $pwd;
 
 }
 
 function dbquery($queryarr, $fetch_row_not_assoc = null)
     /**
      * На входе нужен sql resource $link , mysqli_init
-     * Можно отправлять массив или строку Insert / Update запросов.
-     * Можно отправить SELECT запрос, возвращает ассоциативный массив с результатами по дефолту
+     * ПРИНИМАЕТ: массив или строку Insert / Update запросов.
+     * ПРИНИМАЕТ: SELECT запрос, возвращает ассоциативный массив с результатами по дефолту
      * 2ой параметр - fetch_row, передавать нужно любую не пустую переменную.
      * Если нет связи с DB, пробует соединиться по глобальной переменной db_name.
-     * Если результат SELECT - единичное поле - возвращает STRING
+     * Если результат SELECT - единичное поле - возвращает STRING с результатом.
      * Оповещает об ошибках.
      */
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
@@ -227,4 +231,35 @@ function printr_to_array($str)
         return null;
     }
 
+}
+
+/**
+ * Spintax - A helper class to process Spintax strings.
+ * @name Spintax
+ * @author Jason Davis - https://www.codedevelopr.com/
+ * Tutorial: https://www.codedevelopr.com/articles/php-spintax-class/
+ * EXAMPLE USAGE
+ * $spintax = new Spintax();
+ * $string = '{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {Smith|Williams|Davis}!';
+ * echo $spintax->process($string);
+ * NESTED SPINNING EXAMPLE
+ * echo $spintax->process('{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {{Jason|Malina|Sara}|Williams|Davis}');
+*/
+class Spintax
+{
+    public function process($text)
+    {
+        return preg_replace_callback(
+            '/\{(((?>[^\{\}]+)|(?R))*)\}/x',
+            array($this, 'replace'),
+            $text
+        );
+    }
+
+    public function replace($text)
+    {
+        $text = $this->process($text[1]);
+        $parts = explode('|', $text);
+        return $parts[array_rand($parts)];
+    }
 }

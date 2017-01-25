@@ -5,11 +5,11 @@
  * Date: 25.11.2016
  * Time: 0:35
  */
-#todo PostParent для картинок в базу wp_posts, иначе не работает Udinara Sitemap.
-#todo img title для картинок для Udinara Sitemap
-#todo Spinner прогон и загон шаблонов
-#todo Генерация текстов из THR
-#todo Разнести функции в отдельный инклуд
+#done PostParent для картинок в базу wp_posts, иначе не работает Udinara Sitemap.
+#done img title для картинок для Udinara Sitemap
+#done Spinner прогон и загон шаблонов
+#done Генерация текстов из THR
+#done Разнести функции в отдельный инклуд
 #todo Чтобы не было полных дублей Title в пределах сайта
 #todo Отказался от идеи imagemagick 15ым шагом сделать выборочно true/false -> Отказался от идеи т.к. картинки в размере увеличиваются или остаются неизменными, а XNVIEW дает в 2-3 раза меньший размер.
 #todo Загрузку Spintax надо в базу image_index и брать оттуда, не передавать в instance базы.
