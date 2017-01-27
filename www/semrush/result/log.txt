@@ -1,0 +1,33 @@
+27-01-2017 01:51:39 - Пробуем создать директорию result
+27-01-2017 01:51:39 - Директория result уже существует, все ок
+27-01-2017 01:51:39 - Связь с базой image_index есть.
+27-01-2017 01:51:39 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485459910&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=7eba541cd1664b1b524473664b473dd0&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 01:52:30 - #1 hairstyleonpoint.com Массив из Semrush получили, размером в 0 b , строк 1 Всего строк получили 1 , уникальных записей в базу 0 , трафика скачали 0 b
+27-01-2017 01:52:31 - Скрипт выполняется уже 52.18 сек Памяти выделено в пике 512 kb
+27-01-2017 01:52:34 - Сайт hairstyleonpoint.com отдал первым же запросом меньше 10000 результатов, выходим из цикла по нему.
+27-01-2017 01:52:41 - Использованные слова записали в result/words_used__.txt
+27-01-2017 01:56:20 - Пробуем создать директорию result
+27-01-2017 01:56:20 - Директория result уже существует, все ок
+27-01-2017 01:56:20 - Связь с базой image_index есть.
+27-01-2017 01:56:20 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485459910&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=7eba541cd1664b1b524473664b473dd0&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 01:58:35 - Пробуем создать директорию result
+27-01-2017 01:58:35 - Директория result уже существует, все ок
+27-01-2017 01:58:35 - Связь с базой image_index есть.
+27-01-2017 01:58:35 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471448&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=a319338fd9a216638197b56838034fa1&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 02:01:18 - Пробуем создать директорию result
+27-01-2017 02:01:18 - Директория result уже существует, все ок
+27-01-2017 02:01:18 - Связь с базой image_index есть.
+27-01-2017 02:01:18 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 02:27:35 - Пробуем создать директорию result
+27-01-2017 02:27:35 - Директория result уже существует, все ок
+27-01-2017 02:27:35 - Связь с базой image_index есть.
+27-01-2017 02:27:35 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1185471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 02:27:59 - Пробуем создать директорию result
+27-01-2017 02:27:59 - Директория result уже существует, все ок
+27-01-2017 02:27:59 - Связь с базой image_index есть.
+27-01-2017 02:27:59 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=1044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 03:04:40 - Пробуем создать директорию result
+27-01-2017 03:04:40 - Директория result уже существует, все ок
+27-01-2017 03:04:40 - Связь с базой image_index есть.
+27-01-2017 03:04:40 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=1044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+27-01-2017 03:05:02 - Не получен файл от SEMRUSH

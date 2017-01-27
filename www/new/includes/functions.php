@@ -116,7 +116,7 @@ function pwdgen($length, $include_punctuation = null)
 
 }
 
-function dbquery($queryarr, $fetch_row_not_assoc = null)
+function dbquery($queryarr, $fetch_row_not_assoc = null,$return_affected_rows = null)
     /**
      * На входе нужен sql resource $link , mysqli_init
      * ПРИНИМАЕТ: массив или строку Insert / Update запросов.
@@ -127,6 +127,8 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
      * Оповещает об ошибках.
      */
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
+    #todo дописать функционал affected_rows для insert/update
+    #todo убрать вывод ошибок по параметру.
 {
     global $link, $db_name;
 
@@ -148,7 +150,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
     } else { //Если не массив, то может быть и SELECT, можно вернуть значение.
         $sqlres = mysqli_query($link, $queryarr);
         if ($error = mysqli_error($link)) {
-            echo2("Mysqli error $error в запросе $queryarr");
+//            echo2("Mysqli error $error в запросе $queryarr");
         }
         if (strstr($queryarr, "SELECT")) {
             if ($fetch_row_not_assoc) {
@@ -172,6 +174,8 @@ function dbquery($queryarr, $fetch_row_not_assoc = null)
                 echo2("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
             }
             return $result;
+        } else if ($return_affected_rows) {
+            return mysqli_affected_rows($link);
         }
     }
 }
@@ -233,19 +237,19 @@ function printr_to_array($str)
 
 }
 
-/**
- * Spintax - A helper class to process Spintax strings.
- * @name Spintax
- * @author Jason Davis - https://www.codedevelopr.com/
- * Tutorial: https://www.codedevelopr.com/articles/php-spintax-class/
- * EXAMPLE USAGE
- * $spintax = new Spintax();
- * $string = '{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {Smith|Williams|Davis}!';
- * echo $spintax->process($string);
- * NESTED SPINNING EXAMPLE
- * echo $spintax->process('{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {{Jason|Malina|Sara}|Williams|Davis}');
-*/
 class Spintax
+    /**
+     * Spintax - A helper class to process Spintax strings.
+     * @name Spintax
+     * @author Jason Davis - https://www.codedevelopr.com/
+     * Tutorial: https://www.codedevelopr.com/articles/php-spintax-class/
+     * EXAMPLE USAGE
+     * $spintax = new Spintax();
+     * $string = '{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {Smith|Williams|Davis}!';
+     * echo $spintax->process($string);
+     * NESTED SPINNING EXAMPLE
+     * echo $spintax->process('{Hello|Howdy|Hola} to you, {Mr.|Mrs.|Ms.} {{Jason|Malina|Sara}|Williams|Davis}');
+     */
 {
     public function process($text)
     {
