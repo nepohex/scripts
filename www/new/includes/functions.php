@@ -90,17 +90,29 @@ function next_script($php_self, $fin = null)
     echo2("Не можем найти следующего скрипта после " . $php_self);
 }
 
-function mkdir2($dir)
+function mkdir2($dir,$stfu = null)
 {
-    echo2("Пробуем создать директорию " . $dir);
-    if (!is_dir($dir)) {
-        if (mkdir($dir, 0777, true)) {
-            echo2("Создали директорию " . $dir);
+    if ($stfu) {
+        if (!is_dir($dir)) {
+            if (mkdir($dir, 0777, true)) {
+//                echo2("Создали директорию " . $dir);
+            } else {
+                echo2("Директорию " . $dir . " создать не удалось и ее не существует");
+            }
         } else {
-            echo2("Директорию " . $dir . " создать не удалось и ее не существует");
+//            echo2("Директория " . $dir . " уже существует, все ок");
         }
     } else {
-        echo2("Директория " . $dir . " уже существует, все ок");
+        echo2("Пробуем создать директорию " . $dir);
+        if (!is_dir($dir)) {
+            if (mkdir($dir, 0777, true)) {
+                echo2("Создали директорию " . $dir);
+            } else {
+                echo2("Директорию " . $dir . " создать не удалось и ее не существует");
+            }
+        } else {
+            echo2("Директория " . $dir . " уже существует, все ок");
+        }
     }
 }
 
@@ -129,6 +141,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null,$return_affected_rows = 
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
     #todo дописать функционал affected_rows для insert/update
     #todo убрать вывод ошибок по параметру.
+    #todo добавить возможность отправлять такие запросы без ошибок INSERT INTO  `image_index`.`semrush_keys` SELECT * FROM  `image_index`.`tmp_semrush` ;
 {
     global $link, $db_name;
 
