@@ -15,7 +15,7 @@ $put_data =
         <TaskVariant>GoogleImage</TaskVariant>
     </Parameters>
     <DomainNames>
-        <string>ticlotel.com</string>
+        <string>rockhairstyles.us</string>
     </DomainNames>
     <Refresh>true</Refresh>
 </InitSession>';

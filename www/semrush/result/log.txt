@@ -1,74 +1,83 @@
-27-01-2017 01:51:39 - Пробуем создать директорию result
-27-01-2017 01:51:39 - Директория result уже существует, все ок
-27-01-2017 01:51:39 - Связь с базой image_index есть.
-27-01-2017 01:51:39 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485459910&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=7eba541cd1664b1b524473664b473dd0&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 01:52:30 - #1 hairstyleonpoint.com Массив из Semrush получили, размером в 0 b , строк 1 Всего строк получили 1 , уникальных записей в базу 0 , трафика скачали 0 b
-27-01-2017 01:52:31 - Скрипт выполняется уже 52.18 сек Памяти выделено в пике 512 kb
-27-01-2017 01:52:34 - Сайт hairstyleonpoint.com отдал первым же запросом меньше 10000 результатов, выходим из цикла по нему.
-27-01-2017 01:52:41 - Использованные слова записали в result/words_used__.txt
-27-01-2017 01:56:20 - Пробуем создать директорию result
-27-01-2017 01:56:20 - Директория result уже существует, все ок
-27-01-2017 01:56:20 - Связь с базой image_index есть.
-27-01-2017 01:56:20 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485459910&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=7eba541cd1664b1b524473664b473dd0&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 01:58:35 - Пробуем создать директорию result
-27-01-2017 01:58:35 - Директория result уже существует, все ок
-27-01-2017 01:58:35 - Связь с базой image_index есть.
-27-01-2017 01:58:35 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471448&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=a319338fd9a216638197b56838034fa1&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 02:01:18 - Пробуем создать директорию result
-27-01-2017 02:01:18 - Директория result уже существует, все ок
-27-01-2017 02:01:18 - Связь с базой image_index есть.
-27-01-2017 02:01:18 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 02:27:35 - Пробуем создать директорию result
-27-01-2017 02:27:35 - Директория result уже существует, все ок
-27-01-2017 02:27:35 - Связь с базой image_index есть.
-27-01-2017 02:27:35 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1185471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 02:27:59 - Пробуем создать директорию result
-27-01-2017 02:27:59 - Директория result уже существует, все ок
-27-01-2017 02:27:59 - Связь с базой image_index есть.
-27-01-2017 02:27:59 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=1044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 03:04:40 - Пробуем создать директорию result
-27-01-2017 03:04:40 - Директория result уже существует, все ок
-27-01-2017 03:04:40 - Связь с базой image_index есть.
-27-01-2017 03:04:40 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485471591&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=1044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-27-01-2017 03:05:02 - Не получен файл от SEMRUSH
-28-01-2017 01:11:41 - Пробуем создать директорию result
-28-01-2017 01:11:41 - Директория result уже существует, все ок
-28-01-2017 01:11:41 - Связь с базой image_index есть.
-28-01-2017 01:12:32 - Пробуем создать директорию result
-28-01-2017 01:12:32 - Директория result уже существует, все ок
-28-01-2017 01:12:32 - Связь с базой image_index есть.
-28-01-2017 01:13:49 - Пробуем создать директорию result
-28-01-2017 01:13:49 - Директория result уже существует, все ок
-28-01-2017 01:13:49 - Связь с базой image_index есть.
-28-01-2017 01:17:31 - Пробуем создать директорию result
-28-01-2017 01:17:31 - Директория result уже существует, все ок
-28-01-2017 01:17:31 - Связь с базой image_index есть.
-28-01-2017 01:24:20 - Пробуем создать директорию result
-28-01-2017 01:24:20 - Директория result уже существует, все ок
-28-01-2017 01:24:20 - Связь с базой image_index есть.
-28-01-2017 01:24:59 - Пробуем создать директорию result
-28-01-2017 01:24:59 - Директория result уже существует, все ок
-28-01-2017 01:24:59 - Связь с базой image_index есть.
-28-01-2017 01:25:11 - Пробуем создать директорию result
-28-01-2017 01:25:11 - Директория result уже существует, все ок
-28-01-2017 01:25:11 - Связь с базой image_index есть.
-28-01-2017 01:30:20 - Пробуем создать директорию result
-28-01-2017 01:30:20 - Директория result уже существует, все ок
-28-01-2017 01:30:20 - Связь с базой image_index есть.
-28-01-2017 01:54:16 - Пробуем создать директорию result
-28-01-2017 01:54:16 - Директория result уже существует, все ок
-28-01-2017 01:54:16 - Связь с базой image_index есть.
-28-01-2017 01:55:58 - Не удалсь получить ExportHash для домена hairstyleonpoint.com , результат ответа по запросу  сохранен в файл result/wrong_json_response.txt
-28-01-2017 01:56:20 - Пробуем создать директорию result
-28-01-2017 01:56:20 - Директория result уже существует, все ок
-28-01-2017 01:56:20 - Связь с базой image_index есть.
-28-01-2017 01:56:59 - Пробуем создать директорию result
-28-01-2017 01:56:59 - Директория result уже существует, все ок
-28-01-2017 01:56:59 - Связь с базой image_index есть.
-28-01-2017 02:59:51 - Связь с базой image_index есть.
-28-01-2017 02:59:53 - У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.
-28-01-2017 02:59:54 - У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.
-28-01-2017 03:20:44 - Связь с базой image_index есть.
-28-01-2017 03:21:08 - Связь с базой image_index есть.
-28-01-2017 03:21:49 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485562908&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=2b43faae7e9337b2117d6a4cf14d60ba&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-28-01-2017 03:22:56 - Не получен файл от SEMRUSH
+28-01-2017 23:52:50 - Связь с базой image_index есть.
+28-01-2017 23:59:09 - Связь с базой image_index есть.
+29-01-2017 00:06:22 - Связь с базой image_index есть.
+29-01-2017 00:07:30 - Связь с базой image_index есть.
+29-01-2017 00:08:53 - https://usbackend.semrush.com/?action=report&database=us&rnd_m=1485637732&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:10:31 - Связь с базой image_index есть.
+29-01-2017 00:11:37 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485637895&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:13:54 - Не получен файл от SEMRUSH. Где-то косяк в запросе, надо проверить export_hash 2f734f9886ad6fda08aada64ca0854d5 и semrush_keys 31 , и сам query.
+29-01-2017 00:16:55 - Связь с базой image_index есть.
+29-01-2017 00:17:03 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485638223&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:17:19 - Не получен файл от SEMRUSH. Где-то косяк в запросе, надо проверить export_hash 2f734f9886ad6fda08aada64ca0854d5 и semrush_keys 31 , и сам query.
+29-01-2017 00:26:28 - Связь с базой image_index есть.
+29-01-2017 00:26:32 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485638792&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:26:38 - Не получен файл от SEMRUSH. Где-то косяк в запросе, надо проверить export_hash 2f734f9886ad6fda08aada64ca0854d5 и semrush_keys 31 , и сам query.
+29-01-2017 00:28:17 - Связь с базой image_index есть.
+29-01-2017 00:28:21 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485638901&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:28:24 - Не получен файл от SEMRUSH. Где-то косяк в запросе, надо проверить export_hash 2f734f9886ad6fda08aada64ca0854d5 и semrush_keys 31 , и сам query.
+29-01-2017 00:28:31 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485638911&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=13f18e9ea4ddf85caab4de2049e0cac68&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:29:11 - Связь с базой image_index есть.
+29-01-2017 00:29:16 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485638956&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:29:53 - Связь с базой image_index есть.
+29-01-2017 00:30:21 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485639020&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairins.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=12f734f9886ad6fda08aada64ca0854d5&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:30:33 - Не получен файл от SEMRUSH. Где-то косяк в запросе, надо проверить export_hash 2f734f9886ad6fda08aada64ca0854d5 и semrush_keys 31 , и сам query.
+29-01-2017 00:32:27 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485639140&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=13f18e9ea4ddf85caab4de2049e0cac68&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:37:23 - Связь с базой image_index есть.
+29-01-2017 00:39:08 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485639547&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=13f18e9ea4ddf85caab4de2049e0cac68&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:42:35 - Связь с базой image_index есть.
+29-01-2017 00:42:44 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485639764&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=3f18e9ea4ddf85caab4de2049e0cac68&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:43:19 - #1 ticlotel.com Массив из Semrush получили, размером в 195.36 kb , строк 4061 Всего строк получили 4061 , уникальных записей в базу 4000 / 4061 из возможных, трафика скачали 195.36 kb
+29-01-2017 00:43:19 - Скрипт выполняется уже 43.92 сек Памяти выделено в пике 3.25 mb
+29-01-2017 00:43:25 - Сайт ticlotel.com по базе us отдал первым же запросом меньше 10000 результатов, выходим из цикла по нему.
+29-01-2017 00:44:07 - Использованные слова записали в result/words_used_ticlotel.com_.txt
+29-01-2017 00:44:21 - Начинаем сливать базу. Было строк в основной 90449
+29-01-2017 00:44:33 - Закончили сливать базы. Стало строк в основной 2799
+29-01-2017 00:47:38 - Связь с базой image_index есть.
+29-01-2017 00:47:44 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485640064&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=3f18e9ea4ddf85caab4de2049e0cac68&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:48:04 - #1 ticlotel.com Массив из Semrush получили, размером в 195.36 kb , строк 4061 Всего строк получили 4061 , уникальных записей в базу 0 / 4061 из возможных, трафика скачали 195.36 kb
+29-01-2017 00:48:04 - Скрипт выполняется уже 26.23 сек Памяти выделено в пике 3 mb
+29-01-2017 00:48:05 - Сайт ticlotel.com по базе us отдал первым же запросом меньше 10000 результатов, выходим из цикла по нему.
+29-01-2017 00:48:08 - Использованные слова записали в result/words_used_ticlotel.com_.txt
+29-01-2017 00:48:08 - Начинаем сливать базу. Было строк в основной 93248
+29-01-2017 00:48:20 - Закончили сливать базы. Стало строк в основной 0
+29-01-2017 00:49:05 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485640143&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:51:09 - #1 hairstyleonpoint.com Массив из Semrush получили, размером в 434.66 kb , строк 10001 Всего строк получили 14062 , уникальных записей в базу 9766 / 78823 из возможных, трафика скачали 630.02 kb
+29-01-2017 00:51:09 - Скрипт выполняется уже 210.90 сек Памяти выделено в пике 10.5 mb
+29-01-2017 00:51:09 - https://uk.backend.semrush.com/?action=report&database=uk&rnd_m=1485640269&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 00:56:10 - #2 hairstyleonpoint.com Массив из Semrush получили, размером в 405.59 kb , строк 10001 Всего строк получили 24063 , уникальных записей в базу 18482 / 78823 из возможных, трафика скачали 1.01 mb
+29-01-2017 00:56:12 - Скрипт выполняется уже 513.76 сек Памяти выделено в пике 15 mb
+29-01-2017 00:56:44 - https://au.backend.semrush.com/?action=report&database=au&rnd_m=1485640604&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:05:41 - Связь с базой image_index есть.
+29-01-2017 01:05:51 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485641151&key=5c8e0eb96b3fe54582fee2128ea97257&domain=ticlotel.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=3f18e9ea4ddf85caab4de2049e0cac68&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:06:05 - Получили данные от SEMRUSH. Заняло времени 11.16
+29-01-2017 01:06:27 - #1 ticlotel.com Массив из Semrush получили, размером в 195.36 kb , строк 4061 Всего строк получили 4061 , уникальных записей в базу 4000 / 4061 из возможных, трафика скачали 195.36 kb
+29-01-2017 01:06:27 - Скрипт выполняется уже 45.85 сек Памяти выделено в пике 4.25 mb
+29-01-2017 01:06:28 - Сайт ticlotel.com по базе us отдал первым же запросом меньше 10000 результатов, выходим из цикла по нему.
+29-01-2017 01:06:30 - Использованные слова записали в result/words_used_ticlotel.com_.txt
+29-01-2017 01:06:30 - Начинаем сливать базу. Было строк в основной 93248
+29-01-2017 01:06:41 - Закончили сливать базы. Стало строк в основной 0
+29-01-2017 01:08:13 - https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485641293&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:08:27 - Получили данные от SEMRUSH. Заняло времени 13.77
+29-01-2017 01:09:08 - #1 hairstyleonpoint.com Массив из Semrush получили, размером в 434.66 kb , строк 10001 Всего строк получили 14062 , уникальных записей в базу 13974 / 78823 из возможных, трафика скачали 630.02 kb
+29-01-2017 01:09:09 - Скрипт выполняется уже 208.22 сек Памяти выделено в пике 7.75 mb
+29-01-2017 01:09:14 - https://uk.backend.semrush.com/?action=report&database=uk&rnd_m=1485641353&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:09:40 - Получили данные от SEMRUSH. Заняло времени 23.81
+29-01-2017 01:10:22 - #2 hairstyleonpoint.com Массив из Semrush получили, размером в 405.59 kb , строк 10001 Всего строк получили 24063 , уникальных записей в базу 22819 / 78823 из возможных, трафика скачали 1.01 mb
+29-01-2017 01:10:22 - Скрипт выполняется уже 280.86 сек Памяти выделено в пике 17.25 mb
+29-01-2017 01:10:22 - https://au.backend.semrush.com/?action=report&database=au&rnd_m=1485641422&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:10:30 - Получили данные от SEMRUSH. Заняло времени 8.06
+29-01-2017 01:11:22 - #3 hairstyleonpoint.com Массив из Semrush получили, размером в 402.05 kb , строк 10001 Всего строк получили 34064 , уникальных записей в базу 28023 / 78823 из возможных, трафика скачали 1.4 mb
+29-01-2017 01:11:22 - Скрипт выполняется уже 341.24 сек Памяти выделено в пике 18 mb
+29-01-2017 01:11:22 - https://ca.backend.semrush.com/?action=report&database=ca&rnd_m=1485641482&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:12:21 - Получили данные от SEMRUSH. Заняло времени 58.83
+29-01-2017 01:12:45 - #4 hairstyleonpoint.com Массив из Semrush получили, размером в 347.39 kb , строк 8468 Всего строк получили 42532 , уникальных записей в базу 31865 / 78823 из возможных, трафика скачали 1.74 mb
+29-01-2017 01:12:45 - Скрипт выполняется уже 424.21 сек Памяти выделено в пике 18 mb
+29-01-2017 01:13:17 - Сайт hairstyleonpoint.com по базе ca отдал первым же запросом меньше 10000 результатов. Добираем остальные страны-базы и выходим.
+29-01-2017 01:13:20 - https://in.backend.semrush.com/?action=report&database=in&rnd_m=1485641600&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstyleonpoint.com&type=domain_organic&display_filter=&display_sort=po_desc&export_hash=4044760e41afeb0295a44832bde769c8&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
+29-01-2017 01:13:33 - Получили данные от SEMRUSH. Заняло времени 10.77
+29-01-2017 01:14:08 - #5 hairstyleonpoint.com Массив из Semrush получили, размером в 288.47 kb , строк 7012 Всего строк получили 49544 , уникальных записей в базу 35131 / 78823 из возможных, трафика скачали 2.02 mb
+29-01-2017 01:14:32 - Скрипт выполняется уже 530.93 сек Памяти выделено в пике 21.75 mb
+29-01-2017 01:14:48 - Сайт hairstyleonpoint.com по базе in отдал первым же запросом меньше 10000 результатов. Добираем остальные страны-базы и выходим.
+29-01-2017 01:15:14 - Использованные слова записали в result/words_used_hairstyleonpoint.com_.txt
+29-01-2017 01:15:14 - Начинаем сливать базу. Было строк в основной 93248
+29-01-2017 01:16:40 - Закончили сливать базы. Стало строк в основной 22500

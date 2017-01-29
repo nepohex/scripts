@@ -45,10 +45,15 @@ function echo_time_wasted($i = null)
 {
     global $start;
     $time = microtime(true) - $start;
+    $format = "сек";
+    if ($time > 300) {
+        $time = $time / 60 ;
+        $format = "мин";
+    }
     if ($i) {
-        echo2("Идем по строке " . $i . " Скрипт выполняется уже " . number_format($time, 2) . " сек" . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
+        echo2("Идем по строке " . $i . " Скрипт выполняется уже " . number_format($time, 2) . " $format " . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
     } else {
-        echo2("Скрипт выполняется уже " . number_format($time, 2) . " сек" . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
+        echo2("Скрипт выполняется уже " . number_format($time, 2) . " $format" . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
     }
 
 }
