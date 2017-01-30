@@ -141,6 +141,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null,$return_affected_rows = 
      * 2ой параметр - fetch_row, передавать нужно любую не пустую переменную.
      * Если нет связи с DB, пробует соединиться по глобальной переменной db_name.
      * Если результат SELECT - единичное поле - возвращает STRING с результатом.
+     * Если SELECT - 1 столбец, возвращает 1уровневый массив.
      * Оповещает об ошибках.
      */
     #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
@@ -173,7 +174,11 @@ function dbquery($queryarr, $fetch_row_not_assoc = null,$return_affected_rows = 
         if (strstr($queryarr, "SELECT")) {
             if ($fetch_row_not_assoc) {
                 while ($tmp = mysqli_fetch_row($sqlres)) {
-                    $result[] = $tmp;
+                    if (count($tmp) >1) {
+                        $result[] = $tmp;
+                    } else {
+                        $result[] = $tmp[0];
+                    }
                 }
             } else {
                 while ($tmp = mysqli_fetch_assoc($sqlres)) {
