@@ -6,6 +6,22 @@
  * Time: 18:55
  * exmpl SEMRUSH.COM
  */
+// Тест через прокси
+    $ch = curl_init();
+    $url = 'http://whoer.net';
+    curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
+    curl_setopt($ch, CURLOPT_HEADER, 0); // пустые заголовки
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // возвратить то что вернул сервер
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
+    curl_setopt($ch, CURLOPT_PROXY, '31.184.198.58:1033');
+    curl_setopt($ch, CURLOPT_PROXYUSERPWD, 'dostup:6t92ic29c5T');
+    curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt'); // сохранять куки в файл
+    curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
+//    curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
+$data = curl_exec($ch);
+
 //О том, что мы авторизовались будем судить по наличию формы logout
 function isAuth( $data ){
     return preg_match('#<form[^>]+id="logout"#Usi',$data);

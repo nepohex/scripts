@@ -5,8 +5,6 @@
  * Date: 26.01.2017
  * Time: 14:05
  */
-#todo дописать ограничитель для доменов. Если последние 5 запросов дали меньше N прироста к базе - дальше не парсить.
-#todo сделать hardcore mode - если больше 20к запросов осталось не спаршенных - парсим по списку ключей домена до тех пор пока не получим все!
 $start = microtime(true);
 $debug_mode = 1; // 0 = вывод в лог, 1 - вывод сюда. Нужно чтобы вывод из функций шел сюда, а не в лог файл.
 include('../new/includes/functions.php');
@@ -18,6 +16,11 @@ $db_pwd = '';
 $db_usr = 'root';
 mysqli_connect2();
 
+$semrush_login = 'videocaa.org@gmail.com';
+$semrush_pwd = 'OJ745QNLonPMK36';
+$proxy_ip = '31.184.198.58:1033';
+$proxy_login = 'dostup:6t92ic29c5T';
+
 //Чистим куки перед каждым запуском
 if (file_exists('cookie.txt')) {
     unlink('cookie.txt');
@@ -25,7 +28,7 @@ if (file_exists('cookie.txt')) {
 
 function get_export_hash($domain)
 {
-    global $semrush_key; // Заодно и ключ-логина обновим.
+    global $semrush_key,$semrush_login,$semrush_pwd,$proxy_ip,$proxy_login; // Заодно и ключ-логина обновим.
     //Функция кривая потому что после каждого запроса надо переавторизовываться.
     if (file_exists('cookie.txt') == false) {
         $ch = curl_init();
@@ -36,13 +39,19 @@ function get_export_hash($domain)
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
+        if ($proxy_ip) {
+            curl_setopt($ch, CURLOPT_PROXY, $proxy_ip);
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_login);
+        }
         curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt'); // сохранять куки в файл
         curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
         curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
         curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-            'email' => 'videocaa.org@gmail.com',
-            'password' => 'SOsM-Q3564T7NPRt',
-            'user_agent_hash' => '7d78e1d08173d6271ad8f371e14c1244',
+            'email' => $semrush_login,
+            'password' => $semrush_pwd,
+//            'email' => 'gaun100@gmail.com',
+//            'password' => '46LPQNoR7p*O5KM3',
+            'user_agent_hash' => '7d78e1d08173d6271ad8f371e14c1244', //такой браузер ID показал мне Charles + FF.
             'event_source' => 'semrush',
         ));
         $data = curl_exec($ch);
@@ -51,7 +60,7 @@ function get_export_hash($domain)
         // в случае удачи
         // {"redirect_url":"\/index.html?1485627979"}
     }
-    if (strstr($data, 'redirect') || 'cookie.txt') {
+    if (strstr($data, 'redirect') || file_exists('cookie.txt')) {
         $ch = curl_init();
         $url = "https://ru.semrush.com/info/" . $domain . "+(by+organic)";
         curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
@@ -61,6 +70,10 @@ function get_export_hash($domain)
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
         curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
+        if ($proxy_ip) {
+            curl_setopt($ch, CURLOPT_PROXY, $proxy_ip);
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_login);
+        }
         $data = curl_exec($ch);
         curl_close($ch);
 //        unlink('cookie.txt');
@@ -77,6 +90,9 @@ function get_export_hash($domain)
             unlink('cookie.txt');
             exit;
         }
+    } else {
+        file_put_contents('result/error_log.txt', $data);
+        echo2 ("Не удалось залогиниться! Сообщение Semrush сохранено в result/error_log.txt");
     }
 }
 
@@ -94,6 +110,25 @@ function keys_count($domain)
         echo2("Не удалсь получить ExportHash для домена $domain , результат ответа по запросу $query сохранен в файл result/wrong_json_response.txt");
         return 0;
     }
+}
+
+function curl_get_content ($query) {
+    global $proxy_ip,$proxy_login;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $query); // отправляем на
+    curl_setopt($ch, CURLOPT_HEADER, 0); // пустые заголовки
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // возвратить то что вернул сервер
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
+    curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
+    if ($proxy_ip) {
+        curl_setopt($ch, CURLOPT_PROXY, $proxy_ip);
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_login);
+    }
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
 }
 
 function added_keys()
@@ -128,12 +163,84 @@ function get_big_domains()
     $i = 0;
     foreach ($result as $domain) {
         $tmp = $domain['semrush_keys'] - $domain['results_unique'];
-        if ($tmp < 20000) {
+        if ($tmp < 20000 || $domain['queries_done'] > 100) {
             unset($result[$i]);
         }
         $i++;
     }
     return $result;
+}
+
+function parse_words()
+{
+//Hardcore mode! Допарсинг уже готовых больших доменов!
+    global $semrush_key, $result_dir, $columns;
+    $counter_semrush_queries = 0; //Сколько раз запросили SEMRUSH
+    $counter_semrush_results = 0; //Скольок кеев получили от SEMRUSH (неуник, все).
+    $counter_uniq_keywords = 0; //Сколько ключей 1 ДОМЕНА записали в базу. Только уникальные ключи пишутся.
+    $parse_more = get_big_domains(); // Получаем список доменов из базы которые надо еще допарсить.
+//Весь этот блок надо тестить!
+    if ($parse_more) {
+        echo2("Выгрузили все домены которые нуждаются в дозакачке ключей, таких нашлось " . count($parse_more) . " .");
+        foreach ($parse_more as $item) {
+            $domain = $item['domain'];
+            if (is_file($result_dir . '/' . 'words_used_' . $item['domain'] . '_.txt')) {
+                $words_used = printr_to_array(file_get_contents($result_dir . '/' . 'words_used_' . $item['domain'] . '_.txt'));
+                $export_hash = get_export_hash($item['domain']);
+            }
+            if ($words_used && $export_hash) {
+                echo2("Начинаем поключевую выгрузку для домена " . $item['domain'] . ". Всего ключей есть в Semrush - " . $item['semrush_keys'] . " , мы получили уникальных " . $item['results_unique'] . " за " . $item['queries_done'] . " запросов");
+                foreach ($words_used as $key => $word) {
+                    $semrush_query = 'https://us.backend.semrush.com/?action=report&database=us&rnd_m=' . time() . '&key=' . $semrush_key . '&domain=' . $item['domain'] . '&type=domain_organic&display_filter=%2B%7CPh%7CCo%7C' . $key . '&display_sort=nr_asc&export_hash=' . $export_hash . '&export_decode=1&export_escape=1&currency=usd&export_columns=' . $columns . '&export=stdcsv';
+                    echo2("$semrush_query");
+                    $time = microtime(true);
+                    $semrush_data = curl_get_content($semrush_query);
+                    $time = microtime(true) - $time;
+                    echo2("#$counter_semrush_queries Получили данные от SEMRUSH. Заняло времени " . number_format($time, 2) . " сек.");
+                    $counter_semrush_queries++;
+                    if ($semrush_data) {
+                        $semrush_data = explode(PHP_EOL, $semrush_data);
+                        foreach ($semrush_data as $v) {
+                            $semrush_csv[] = str_getcsv($v, ';');
+                        }
+                        unset($semrush_data);
+                        $counter_semrush_results += count($semrush_csv);
+                        foreach ($semrush_csv as $str) {
+                            $query = "INSERT INTO `semrush_keys` (`key_id`, `key`, `adwords`, `results`) VALUES ('', '" . addslashes($str[0]) . "', '$str[1]', '$str[2]'); ";
+                            if ($z = dbquery($query, 0, 1) == 1) {
+                                $counter_uniq_keywords += $z;
+                                $this_time_uniq += $z;
+                            }
+                        }
+                        $array_unique_queries[] = $this_time_uniq;
+                        echo2("Новых фраз закачали $this_time_uniq из полученных " . count($semrush_csv) . " строк.");
+                        unset ($semrush_csv,$this_time_uniq);
+                    }
+                    //Если за 50 запросов в базу упало меньше 1000 уникальных ключей - переходим к следующему домену.
+                    if ($counter_semrush_queries >= 50 && $counter_uniq_keywords < 1000) {
+                        break;
+                    }
+                    //Если за последние 20 запросов упало меньше 100 запросов - переходим к следующему домену.
+                    if ($counter_semrush_queries % 20 == 0) {
+                        if (array_sum($array_unique_queries) < 5000) {
+                            unset($array_unique_queries);
+                            break;
+                        }
+                        unset($array_unique_queries);
+                    }
+                }
+            }
+            //Записываем обновленные результаты парсинга домена
+            echo2("Закончили с доменом, новых уникальных ключей $counter_uniq_keywords за $counter_semrush_queries запросов. Обновляем данные в базе.");
+            echo2("-------------------------------");
+            $query = "UPDATE `semrush_domains` SET `queries_done` = `queries_done` + $counter_semrush_queries , `results_got` = `results_got` + $counter_semrush_results, `results_unique` = `results_unique` + $counter_uniq_keywords WHERE `id` = " . $item['id'];
+            dbquery($query);
+            $counter_semrush_queries = 0; //Сколько раз запросили SEMRUSH
+            $counter_semrush_results = 0; //Скольок кеев получили от SEMRUSH (неуник, все).
+            $counter_uniq_keywords = 0; //Сколько ключей 1 ДОМЕНА записали в базу. Только уникальные ключи пишутся.
+//            unset($last_10_queries, $tmp_last_10_queries);
+        }
+    }
 }
 
 /**
@@ -185,81 +292,8 @@ $domains_parsed = dbquery($query, 1);
 $domain_list = array_diff($domain_list, $domains_parsed);
 $country_list = array('us', 'uk', 'au', 'ca', 'in'); //Еще не докрутил страны и базы.
 
-function parse_words()
-{
-//Hardcore mode! Допарсинг уже готовых больших доменов!
-    global $semrush_key, $result_dir, $columns;
-    $counter_semrush_queries = 0; //Сколько раз запросили SEMRUSH
-    $counter_semrush_results = 0; //Скольок кеев получили от SEMRUSH (неуник, все).
-    $counter_uniq_keywords = 0; //Сколько ключей 1 ДОМЕНА записали в базу. Только уникальные ключи пишутся.
-    $parse_more = get_big_domains(); // Получаем список доменов из базы которые надо еще допарсить.
-//Весь этот блок надо тестить!
-    if ($parse_more) {
-        echo2("Выгрузили все домены которые нуждаются в дозакачке ключей, таких нашлось " . count($parse_more) . " .");
-        foreach ($parse_more as $item) {
-//            $item['domain'] = 'hairfinder.com'; // debug
-            if (is_file($result_dir . '/' . 'words_used_' . $item['domain'] . '_.txt')) {
-                $words_used = printr_to_array(file_get_contents($result_dir . '/' . 'words_used_' . $item['domain'] . '_.txt'));
-                $export_hash = get_export_hash($item['domain']);
-            }
-            if ($words_used && $export_hash) {
-                echo2("Начинаем поключевую выгрузку для домена " . $item['domain'] . ". Всего ключей есть в Semrush - " . $item['semrush_keys'] . " , мы получили уникальных " . $item['results_unique'] . " за " . $item['queries_done'] . " запросов");
-                foreach ($words_used as $key => $word) {
-                    $semrush_query = 'https://us.backend.semrush.com/?action=report&database=us&rnd_m=' . time() . '&key=' . $semrush_key . '&domain=' . $item['domain'] . '&type=domain_organic&display_filter=%2B%7CPh%7CCo%7C' . $key . '&display_sort=nr_asc&export_hash=' . $export_hash . '&export_decode=1&export_escape=1&currency=usd&export_columns=' . $columns . '&export=stdcsv';
-                    echo2("$semrush_query");
-                    $time = microtime(true);
-                    $semrush_data = file_get_contents($semrush_query);
-                    $time = microtime(true) - $time;
-                    echo2("#$counter_semrush_queries Получили данные от SEMRUSH. Заняло времени " . number_format($time, 2) . " сек.");
-                    $counter_semrush_queries++;
-                    if ($semrush_data) {
-                        $semrush_data = explode(PHP_EOL, $semrush_data);
-                        foreach ($semrush_data as $v) {
-                            $semrush_csv[] = str_getcsv($v, ';');
-                        }
-                        unset($semrush_data);
-                        $counter_semrush_results += count($semrush_csv);
-                        foreach ($semrush_csv as $str) {
-                            $query = "INSERT INTO `semrush_keys` (`key_id`, `key`, `adwords`, `results`) VALUES ('', '" . addslashes($str[0]) . "', '$str[1]', '$str[2]'); ";
-                            if ($z = dbquery($query, 0, 1) == 1) {
-                                $counter_uniq_keywords += $z;
-                                $this_time_uniq += $z;
-                            }
-                        }
-                        $array_unique_queries[] = $this_time_uniq;
-                        echo2("Новых фраз закачали $this_time_uniq из полученных " . count($semrush_csv) . " строк.");
-                        unset ($semrush_csv);
-                    }
-                    //Если за 50 запросов в базу упало меньше 1000 уникальных ключей - переходим к следующему домену.
-                    if ($counter_semrush_queries >= 50 && $counter_uniq_keywords < 1000) {
-                        break;
-                    }
-                    //Если за последние 10 запросов упало меньше 100 запросов - переходим к следующему домену.
-                    if ($counter_semrush_queries % 20 == 0) {
-                        if (array_sum($array_unique_queries) < 5000) {
-                            unset($array_unique_queries);
-                            break;
-                        }
-                        unset($array_unique_queries);
-
-                    }
-                }
-            }
-            //Записываем обновленные результаты парсинга домена
-            echo2("Закончили с доменом, новых уникальных ключей $counter_uniq_keywords за $counter_semrush_queries запросов. Обновляем данные в базе.");
-            echo2("-------------------------------");
-            $query = "UPDATE `semrush_domains` SET `queries_done` = `queries_done` + $counter_semrush_queries , `results_got` = `results_got` + $counter_semrush_results, `results_unique` = `results_unique` + $counter_uniq_keywords WHERE `id` = " . $item['id'];
-            dbquery($query);
-            $counter_semrush_queries = 0; //Сколько раз запросили SEMRUSH
-            $counter_semrush_results = 0; //Скольок кеев получили от SEMRUSH (неуник, все).
-            $counter_uniq_keywords = 0; //Сколько ключей 1 ДОМЕНА записали в базу. Только уникальные ключи пишутся.
-            unset($last_10_queries, $tmp_last_10_queries);
-        }
-    }
-}
-
 //Допарсим крупные домены.
-parse_words();
+//parse_words();
 
 $counter_semrush_queries = 0; //Сколько раз запросили SEMRUSH
 $counter_semrush_results = 0; //Скольок кеев получили от SEMRUSH (неуник, все).
@@ -286,7 +320,7 @@ foreach ($domain_list as $domain) {
                     echo2($semrush_query);
                     $time = microtime(true);
                     //exmpl query https://us.backend.semrush.com/?action=report&database=us&rnd_m=1485386746&key=5c8e0eb96b3fe54582fee2128ea97257&domain=hairstylefoto.com&type=domain_organic&display_filter=&display_sort=tr_desc&export_hash=62b89bcfe05430a7607bb86a48ab0f7e&export_decode=1&export_escape=1&currency=usd&export_columns=Ph,Nq,Nr&export=stdcsv
-                    $semrush_data = file_get_contents($semrush_query);
+                    $semrush_data = curl_get_content($semrush_query);
                     $time = microtime(true) - $time;
                     echo2("Получили данные от SEMRUSH. Заняло времени " . number_format($time, 2) . " сек.");
                     $counter_semrush_queries++;
@@ -308,6 +342,7 @@ foreach ($domain_list as $domain) {
                                 $counter_uniq_keywords += $z;
                             }
                             //Записывать будем только если большие сайты ключевики.
+                            #todo дописать функцию по сортировкам первых 20 ключей для больших доменов.
                             if ($semrush_keys > 70000) {
                                 $tmp = explode(' ', $str[0]);
                                 foreach ($tmp as $word) {
