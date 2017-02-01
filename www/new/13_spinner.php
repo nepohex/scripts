@@ -127,6 +127,7 @@ if ($mega_spin == true) {
             $tmp = str_ireplace($preg_tpls_replace, '.*', $tmp);
             $posts[$i]['tpl'] = '/(.)*' . $tmp . '(.)*/i';
             // Начинаем поиск постов подходящих под регулярку.
+            shuffle($mega_spin_tpls); //Чтобы всем по-ровну досталось. Эффективность на 50% выше с рандомом!
             foreach ($mega_spin_tpls as $mega_spin_tpl) {
                 if (preg_match($posts[$i]['tpl'], $mega_spin_tpl['h3']) | preg_match($posts[$i]['tpl'], $mega_spin_tpl['img_alt'])) {
                     $mega_spin_used_ids[] = $mega_spin_tpl['id'];

@@ -47,7 +47,7 @@ function echo_time_wasted($i = null)
     $time = microtime(true) - $start;
     $format = "сек";
     if ($time > 300) {
-        $time = $time / 60 ;
+        $time = $time / 60;
         $format = "мин";
     }
     if ($i) {
@@ -58,10 +58,10 @@ function echo_time_wasted($i = null)
 
 }
 
-function print_r2($val)
+function print_r2($array)
 {
     echo '<pre>';
-    print_r($val);
+    print_r($array);
     echo '</pre>';
     flush();
 }
@@ -95,7 +95,7 @@ function next_script($php_self, $fin = null)
     echo2("Не можем найти следующего скрипта после " . $php_self);
 }
 
-function mkdir2($dir,$stfu = null)
+function mkdir2($dir, $stfu = null)
 {
     if ($stfu) {
         if (!is_dir($dir)) {
@@ -133,7 +133,7 @@ function pwdgen($length, $include_punctuation = null)
 
 }
 
-function dbquery($queryarr, $fetch_row_not_assoc = null,$return_affected_rows = null)
+function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null)
     /**
      * На входе нужен sql resource $link , mysqli_init
      * ПРИНИМАЕТ: массив или строку Insert / Update запросов.
@@ -174,7 +174,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null,$return_affected_rows = 
         if (strstr($queryarr, "SELECT")) {
             if ($fetch_row_not_assoc) {
                 while ($tmp = mysqli_fetch_row($sqlres)) {
-                    if (count($tmp) >1) {
+                    if (count($tmp) > 1) {
                         $result[] = $tmp;
                     } else {
                         $result[] = $tmp[0];
@@ -258,6 +258,19 @@ function printr_to_array($str)
         return null;
     }
 
+}
+
+function csv_to_array($csv_filepath, $delimiter = ';')
+{
+    if (is_file($csv_filepath)) {
+        $csv = array_map('str_getcsv', file($csv_filepath));
+        foreach ($csv as $line) {
+            $csv_lines[] = explode($delimiter, $line[0]);
+        }
+        return $csv_lines;
+    } else {
+        echo2("Функция csv_to_array не может получить контент файла $csv_filepath (должен быть CSV)");
+    }
 }
 
 class Spintax
