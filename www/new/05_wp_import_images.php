@@ -7,7 +7,7 @@
  * #3
  */
 include "multiconf.php";
-include ("mysqli_connect.php");
+include("mysqli_connect.php");
 echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
 
 // пример того что падает в wp_postmeta массив с данными о картинке

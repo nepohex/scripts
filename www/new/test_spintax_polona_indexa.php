@@ -9,13 +9,14 @@
  */
 include "123_conf_debug_config.php";
 mysqli_connect2($db_name_spin);
-$csv_fp = 'f:\Dumps\highlighted-hair.com\import\highlight_images_10000_rand_lines.csv';
+$keyword = "burgundy";
+$csv_fp = 'f:\Dumps\burgundyhair.info\import\burgundy_images_2000_rand_lines.csv';
 $preg_tpls_replace = array('  ', ' .* .* ', ' .* ', ' .*', '.* ', '.*.*');
 $csv_arr = csv_to_array($csv_fp);
 $excluded_spin_words = array_merge($filter_words, $uniq_addings, $uniq_addings_nch, $autocat_exclude_words);
 $excluded_spin_words = array_map('trim', $excluded_spin_words);
 $excluded_spin_words = array_unique($excluded_spin_words);
-$excluded_spin_words = array_push($excluded_spin_words, 'highlights', 'highlighted');
+$excluded_spin_words = array_push($excluded_spin_words, 'burgundy', 'plum');
 foreach ($autocat_strict_word_exclude as $tmp) {
     $predlogi[] = ' ' . $tmp . ' ';
 }

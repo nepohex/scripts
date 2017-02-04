@@ -9,7 +9,7 @@
 include "multiconf.php";
 //Именно здесь название базы 2ой пишем чтобы перезаписать переменную базы для коннекта вместо стандартной конфига
 $db_name = 'image_index';
-include ("mysqli_connect.php");
+include("mysqli_connect.php");
 $fp = fopen($result_dir.$log_file,"a");
 echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
 

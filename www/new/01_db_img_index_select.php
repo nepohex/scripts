@@ -16,29 +16,33 @@ echo2("Будем выгружать из базы " . $db_name . " данные
 $pattern = '/-.?[0-9]\w+/i';
 
 // Блок для выгрузки из таблицы KK_KEYS, Если файла с выгрузкой по ключу с таким же количеством строк как в базе сейчас нету - выгружаем. Если есть - проходим мимо.
-$query = "SELECT COUNT(*) FROM `kk_keys` WHERE `key` LIKE '%" . $keyword . "%';";
+$query = "SELECT COUNT(*) FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%';";
 $sqlres = mysqli_query($link, $query);
 $row = mysqli_fetch_row($sqlres);
 $db_results = $row[0];
-$res_kk = $keyword . "_kk.csv";
+$res_kk = $selects_dir . '/' . $keyword . "_kk.csv";
 if (!(file_exists($res_kk))) {
     $fp = fopen($res_kk, 'a');
     echo2("Ключей в таблице KK_KEYS по фразе " . $keyword . " всего " . $row[0] . ". Файла с выгрузкой обнаружено не было, начинаем выгружать из базы одним запросом! Результат будет сохранен в файл " . $res_kk);
 
-    $query = "SELECT `key`,`adwords` FROM `kk_keys` WHERE `key` LIKE '%" . $keyword . "%';";
+    $query = "SELECT `key`,`adwords` FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%';";
     $sqlres = mysqli_query($link, $query);
     while ($row = mysqli_fetch_row($sqlres)) {
         fputcsv($fp, $row, ";");
     }
     fclose($fp);
+    echo2("Записали файл с выгрузкой из KK");
+    echo_time_wasted();
+} else {
+    echo2("Файл KK_KEYS под ключ $keyword ранее был создан, используем его.");
 }
-echo2("Записали файл с выгрузкой из KK");
-$res_kk2 = $keyword . "_images.csv";
+$res_kk2 = $selects_dir . '/' . $keyword . "_images.csv";
 
 if (!(file_exists($res_kk2))) {
+    echo2("Файла для импорта картинок под ключ $keyword еще не создано, идем создавать.");
 // Создаем временную таблицу если результатов в таблице kk_keys относительно общего количества строк в базе мало (например, 20 тысяч из 330). Это должно ускорить процесс, временная таблица хранится в оперативной памяти
     if ($db_results < 100000) {
-        $query = "CREATE TEMPORARY TABLE `" . $res_kk . "` AS (SELECT `key`,`adwords` FROM `kk_keys` WHERE `key` LIKE '%" . $keyword . "%');";
+        $query = "CREATE TEMPORARY TABLE `" . $res_kk . "` AS (SELECT `key`,`adwords` FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%');";
         $sqlres = mysqli_query($link, $query);
     }
 
@@ -81,7 +85,7 @@ if (!(file_exists($res_kk2))) {
             $images[$i]['title'] = strtolower(trim(str_replace($replace_symbols, ' ', $images[$i]['title'])));
             //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
             if ($matchez) {
-                $images[$i]['title'] .= ' '.$matchez[0];
+                $images[$i]['title'] .= ' ' . $matchez[0];
                 unset($matchez);
             }
             //
@@ -103,8 +107,9 @@ if (!(file_exists($res_kk2))) {
         unset($images, $image, $tmp);
         //echo_time_wasted($counter_start_limit);
     }
+} else {
+    echo2("Файл импорта с адресами картинок из таблицы semrush_keys для ключа $keyword уже создан, используем его!");
 }
 echo_time_wasted();
 echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
 next_script($_SERVER['SCRIPT_FILENAME']);
-?>

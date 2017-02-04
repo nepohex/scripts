@@ -14,7 +14,7 @@
  * 5. Обновляем wp_term_taxonomy , вставляем количество постов в поле Count для каждой категории, чтобы в админке на странице Рубрик были актуальные данные по количеству постов в рубриках.
  */
 include "multiconf.php";
-include( "mysqli_connect.php" );
+include("mysqli_connect.php");
 echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
 
 // Получаем список категорий

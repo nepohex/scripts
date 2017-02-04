@@ -8,7 +8,7 @@
  * Можно прогонять несколько раз, каждый раз при данных $publish = 30 будет 30% от опубликованных записей присваиваться статус pending
  */
 include "multiconf.php";
-include ("mysqli_connect.php");
+include("mysqli_connect.php");
 echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
 
 $fp = fopen($result_dir.$log_file,"a");

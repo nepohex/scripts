@@ -40,8 +40,8 @@ $max_posts_per_cat = 10; //20 означает максимум 5% постов 
 
 //Диры
 $work_dir = 'F:\Dumps\\'.$site_name; // Пока нигде не использовано
-$start_script = 'initialize.php';
-$scripts_chain = array( 'initialize.php','0_db_img_index_select.php', '1_csv_random_split.php', '2_copy_file.php','3_generate_thumbs.php','4_wp_import_images.php','5_wp_check_uniq_titles.php','6_kk_titles_choose.php', '7_choose_uniq_title.php', '8_insert_db_new_titles.php','9_db_insert_posts.php','10_wp_auto_suggest_category.php','11_choose_category.php','12_pending_posts.php','13_spinner.php','14_sql_export.php'  ); // Какой скрипт за каким следует
+$start_script = '0_initialize.php';
+$scripts_chain = array( '00_initialize.php','01_db_img_index_select.php', '02_csv_random_split.php', '03_copy_file.php','04_generate_thumbs.php','05_wp_import_images.php','06_wp_check_uniq_titles.php','07_kk_titles_choose.php', '08_choose_uniq_title.php', '09_insert_db_new_titles.php','10_db_insert_posts.php','11_wp_auto_suggest_category.php','12_choose_category.php','13_pending_posts.php','14_spinner.php','15_sql_export.php'  ); // Какой скрипт за каким следует
 $big_res_to_split = $keyword."_images.csv"; // Для вычленения отсюда необходимого количества позиций для 1 сайта
 $import_file = $keyword."_images_".$images_per_site.'_rand_lines.csv';
 $kk_import_file = $keyword."_kk.csv";
@@ -69,13 +69,14 @@ $import_dir = $work_dir."\\import\\";
 $work_file = $import_dir.$import_file;
 $img_dir = $work_dir.'/wp-content/uploads/'.$wp_image_upload_date_prefix;
 $img_crop_dir = $img_dir."crop\\"; // Более не используется.
+$selects_dir = 'selects';
 //$kk_file = $import_dir.$kk_import_file;
 $kk_file = $kk_import_file; // Пока что лежит в корне скрипта, в последствии в импорт добавлять будем
 $log_file = 'log.txt';
 $fp_log = fopen($result_dir.$log_file,"a");
 
 // База данных Wordpress
-$db_instance = 'db_instance.sql'; // Пустая база данных с таблицами Wordpress, которая будет создаваться каждый раз для нового сайта. Лежать будет пока в папке со скриптом.
+$db_instance = 'includes/db_instance.sql'; // Пустая база данных с таблицами Wordpress, которая будет создаваться каждый раз для нового сайта. Лежать будет пока в папке со скриптом.
 $db_usr = 'root';
 $db_name = $site_name;
 // База данных с картинками

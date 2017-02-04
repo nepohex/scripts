@@ -18,9 +18,9 @@ $db_name = 'image_index';
 $db_pwd = '';
 $link = mysqli_init();
 
-$csv_file = 'F:\Dumps\downloaded sites\import_db_big5.csv';
+$csv_file = 'F:\Dumps\downloaded sites\import_db_big6.csv';
 $down_sites_path_prefix = "f:\\Dumps\\downloaded sites\\";
-$filename_filters = array('hair', 'beard', 'updo', 'graduat', 'brunett', 'bun', 'bang', 'ponytail', 'ombre', 'brunet', 'bob', 'pixie', 'blond', 'layer', 'curl', 'ombre', 'waves', 'straight', 'highlight', 'mohawk', 'fishtail', 'blunt', 'headband', 'pompadour', 'dread', 'waterfall', 'balayage', 'femini');
+$filename_filters = array('hair', 'beard', 'updo', 'graduat', 'brunett', 'bun', 'bang', 'ponytail', 'ombre', 'brunet', 'bob', 'pixie', 'blond', 'layer', 'curl', 'ombre', 'waves', 'straight', 'highlight', 'mohawk', 'fishtail', 'blunt', 'headband', 'pompadour', 'dread', 'waterfall', 'balayage', 'femini','undercut','messy','chopp','asymmet','twist','burgund','length','african','american','older','face','pony','tail','edgy','copper');
 $patterns = array('/[0-9]+x[0-9]+/i', '/.+descr\.wd3/i');
 
 if (!$link) {
@@ -86,7 +86,7 @@ while (($data = fgetcsv($fp)) !== FALSE) {
             $site_dir = addslashes($down_sites_path_prefix . $csv_import[0] . $wp_prefix);
             $c_db_domains++;
             $query = "INSERT INTO `domains` VALUES ('" . $c_db_domains . "','" . $csv_import[0] . "','" . $site_dir . "'," . $is_wp . ");";
-//            $sqlres = mysqli_query($link, $query);
+            $sqlres = mysqli_query($link, $query);
             $domains[] = $csv_import[0];
             $db_domains[$c_db_domains]['site_id'] = $c_db_domains;
             $db_domains[$c_db_domains]['domain'] = $csv_import[0];

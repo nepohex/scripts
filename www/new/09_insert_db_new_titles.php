@@ -7,7 +7,7 @@
  * После того как определили неуникальные тайтлы, сопоставили их с KK, сгенерили новые, теперь заливаем их в базу.
  */
 include "multiconf.php";
-include( "mysqli_connect.php" );
+include("mysqli_connect.php");
 echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
 $srlz_post_titles = unserialize(file_get_contents($result_dir.$res3));
 

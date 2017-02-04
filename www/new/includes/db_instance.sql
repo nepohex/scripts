@@ -1,21 +1,4 @@
 
-
-CREATE TABLE `my_spintax` (
-  `id` smallint(6) NOT NULL AUTO_INCREMENT,
-  `text` varchar(5000) NOT NULL,
-  `place` varchar(64) NOT NULL,
-  `variants` smallint(6) NOT NULL,
-  `comment` smallint(6) NOT NULL,
-  `avg_length` smallint(6) NOT NULL,
-  `used` smallint(6) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
-
-
-
-
-
-
 CREATE TABLE `wp_commentmeta` (
   `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `comment_id` bigint(20) unsigned NOT NULL DEFAULT '0',

@@ -8,7 +8,7 @@
  * Слова из которых не создавать категории в конфиге в переменной $autocat_analyse, количество категорий в конфиге $cats.
  */
 include "multiconf.php";
-include( "mysqli_connect.php" );
+include("mysqli_connect.php");
 echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
 
 $query = "Select `post_title` from `wp_posts` where `post_type` = 'post';";
