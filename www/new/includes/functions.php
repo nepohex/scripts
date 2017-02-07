@@ -14,6 +14,7 @@ function mysqli_connect2($db_name = null)
         global $db_name;
         if ($db_name == false) {
             echo2("Не указана переменная db_name которая нужна для связи с mysql функции mysqli_connect2");
+            exit;
         }
     }
 
@@ -88,6 +89,8 @@ function next_script($php_self, $fin = null)
     $php_self = array_pop(explode('/', $php_self));
     foreach ($scripts_chain as $script) {
         if ($script == $php_self) {
+            echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
+            echo2("--------------------------------$i--------------------------------");
             return header('Location: ' . $scripts_chain[$i + 1]);
         }
         $i++;
@@ -133,7 +136,7 @@ function pwdgen($length, $include_punctuation = null)
 
 }
 
-function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null)
+function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null, $msg_if_empty_select = null)
     /**
      * На входе нужен sql resource $link , mysqli_init
      * ПРИНИМАЕТ: массив или строку Insert / Update запросов.
@@ -169,7 +172,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
     } else { //Если не массив, то может быть и SELECT, можно вернуть значение.
         $sqlres = mysqli_query($link, $queryarr);
         if ($error = mysqli_error($link)) {
-//            echo2("Mysqli error $error в запросе $queryarr");
+            echo2("Mysqli error $error в запросе $queryarr");
         }
         if (strstr($queryarr, "SELECT")) {
             if ($fetch_row_not_assoc) {
@@ -193,7 +196,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
                     }
                 }
             }
-            if ($result == false) {
+            if ($result == false && $msg_if_empty_select == true) {
                 echo2("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
             }
             return $result;
@@ -270,6 +273,22 @@ function csv_to_array($csv_filepath, $delimiter = ';')
         return $csv_lines;
     } else {
         echo2("Функция csv_to_array не может получить контент файла $csv_filepath (должен быть CSV)");
+    }
+}
+
+function array_to_csv($fname_csv, $array, $success_msg = null, $write_mode = 'a', $csv_delimiter = ';')
+{
+    if ($fp = fopen($fname_csv, $write_mode)) {
+        foreach ($array as $row) {
+            fputcsv($fp, $row, $csv_delimiter);
+        }
+        fclose($fp);
+        if ($success_msg) {
+            echo2("$success_msg");
+        }
+        return true;
+    } else {
+        return false;
     }
 }
 
