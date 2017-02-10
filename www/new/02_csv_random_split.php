@@ -7,7 +7,7 @@
  * Будем делить файл с картинками на количество картинок необходимых для 1 сайта.
  */
 include "multiconf.php";
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+next_script (0,1);
 
 $fname_used = $selects_dir . '/' . $keyword . "_images_used.csv";
 $tmpres = str_replace(".csv", "", $big_res_to_split) . "_" . $images_per_site . "_rand_lines.csv";
@@ -253,6 +253,4 @@ if ($take_only_unused_images && is_file($fname_used) == false) {
 echo2("Создали новый рабочий файл с картинками под названием " . $import_dir . $tmpres);
 echo2("Максимальная длина названия картинки установлена в  " . $image_title_max_strlen);
 echo2("Картинок в переборе было " . $z . " чтобы набрать  " . $images_per_site . " Набрали всего $i картинок.");
-echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
-echo_time_wasted();
-next_script($_SERVER['SCRIPT_FILENAME']);
+next_script();

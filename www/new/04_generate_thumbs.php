@@ -7,7 +7,7 @@
  * #2
  */
 include "multiconf.php";
-echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
+next_script (0,1);
 
 function resize_crop_image($max_width, $max_height, $source_file, $dst_dir, $quality = 80) {
     $imgsize = getimagesize($source_file);
@@ -90,7 +90,4 @@ foreach ($img_names as $img_name) {
     $i++;
 }
 echo2 ("Создали CROP для картинок, из уже было ранее создано в папке ".$counter_crops_exists);
-echo2 ("Закончили со скриптом ".$_SERVER['SCRIPT_FILENAME']." Переходим к NEXT");
-echo_time_wasted();
-next_script ($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();

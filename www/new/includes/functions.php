@@ -78,24 +78,33 @@ function echo2($str)
     }
 }
 
-function next_script($php_self, $fin = null)
+function next_script($php_self = null, $start = null, $fin = null)
 {
     global $scripts_chain;
+
+    if ($php_self == false) {
+        $php_self = $_SERVER['SCRIPT_FILENAME'];
+    }
     if ($fin == true) {
         echo2("Достигли конца генерации сайта, пробуем перейти на новый круг! " . $php_self);
         return header('Location: ' . array_shift($scripts_chain));
     }
-    $i = 0;
-    $php_self = array_pop(explode('/', $php_self));
-    foreach ($scripts_chain as $script) {
-        if ($script == $php_self) {
-            echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
-            echo2("--------------------------------$i--------------------------------");
-            return header('Location: ' . $scripts_chain[$i + 1]);
+    if ($start == true) {
+        echo2("Начинаем выполнять скрипт " . $php_self);
+    } else {
+        $i = 0;
+        $php_self = array_pop(explode('/', $php_self));
+        foreach ($scripts_chain as $script) {
+            if ($script == $php_self) {
+                echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
+                echo_time_wasted();
+                echo2("--------------------------------$i--------------------------------");
+                return header('Location: ' . $scripts_chain[$i + 1]);
+            }
+            $i++;
         }
-        $i++;
+        echo2("Не можем найти следующего скрипта после " . $php_self);
     }
-    echo2("Не можем найти следующего скрипта после " . $php_self);
 }
 
 function mkdir2($dir, $stfu = null)
@@ -126,7 +135,6 @@ function mkdir2($dir, $stfu = null)
 
 function pwdgen($length, $include_punctuation = null)
 {
-#todo дописать сюда знаки препинания для пущей надежности.
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     if ($include_punctuation) {
         $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-+*=@#$%^&.,;:?!()[]{}";
@@ -147,7 +155,6 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
      * Если SELECT - 1 столбец, возвращает 1уровневый массив.
      * Оповещает об ошибках.
      */
-    #todo провести рефакторинг кода, найти все места где использованы единичные SELECT или иные запросы, использовать эту функцию.
     #todo дописать функционал affected_rows для insert/update
     #todo убрать вывод ошибок по параметру.
     #todo добавить возможность отправлять такие запросы без ошибок INSERT INTO  `image_index`.`semrush_keys` SELECT * FROM  `image_index`.`tmp_semrush` ;
@@ -290,6 +297,76 @@ function array_to_csv($fname_csv, $array, $success_msg = null, $write_mode = 'a'
     } else {
         return false;
     }
+}
+
+/**
+ * При выгрузке из базы названий картинок чистит эти названия и превращает в будущие Title
+ */
+function clean_files_name($string, $pattern = null, $replace_symbols = null)
+{
+    if ($pattern == false || $replace_symbols == false) {
+        global $pattern, $replace_symbols;
+    }
+    if ($pattern == false) {
+        $pattern = '/-.?[0-9]\w+/i';
+    }
+    //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
+    if (stripos($string, 'over')) {
+        $z = explode("-", $string);
+        $k = array_search(strtolower('over'), array_map('strtolower', $z));
+        preg_match('/\d{2}/', $z[$k + 1], $matchez);
+    }
+    $string = preg_replace($pattern, "", $string); // Выражение помогает избавиться от 54bf176a17b60 и В любом случае убивает год
+    $string = trim(preg_replace('/\d/', "", $string)); //добиваем все оставшиеся цифры
+    $string = strtolower(trim(str_replace($replace_symbols, ' ', $string)));
+    $string = explode(' ', $string);
+    $final = '';
+    foreach ($string as $word) {
+        if (strlen($word) < 14) {
+            $final .= $word . ' ';
+        }
+    }
+    //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
+    if ($matchez) {
+        $final .= ' ' . $matchez[0];
+    }
+    $final = trim(str_replace('  ', ' ', $final));
+    return $final;
+}
+
+/**
+ * Функция ищет все синонимы и объединяет их с основным словом, которое указано в начале массива synonyms Как первый элемент.
+ * @param $words_used array Массив где ключ = Слово, значение = цифра
+ * @param $synonyms array Многомерный массив где первое значение - родитель, а дети далее в массиве
+ * @param int $limit_iterations сколько раз пробегать по массиву слов, оптимально 200-300.
+ * @return array Массив с отсортированными словами с учетом синонимов
+ */
+function merge_synonyms($words_used , $synonyms, $limit_iterations = 200)
+{
+    arsort($words_used);
+    reset($words_used);
+    $z = 0;
+    $words_used = array_change_key_case($words_used);
+    $synonyms = array_change_key_case($synonyms);
+    foreach ($words_used as $word => $count) {
+        foreach ($synonyms as $synonym) {
+            $i = 0;
+            $parent_syn = $synonym[0];
+            foreach ($synonym as $alternative) {
+                if ($alternative == $word && $i !== 0) {
+                    $words_used[$parent_syn] += $words_used[$alternative];
+                    unset($words_used[$alternative]);
+                }
+                $i++;
+            }
+            unset($i);
+        }
+        if ($z == $limit_iterations) {
+            break;
+        }
+    }
+    arsort($words_used);
+    return $words_used;
 }
 
 class Spintax

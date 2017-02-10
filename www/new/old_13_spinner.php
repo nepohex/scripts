@@ -88,7 +88,7 @@ if ($result) {
     }
 }
 //Проверяем есть ли синонимы для ключевика сайта среди синонимов, чтобы чекнуть специальные Спинтаксы под ключ (или синонимы его)
-foreach ($synonims as $synonim) {
+foreach ($synonyms as $synonim) {
     if (in_array($keyword,$synonim)) {
         $spin_comments[] = $keyword;
         foreach ($synonim as $item) {

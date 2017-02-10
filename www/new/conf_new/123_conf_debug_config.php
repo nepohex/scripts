@@ -68,12 +68,12 @@ $wp_image_upload_date_prefix = '2016/12/';
 //Пути и то что можно не трогать-не менять
 $result_dir = $work_dir."\\result\\";
 $import_dir = $work_dir."\\import\\";
+$selects_dir = 'selects';
 $work_file = $import_dir.$import_file;
 $img_dir = $work_dir.'/wp-content/uploads/'.$wp_image_upload_date_prefix;
 $img_crop_dir = $img_dir."crop\\"; // Более не используется.
-$selects_dir = 'selects';
 //$kk_file = $import_dir.$kk_import_file;
-$kk_file = $kk_import_file; // Пока что лежит в корне скрипта, в последствии в импорт добавлять будем
+$kk_file = $selects_dir.'/'.$kk_import_file; // Пока что лежит в корне скрипта, в последствии в импорт добавлять будем
 $log_file = 'log.txt';
 $fp_log = fopen($result_dir.$log_file,"a");
 
@@ -99,7 +99,7 @@ $project_dirs = array(
 );
 
 $image_words_separator = "_"; // Между словами в названии картинок вставляем. Здесь можно любой символ персональный задать
-$replace_symbols = array('.','_','amp','dfemale','herinterest','iataweb','men39s','tumblr','deva','thumbs','women39s','page','blog','ngerimbat','hair1','hairstylehub','hairjos','+','jpg','jpeg','png','gif','-','!','-min','$', '%', '^','&', '(', ')', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '"', '  '); // Эти символы будем менять при выгрузке из базы данных с картинками и менять их на пробелы чтобы были чистые названия
+$replace_symbols = array('.','_','min','eleganthairstyles','hairstyleceleb','inethair','hairstylesmen','hairstylerunew','hairvintage','hairstyleswell','upload','hairstyleceleb','stylebistro','maomaotxt','aliexpress','dailymotion','maxresdefault','stayglam','shorthairstyleslong','thehairstyler','that39ll','consistentwith','harvardsol','amp','dfemale','herinterest','iataweb','men39s','tumblr','deva','thumbs','women39s','page','blog','ngerimbat','hair1','hairstylehub','hairjos','+','jpg','jpeg','png','gif','bmp','-','!','-min','$', '%', '^','&', '(', ')', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '"', '  '); // Эти символы будем менять при выгрузке из базы данных с картинками и менять их на пробелы чтобы были чистые названия
 $bad_symbols = array('39s','$', '%', '^','&', '(', ')', '=', '+', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '.','"', '  '); //Заменим эти символы в имени файла на пробелы
 $wp_postmeta_start_pos = 100; //Лучше не трогать. Начальный ID для загрузки в базу данных картинок, будет также использован для автокатегорий
 $post_guid = 10000; //Лучше не трогать. Стартовый POST_ID /?p= который будет заливаться в WP
@@ -123,18 +123,18 @@ $uniq_addings_nch = array(' casual ' , ' everyday ' , ' super ' , ' retro ' , ' 
 $year_pattern = "/(201[0-9])/"; //Находим в заголовках год, чтобы его заменить
 $year_to_replace = 2017; // Год на который меняем
 $autocat_exclude_words = array($keyword, $year_to_replace, 'length', 'choose','when','youtube','amp','inspir','gallery','view','pic','about','your','idea', 'design', 'hair','style','women','very','with','picture','image','pinterest','woman','tumblr','from', 'side','pictures','ideas','style'); // Это слова которые будут исключены из автосоздания категорий. Исключение идет по маске!
-$autocat_strict_word_exclude = array('a','cut','to','in','the','on','what','of','for','at','by','is','in','and','do','how','this','that','can','part','new','with','in','can','be','or','as','its','as','an','its','will','by'); //Строгое исключение данных слов в качестве категории
+$autocat_strict_word_exclude = array('a','you','it','cut','to','in','the','on','what','of','for','at','by','is','in','and','do','how','this','that','can','part','new','with','in','can','be','or','as','its','as','an','its','will','by'); //Строгое исключение данных слов в качестве категории
 
 // Синонимы названий категорий. Важно первым элементом использовать существующую категорию из WP, иначе не сработает
-$synonims[] = array ('fine','thick','thin');
-$synonims[] = array  ('black','african','american');
-$synonims[] = array ('trend','latest','new');
-$synonims[] = array ('men','guy','boy','mens');
-$synonims[] = array ('layered', 'layer','layers');
-$synonims[] = array ('blond', 'blonded','blonde');
-$synonims[] = array ('braid', 'braided','bridal','braids');
-$synonims[] = array ('curls', 'curly','curled');
-$synonims[] = array ('girl', 'girls');
-$synonims[] = array ('medium', 'mid','shoulder');
-$synonims[] = array ('updo','updos');
-$synonims[] = array ('color','colors','colored');
+$synonyms[] = array ('mens','men','guy','boy','guys','man');
+$synonyms[] = array ('fine','thick','thin');
+$synonyms[] = array  ('black','african','american');
+$synonyms[] = array ('trend','latest','new','trendy');
+$synonyms[] = array ('layered', 'layer','layers');
+$synonyms[] = array ('blond', 'blonded','blonde');
+$synonyms[] = array ('braid', 'braided','bridal','braids');
+$synonyms[] = array ('curls', 'curly','curled');
+$synonyms[] = array ('girl', 'girls');
+$synonyms[] = array ('medium', 'mid','shoulder');
+$synonyms[] = array ('updo','updos');
+$synonyms[] = array ('color','colors','colored');

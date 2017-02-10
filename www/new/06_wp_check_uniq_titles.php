@@ -8,20 +8,14 @@
  * закидываем в файл массив с результатами для уникализации следующим шагом.
  */
 include "multiconf.php";
-include("mysqli_connect.php");
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+mysqli_connect2();
+next_script (0,1);
 
 $query = "SELECT `post_title` FROM `wp_posts` WHERE `post_type` = 'attachment'";
-$sqlres = mysqli_query($link, $query);
-if (mysqli_error($link)) {
-    echo mysqli_error($link);
-    flush();
-}
-$i = 0;
-while ($row = mysqli_fetch_row($sqlres)) {
-    $tmp = explode('.', $row[0]);
-    $titles[$i]['title'] = trim(str_replace($image_words_separator, ' ', preg_replace('/[0-9]/', '', $tmp[0])));
-    $i++;
+$tmp = dbquery($query,1);
+foreach ($tmp as $item) {
+    $tmp2 = explode('.', $item);
+    $titles[]['title'] = trim(str_replace($image_words_separator, ' ', preg_replace('/[0-9]/', '', $tmp2[0])));
 }
 $i = 0;
 $counter = count($titles);
@@ -35,10 +29,10 @@ foreach ($titles as $title1) {
             }
         }
     }
+    $i++;
     if ($i % 500 == 0) {
         echo_time_wasted($i);
     }
-    $i++;
 }
 
 foreach ($titles as $item) {
@@ -50,9 +44,6 @@ foreach ($titles as $item) {
 $tmp = serialize($titles);
 file_put_contents($result_dir . $res, $tmp);
 
-echo2("Fin! Всего итемов в массиве _" . $counter . " _ , из них уникальных _ " . $z . " _ . Тех у кого нашлось больше " . $max_doubles . " вариантов - " . $counter_too_much_doubles . "_ <br>");
+echo2("Fin! Всего итемов в массиве _" . $counter . " _ , из них уникальных в пределах сайта _ " . $z . " _ . Тех у кого нашлось больше " . $max_doubles . " вариантов - " . $counter_too_much_doubles . "_");
 echo2("Результат записали в файл " . $result_dir . $res);
-echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
-echo_time_wasted();
-next_script($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();

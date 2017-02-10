@@ -7,22 +7,14 @@
  * #1
  */
 include "multiconf.php";
-//Именно здесь название базы 2ой пишем чтобы перезаписать переменную базы для коннекта вместо стандартной конфига
-$db_name = 'image_index';
-include("mysqli_connect.php");
-$fp = fopen($result_dir.$log_file,"a");
-echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
+next_script (0,1);
 
-echo2 ("Рабочий файл импорта скрипта должен быть здесь в формате CSV ". $work_file);
+mysqli_connect2($db_name_img);
+$fp = fopen($result_dir.$log_file,"a");
+
 echo2 ("Папка куда будем закачивать фотки ".$img_dir." c минимальным размером в ".$min_img_size." байт");
 
-$query = "Select * from `domains`";
-if (!$sqlres = mysqli_query($link,$query)) {
-    echo2 (mysqli_error($link));
-}
-while ($row = mysqli_fetch_assoc($sqlres)) {
-    $db_domains[] = $row;
-}
+$db_domains = dbquery("SELECT * FROM `domains`");
 
 $csv = array_map('str_getcsv', file($work_file));
 if (!$csv) {
@@ -122,7 +114,4 @@ echo2 ("Файлов которые ранее использованы на д�
 echo2 ("Сайты-доноры и сколько с них картинок взяли, также сохраняем результаты сюда ".$result_dir.$images_used_stat_filename);
 arsort($img_source_site);
 file_put_contents($result_dir.$images_used_stat_filename,print_r($img_source_site,true));
-echo2 ("Закончили со скриптом ".$_SERVER['SCRIPT_FILENAME']." Переходим к NEXT");
-echo_time_wasted();
-next_script ($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();

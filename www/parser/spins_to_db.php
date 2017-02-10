@@ -16,7 +16,7 @@ $debug_mode = 1;
 
 mysqli_connect2();
 
-$tmp = file_get_contents("result/spinned_texts_dirty4.txt");
+$tmp = file_get_contents("result/spinned_texts_dirty5.txt");
 $texts = printr_to_array($tmp);
 unset ($tmp);
 foreach ($texts as $key => $text) {

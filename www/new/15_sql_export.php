@@ -6,7 +6,7 @@
  * Time: 19:32
  */
 include "multiconf.php";
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+next_script(0,1);
 
 //$backup_name = "mybackup.sql"; // Не работает, будет названием базы
 //$tables = "wp_options"; // Не работает по 1 табле, лень разбираться
@@ -77,5 +77,5 @@ function Export_Database($host, $user, $pass, $name, $tables = false, $backup_na
 
 echo2("Закончили генерацию! " . $_SERVER['SCRIPT_FILENAME'] . " Ставим конфигу статус FIN и если есть еще конфиги - идем дальше по списку создания");
 get_config($fin = true);
-next_script($_SERVER['SCRIPT_FILENAME'], $fin = true);
+next_script(0,0,1);
 ?>

@@ -7,8 +7,8 @@
  * #3
  */
 include "multiconf.php";
-include("mysqli_connect.php");
-echo2 ("Начинаем выполнять скрипт ".$_SERVER['SCRIPT_FILENAME']);
+mysqli_connect2();
+next_script (0,1);
 
 // пример того что падает в wp_postmeta массив с данными о картинке
 $exmpl = unserialize('a:5:{s:5:"width";i:239;s:6:"height";i:239;s:4:"file";s:18:"2016/11/podves.jpg";s:5:"sizes";a:1:{s:9:"thumbnail";a:4:{s:4:"file";s:18:"podves-150x150.jpg";s:5:"width";i:150;s:6:"height";i:150;s:9:"mime-type";s:10:"image/jpeg";}}s:10:"image_meta";a:12:{s:8:"aperture";s:1:"0";s:6:"credit";s:0:"";s:6:"camera";s:0:"";s:7:"caption";s:0:"";s:17:"created_timestamp";s:1:"0";s:9:"copyright";s:0:"";s:12:"focal_length";s:1:"0";s:3:"iso";s:1:"0";s:13:"shutter_speed";s:1:"0";s:5:"title";s:0:"";s:11:"orientation";s:1:"0";s:8:"keywords";a:0:{}}}');
@@ -53,22 +53,14 @@ foreach ($img_names as $img_name) {
         $meta_id++;
         $queries[] = "INSERT INTO  `wp_postmeta` ( `meta_id` , `post_id` , `meta_key` , `meta_value` ) VALUES (" . $meta_id . "," . $wp_postmeta_start_pos . ",  '_wp_attachment_metadata','" . addslashes(serialize($array_to_postmeta)) . "');";
         $queries[] = "INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (" . $wp_postmeta_start_pos . ", 1, '2016-11-19 00:05:53', '2016-11-18 21:05:53','', '" . $img_name . "', '', 'inherit', 'closed', 'closed', '', '" . $img_name . "', '', '', '2016-11-19 00:05:53', '2016-11-18 21:05:53', '', 0, '" . $site_uploads_path . $wp_image_upload_date_prefix . $img_name . "', 0, 'attachment', '" . $array_to_postmeta['sizes']['thumbnail']['mime_type'] . "', 0);";
-        foreach ($queries as $query) {
-            $sqlres = mysqli_query($link, $query);
-            if (mysqli_error($link)) {
-                echo2 (mysqli_error($link));
-            }
-        }
+        dbquery($queries);
         $meta_id++;
         $wp_postmeta_start_pos++;
     }
+    $i++;
     if ($i % 500 == 0) {
         echo_time_wasted($i);
     }
     unset($queries);
-    $i++;
 }
-echo2 ("Закончили со скриптом ".$_SERVER['SCRIPT_FILENAME']." Переходим к NEXT");
-echo_time_wasted();
-next_script ($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();

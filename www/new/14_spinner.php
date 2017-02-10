@@ -6,10 +6,8 @@
  * Time: 0:50
  */
 include "multiconf.php";
-//include "123_conf_debug_config.php";
-//Коннект к базе со спинами;
 mysqli_connect2($db_name_spin);
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+next_script(0, 1);
 
 echo2("Проверяем какие из шаблонов Спинтакса уже есть в базе, каких нет. Тех которых нет - просчитываем и загружаем.");
 $query = "SELECT `text`,`variants`,`used` FROM `my_spintax`";
@@ -50,13 +48,13 @@ if ($result) {
     foreach ($result as $items) {
         foreach ($items as $item) {
             $query = "INSERT INTO `my_spintax` (`id`, `text`, `place`, `variants`, `comment`, `avg_length`, `used`) VALUES ('', '" . addslashes($item['text']) . "', '" . $item['place'] . "', '" . $item['variants'] . "', '', '" . $item['avg_length'] . "', '0');";
-            mysqli_query($link, $query);
+            dbquery($query);
             $counter_new_texts++;
         }
     }
 }
 //Проверяем есть ли синонимы для ключевика сайта среди синонимов, чтобы чекнуть специальные Спинтаксы под ключ (или синонимы его)
-foreach ($synonims as $synonim) {
+foreach ($synonyms as $synonim) {
     if (in_array($keyword, $synonim)) {
         $spin_comments[] = $keyword;
         foreach ($synonim as $item) {
@@ -87,12 +85,8 @@ if ($spin_comments) {
 //Реконнект к основной базе сайта.
 mysqli_connect2();
 //Получаем список постов из основной базы.
-$query = "SELECT `ID`,`post_title` from `wp_posts` WHERE (`post_status` = 'publish' or `post_status` = 'pending') and `post_type` = 'post';";
-$sqlres = mysqli_query($link, $query);
-
-while ($tmp = mysqli_fetch_assoc($sqlres)) {
-    $posts[] = $tmp;
-}
+$query = "SELECT `ID`,`post_title` FROM `wp_posts` WHERE (`post_status` = 'publish' OR `post_status` = 'pending') AND `post_type` = 'post';";
+$posts = dbquery($query);
 
 //Если есть Mega Spin - спин по текстам к картинкам с других сайтов.
 if ($mega_spin == true) {
@@ -105,7 +99,7 @@ if ($mega_spin == true) {
         $mega_spin_variants += $tmp['avg_len'];
     }
 
-    echo2("В $db_name_spin нашлось " . count($mega_spin_tpls) . " шаблонов текста, общий объем текстов $mega_spin_variants. Начинаем подбор шаблонов по PREG для Title постов.");
+    echo2("Mega Spin в базе $db_name_spin нашлось " . count($mega_spin_tpls) . " шаблонов текста подходящих под ключ $keyword, общий объем текстов $mega_spin_variants. Начинаем подбор шаблонов по PREG для Title постов.");
 
     if (count($mega_spin_tpls) > 0) {
         shuffle($mega_spin_tpls);
@@ -156,7 +150,7 @@ if ($mega_spin == true) {
         }
 
         //Пробуем сделать длинный запрос с большим количеством ID в нем.
-        $query = "SELECT `id`,`text_template` from `data` WHERE `id` IN (" . implode(',', $mega_spin_used_ids) . ");";
+        $query = "SELECT `id`,`text_template` FROM `data` WHERE `id` IN (" . implode(',', $mega_spin_used_ids) . ");";
         $mega_spin_tpl_texts = dbquery($query);
 
         //Генерируем mega spin text для тех шаблонов что подошли постам.
@@ -182,7 +176,7 @@ if ($mega_spin == true) {
 //Начинаем генерить тексты для постов
 $i = 0;
 $counter_used_new = 0; //Сколько шаблонов использовали после обновлени текстов
-function add_concat_spin_text($spec_separator)
+function add_concat_spin_text($spec_separator = '')
 {
     global $posts, $i, $spintax, $tmp, $spin_fragments_separator, $tmp_ind_spin_rows, $spin_rows, $counter_used_new;
     $posts[$i]['spintext'] .= $spec_separator;
@@ -196,6 +190,7 @@ mysqli_connect2();
 foreach ($posts as $post) {
     if ($posts[$i]['spintext'] == false) { //Если megaspin уже сделали, то дальше не трогаем данный пост.
         while (strlen($posts[$i]['spintext']) < $posts_spintext_volume) {
+            $tmp_doubles_arr = array('99999'); // Костыль чтобы не было ошибки
             if (!(in_array($tmp_ind_spin_rows = rand(0, count($spin_rows) - 1), $tmp_doubles_arr))) {
                 $tmp_doubles_arr[] = $tmp_ind_spin_rows;
                 $tmp = $spin_rows[$tmp_ind_spin_rows];
@@ -254,8 +249,6 @@ foreach ($spin_rows as $spin_row) {
 }
 
 echo2("Всего строк Спинтакса было в базе " . count($texts) . ", вариантов $variants, которые всего использованы $used раз. Будут использованы не все стрроки.");
-echo2("Для генерации контента для каждой записи использовали шаблоны $counter_used_new раз, получив столько же вариантов. Всего было использовано " . count($spin_rows) . " уникальных шаблонов, в которых содержится $actually_variants вариантов");
+echo2("Для генерации контента для каждой записи использовали шаблоны $counter_used_new раз, получив столько же вариантов.");
 echo2("Новых шаблонов загрузили (если были) $counter_new_texts с вариантами $new_variants");
-echo2("Закончили со скриптом " . $_SERVER['SCRIPT_FILENAME'] . " Переходим к NEXT");
-next_script($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script();

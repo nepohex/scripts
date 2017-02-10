@@ -6,9 +6,10 @@
  * Time: 21:59
  */
 include "multiconf.php";
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+next_script (0,1);
 
 //Больше вариантов генерации
+#todo Дописать 3юю функцию генерации с подстановкой цифр и типа подборок, из тех же Bing тайтлов-вариантов
 switch ($gen_addings) {
     case 2:
         $uniq_addings = $uniq_addings_nch;
@@ -57,12 +58,11 @@ foreach ($srlz_post_titles as $item) {
         echo_time_wasted($i);
     }
 }
-echo2 ("Пробежались по массиву с вариантами новых Title, элементов в обработке $counter_srlz_items, итого new_title получают из KK с ненулевой частотой $new_title_counter, а для тех кому не нашлись годные - генерим по маске используя для подстановки массив из переменной 'uniq_addings' из ".count($uniq_addings) . " элементов в пропорциях от популярности запросов по Гуглу. Итого таких генереных получилось $gen_title_counter");
+echo2 ("New_title получают из KK с ненулевой частотой $new_title_counter, а для тех кому не нашлись годные - генерим по маске используя для подстановки массив из переменной 'uniq_addings' из ".count($uniq_addings) . " элементов в пропорциях от популярности запросов по Гуглу. Итого таких генереных получилось $gen_title_counter");
 echo2 ("Нетронутых, уникальных в пределах сайта Title оказалось _ $old_title_counter _ , их не трогали!");
 echo2 ("По старой частоте было _". chunk_split($old_adwords_counter,3," ")." _ , с новой частотой стало _".chunk_split($new_adwords_counter,3," ")." _");
 echo2 ("Старая частота будет не верна - не сравнивали сколько были, новая - верна.");
 $srlz_post_titles = serialize($srlz_post_titles);
 file_put_contents($result_dir.$res3,$srlz_post_titles);
 echo2 ("Результаты сохранили в папку со скриптом, ".$result_dir.$res3);
-next_script ($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();

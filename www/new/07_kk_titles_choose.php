@@ -7,23 +7,13 @@
  * На массив 5000 строк на 6000 строк выполняется 80 минут! Осторожно при запуске! Результат около 20 мб.
  */
 include "multiconf.php";
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+next_script (0,1);
 
-echo2 ("Ресурсоемкий скрипт, будем подбирать по регулярке варианты для неуникальных тайтлов из базы KK $kk_fp");
+echo2 ("Ресурсоемкий скрипт, будем подбирать по регулярке варианты для неуникальных тайтлов из базы KK $kk_file");
 $srlz_post_titles = unserialize(file_get_contents($result_dir.$res));
 $count_srlz_items = count($srlz_post_titles); //Для вывода статуса работы
-$csv = array_map('str_getcsv', file($kk_file));
-$i=0;
-foreach ($csv as $csvstring) {
-    $r = explode(";", $csvstring[0]);
-    foreach ($r as $rr) {
-        if ($rr[1] == '') { $rr[1] = 0;}
-        $csv_new[$i][] = $rr;
-    }
-    $i++;
-}
-unset($csv,$csvstring,$rr,$r,$i,$res);
 
+$csv_new = csv_to_array ($kk_file);
 // Удаление из KK массива всех ключей которые уже есть у нас в заголовках. Можно удалить все, можно только те которые в пределах сайта неуникальны.
 if ($unset_kk_doubles == true) {
     $i = 0;
@@ -62,6 +52,9 @@ if ($unset_kk_doubles == true) {
 }
 $i = 0;
 $z = 0;
+$counter_unique_titles = 0 ; // Уникальных тайтлов на сайте для которых не ищем новые.
+$counter_non_unique_titles = 0; // Неуникальных, для которых нашли варианты.
+$counter_looked_for_titles = 0; // Для них искали варианты и не нашли.
 foreach ($srlz_post_titles as $r) {
     if ($r['uniq'] > $limit_uniq) {
         $srlz_post_titles[$i]['wp_pattern'] = str_ireplace($filter_words, "(.)*", $r['title']);
@@ -72,10 +65,12 @@ foreach ($srlz_post_titles as $r) {
         }
         foreach ($csv_new as $item) {
             preg_match($pattern, $item['0'], $matches);
+            $s = 1;
             if ($matches[0] != null && stripos($pattern,' men') && stripos($item[0],' men')) {
                 $srlz_post_titles[$i]['preg_kk'][$z]['title'] = $matches[0];
                 $srlz_post_titles[$i]['preg_kk'][$z]['adwords'] = $item[1];
                 $z++;
+                $t = 1;
                 if ($z == 100) {
                     break; //Лимитируем чтобы было не более 100 вариантов тайтлов!
                 }
@@ -83,27 +78,34 @@ foreach ($srlz_post_titles as $r) {
                 $srlz_post_titles[$i]['preg_kk'][$z]['title'] = $matches[0];
                 $srlz_post_titles[$i]['preg_kk'][$z]['adwords'] = $item[1];
                 $z++;
+                $t = 1;
                 if ($z == 100) {
                     break; //Лимитируем чтобы было не более 100 вариантов тайтлов!
                 }
             }
         }
+        if ($t == 1) {
+            $counter_non_unique_titles++;
+        }
+        if ($s == 1) {
+            $counter_looked_for_titles++;
+        }
         $variants += $z;
         $z = 0;
         $i++;
+        unset($t,$s);
     } else {
+        $counter_unique_titles++;
         $i++;
-        if (is_int($i/300)) {
+        if ($i % 500 == 0) {
             echo2 ("Уже найдено _ ".$variants." _ вариантов, а строка только _ ".$i." _ из _ ".$count_srlz_items." _, ждем еще!");
             echo_time_wasted();
         }
     }
 }
 
-echo2 ("Пробежались по массиву с вариантами из KK в котором содержится _".count($csv_new)." _ строк, нашли для базы в которой содержится _ ".$count_srlz_items." _ строк, всего вариантов ".$variants." _");
+echo2 ("Уник / Не уник тайлов было / Получилось сделать из них уник / Сколько вариантов на них пришлось $counter_unique_titles / $counter_looked_for_titles / $counter_non_unique_titles / $variants");
 $srlz_post_titles = serialize($srlz_post_titles);
 file_put_contents($result_dir.$res2,$srlz_post_titles);
 echo2 ("Результаты сохранили в папку со скриптом, ".$result_dir.$res2);
-echo_time_wasted();
-next_script ($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();

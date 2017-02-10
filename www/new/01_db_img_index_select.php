@@ -9,7 +9,7 @@
 include "multiconf.php";
 mysqli_connect2($db_name_img);
 
-echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
+next_script (0,1);
 echo2("Будем выгружать из базы " . $db_name . " данные по KeyCollector и адреса на картинки");
 
 $pattern = '/-.?[0-9]\w+/i';
@@ -59,23 +59,7 @@ if (!(file_exists($res_kk2))) {
             $images = dbquery($query);
             $i = 0;
             foreach ($images as $image) {
-                //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
-                if (stripos($images[$i]['filename'], 'over')) {
-                    $z = explode("-", $image['filename']);
-                    $k = array_search(strtolower('over'), array_map('strtolower', $z));
-                    preg_match('/\d{2}/', $z[$k + 1], $matchez);
-                }
-                //
-                $images[$i]['title'] = preg_replace($pattern, "", $image['filename']); // Выражение помогает избавиться от 54bf176a17b60 и В любом случае убивает год
-//    $images[$i]['title'] = preg_replace($year_pattern,$year_to_replace,$images[$i]['title']);
-                $images[$i]['title'] = trim(preg_replace('/\d/', "", $images[$i]['title'])); //добиваем все оставшиеся цифры
-                $images[$i]['title'] = strtolower(trim(str_replace($replace_symbols, ' ', $images[$i]['title'])));
-                //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
-                if ($matchez) {
-                    $images[$i]['title'] .= ' ' . $matchez[0];
-                    unset($matchez);
-                }
-                //
+                $images[$i]['title'] = clean_files_name ($image['filename']);
                 $query = "SELECT `adwords` FROM `" . $table_to_select . "` WHERE `key` = '" . $images[$i]['title'] . "' LIMIT 1;";
                 $tmp = dbquery($query);
                 if ($tmp !== false) {
@@ -128,5 +112,4 @@ if (!(file_exists($res_kk2))) {
 } else {
     echo2("Файл импорта с адресами картинок из таблицы semrush_keys для ключа $keyword уже создан, используем его!");
 }
-echo_time_wasted();
-next_script($_SERVER['SCRIPT_FILENAME']);
+next_script ();

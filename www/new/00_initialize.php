@@ -94,7 +94,4 @@ function import_db_instance() {
 }
 import_db_instance();
 
-echo2 ("Закончили со скриптом ".$_SERVER['SCRIPT_FILENAME']." Переходим к NEXT");
-echo_time_wasted();
-next_script ($_SERVER['SCRIPT_FILENAME']);
-?>
+next_script ();
