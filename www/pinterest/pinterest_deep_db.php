@@ -268,8 +268,10 @@ function get_deep_domains_to_parse($count)
 {
     global $table_name;
     // status = '0 - не чекали, 1 - чекнули, 2 - в процессе (чекнули = пустой),  3 - start deep parse each pin, 4 - finish deep parse'
-    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
-//    $list = dbquery("SELECT * FROM `domains` WHERE `status` IN (1,2) AND `top1_pin_activity` > 1000 ORDER BY `top1_pin_activity`  DESC LIMIT $count");
+//    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
+//    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 100 ORDER BY `top1_pin_activity`  DESC LIMIT $count");
+    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 1000 ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
+//    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND `domain` = 'theittybittyboutique.com'");
     if (count($list) > 0) {
         $ids = '';
         foreach ($list as $item) {
@@ -355,8 +357,8 @@ $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_feb';
-$table_gold = 'gold_feb';
+$table_name = 'godaddy_closeout';
+$table_gold = 'gold_closeout';
 mysqli_connect2($db_name);
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
 //$pin_pwd = 'xmi0aJByoB';

@@ -216,7 +216,7 @@ $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_feb';
+$table_name = 'godaddy_closeout';
 mysqli_connect2($db_name);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
