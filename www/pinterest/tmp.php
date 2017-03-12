@@ -6,12 +6,77 @@
  * Time: 21:41
  */
 include('../new/includes/functions.php');
+require('../../vendor/autoload.php');
+include('C:\OpenServer\domains\scripts.loc\www\php-whois\src\Phois\Whois\Whois.php');
+use seregazhuk\PinterestBot\Factories\PinterestBot;
 header('Content-Type: text/html; charset=utf-8');
 $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
-mysqli_connect2("pinterest");
-$pin_db = 'godaddy_closeout';
+//mysqli_connect2("pinterest");
+$pin_db = 'domains_jan2';
+
+$pin_acc = 'inga.tarpavina.89@mail.ru';
+$pin_pwd = 'xmi0aJByoB';
+pinterest_local_login($pin_acc, $pin_pwd);
+
+$domain = 'appthink.org';
+$pins = $bot->pins->fromSource($domain,20)->toArray();
+
+foreach ($pins as $pin) {
+    $domain_pins['summary']['pins'] += 1;
+    $domain_pins['summary']['saves'] = $pin['aggregated_pin_data']['aggregated_stats']['saves'];
+    $domain_pins['summary']['done'] = $pin['aggregated_pin_data']['aggregated_stats']['done'];
+    $domain_pins['summary']['likes'] = $pin['aggregated_pin_data']['aggregated_stats']['likes'];
+    $domain_pins['summary']['repins'] = $pin['repin_count'];
+}
+//$fp = fopen("com_whois_avail.txt", "a+");
+//$domains = file('com_domains.txt', FILE_IGNORE_NEW_LINES);
+//foreach ($domains as $sld) {
+//
+//    $domain = new Phois\Whois\Whois($sld);
+//
+//    $whois_answer = $domain->info();
+//
+////    echo $whois_answer;
+//
+//    if ($domain->isAvailable()) {
+//        echo2("$sld");
+//        fputs($fp, $sld . PHP_EOL);
+//    } else {
+////        echo "Domain is registered\n";
+//    }
+//}
+//echo_time_wasted();
+//exit();
+//$str = '<item><title>LOVEVERAFTERBOOK.COM</title><link><![CDATA[https://auctions.godaddy.com/trpItemListing.aspx?miid=220201466&isc=rssTD01]]></link><description><![CDATA[Auction Type: BuyNow, Auction End Time: 03/09/2017 08:00 AM (PST), Price: $90, Number of Bids: 0, Domain Age: 5, Description: , Traffic: 4, Valuation: $0, IsAdult: false]]></description><guid><![CDATA[https://auctions.godaddy.com/trpItemListing.aspx?miid=220201466]]></guid></item>';
+//preg_match('/Price: \$(\d+)/', $str, $matches2);
+//preg_match('/\d{2}\/\d{2}\/\d{4} \d+:\d+ [AMPM]+/', $str, $matches3);
+//$price = $matches2[1];
+//$date = strtotime(substr($matches3[0], 0, -3));
+//$time_to_moscow = 11*60*60; // PST - время которое выдает Godaddy (-8 Часов GMT), Москва +3 GMT.
+//$moscow_end_date = $date + $time_to_moscow;
+//$nice_end_date = date ('d/m H:i',$moscow_end_date);
+//echo "penis";
+//$query = "SELECT `id`,`domain` FROM `$pin_db` WHERE `7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200 ORDER BY `30_days_top10_pins_actions`  DESC";
+//$res = dbquery ($query,1);
+//echo2 ("Выгрузили ".count($res)." доменов из базы $pin_db по запросу $query".PHP_EOL."Доступные домены: ");
+//foreach ($res as $item ) {
+//    if (checkdnsrr($item[1],'ns') == false) {
+//        $query = "UPDATE `$pin_db` SET `domain_available` = 1 WHERE `id` = $item[0]";
+//        echo2 ("$item[1]");
+//        dbquery($query);
+//        $z++;
+//    } else {
+//        $query = "UPDATE `$pin_db` SET `domain_available` = 0 WHERE `id` = $item[0]";
+//        dbquery($query);
+//        $i++;
+//    }
+//}
+//echo_time_wasted(false,"Доступные для регистрации и нет домены $z / $i ");
+//exit();
+
+
 //$dirfiles = scandir("debug2");
 //foreach ($dirfiles as $parsefname) {
 //    if (strpos($parsefname, ".txt")) {
@@ -47,18 +112,20 @@ foreach ($dirfiles as $parsefname) {
     if (strpos($parsefname, ".txt")) {
         $txt = file("sources_expired/" . $parsefname, FILE_IGNORE_NEW_LINES);
         $count += count($txt);
-        echo_time_wasted(null, "Начинаем обрабатывать файл $parsefname с " .count($txt)." строками");
+        echo_time_wasted(null, "Начинаем обрабатывать файл $parsefname с " . count($txt) . " строками");
         foreach ($txt as $item) {
             $i++;
-            if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($item))) {
-                $count_valid++;
-                $query = "INSERT INTO `pinterest`.`$pin_db` (`id`, `domain`, `status`) VALUES (NULL, '$item', '0')";
-                if (dbquery($query, null, true, null, 'shutup') == 1) {
-                    $count_uploaded++;
+            if (preg_match('/^[0-9]+\./', $item) == false) {
+                if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($item))) {
+                    $count_valid++;
+                    $query = "INSERT INTO `pinterest`.`$pin_db` (`id`, `domain`, `status`) VALUES (NULL, '$item', '0')";
+                    if (dbquery($query, null, true, null, 'shutup') == 1) {
+                        $count_uploaded++;
+                    }
                 }
             }
             if ($i % 10000 == 0) {
-                echo2 ("    Идем по строке $i , загружено $count_uploaded");
+                echo2("    Идем по строке $i , загружено $count_uploaded");
             }
         }
         echo_time_wasted(null, "    Прошли по фильтру доменной зоны $count_valid , в базу догрузили $count_uploaded");
@@ -75,6 +142,19 @@ $domains = csv_to_array2('sources/domains_06_2016.csv', ';', 1, 1);
 echo "penis";
 //Пример того что отдает активитес.
 //$activities = $bot->pins->activity('378935756118457145', 5)->toArray();
+
+function pinterest_local_login($pin_acc, $pin_pwd)
+{
+    global $bot;
+    $bot = PinterestBot::create();
+    $bot->auth->login($pin_acc, $pin_pwd);
+    if ($bot->auth->isLoggedIn()) {
+        echo2("login success! Local IP and $pin_acc:$pin_pwd");
+    } else {
+        echo2("login failed!");
+        exit();
+    }
+}
 $activities = array(
     0 =>
         array(

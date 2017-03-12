@@ -17,7 +17,7 @@ $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_nov';
+$table_name = 'godaddy_buynow';
 mysqli_connect2($db_name);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
@@ -79,8 +79,7 @@ while ($domains = get_domains_to_parse(200)) {
                 '30_days_top10_pins_actions' => 0,
                 'top10_pins_oldest_action' => 0,
                 'top1_pin_url' => 0,
-                'top1_pin_activity' => 0,
-                'domain_available' => 3);
+                'top1_pin_activity' => 0);
             $domain_review['domain'] = $domain;
             $domain_review['pins_total'] = count($boards_tmp);
             $domain_review['boards_unique'] = $tmp;
@@ -98,7 +97,6 @@ while ($domains = get_domains_to_parse(200)) {
                 }
             }
             if (($domain_review['saves'] + $domain_review['likes'] + $domain_review['repins']) > 1000) {
-                if (checkdnsrr($domain,'ns') == false) {
                     echo2("Домен имеет больше 1000 сигналов и ДОСТУПЕН для регистрации. Парсим активности по топ10 пинов за последние 30 дней!");
                     $days_7 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 7 дней
                     $days_30 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 30 дней
@@ -112,11 +110,6 @@ while ($domains = get_domains_to_parse(200)) {
                     $domain_review['top10_pins_oldest_action'] = $top10_pins_oldest_action;
                     $domain_review['top1_pin_url'] = $top1_pin_url;
                     $domain_review['top1_pin_activity'] = $top1_pin_activity;
-                    $domain_review['domain_available'] = 1;
-                } else {
-                    echo2 ("Домен недоступен для регистрации, проходим мимо не тратим время!");
-                    $domain_review['domain_available'] = 0;
-                }
             }
             echo2("----- Закончили с доменом $domain -----");
             echo2(print_r($domain_review, 1));
@@ -129,7 +122,7 @@ while ($domains = get_domains_to_parse(200)) {
 }
 get_thread_data(1);
 $com = new Com('WScript.shell');
-$com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\pinterest_deep_db.php 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
+$com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\godaddy_deep_db.php 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
 
 
 function check_max($written, $attempt_to_write)
@@ -317,8 +310,7 @@ function update_parsed_domain($domain_review, $domain_db_id)
 `30_days_top10_pins_actions` = $domain_review_numeric[12], 
 `top10_pins_oldest_action` = $domain_review_numeric[13], 
 `top1_pin_url` = '$domain_review_numeric[14]', 
-`top1_pin_activity` = $domain_review_numeric[15],
-`domain_available` = $domain_review_numeric[16]
+`top1_pin_activity` = $domain_review_numeric[15]
 WHERE `id` = $domain_db_id ;";
         dbquery($query);
     } else {

@@ -2,26 +2,30 @@
 /**
  * Created by PhpStorm.
  * User: Max
- * Date: 24.02.2017
- * Time: 22:31
+ * Date: 10.03.2017
+ * Time: 23:41
  */
 include('../new/includes/functions.php');
 require('../../vendor/autoload.php');
 use seregazhuk\PinterestBot\Factories\PinterestBot;
 
-set_time_limit(0);
-ini_set('mysql.connect_timeout','86400');
-error_reporting(0);
 $console_mode = 1;
 $debug_mode = 1;
+$start_time = time();
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_nov';
+$table_source = 'pin_dead';
+$table_name = 'pin_top10';
 mysqli_connect2($db_name);
+
+//$pin_acc = 'inga.tarpavina.89@mail.ru';
+//$pin_pwd = 'xmi0aJByoB';
+//pinterest_local_login($pin_acc, $pin_pwd);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
-while ($domains = get_domains_to_parse(200)) {
+//$pin_ids = file("pin_ids.txt", FILE_IGNORE_NEW_LINES);
+while ($domains = get_domains_to_parse(10)) {
     echo2("Загрузили " . count($domains) . " доменов из базы со статусом 0. Обновили им статус на 2 = в процессе");
     foreach ($domains as $domain) {
         $domain_db_id = $domain['id'];
@@ -29,7 +33,7 @@ while ($domains = get_domains_to_parse(200)) {
 //        $domain = 'therighthairstyles.com';
         $i++;
 //По дефолту fromsource отдает 50 результатов пинов, чтобы получить все надо 0 поставить, может долго думать
-        $pins = $bot->pins->fromSource($domain,1000)->toArray();
+        $pins = $bot->pins->fromSource($domain, 1000)->toArray();
 // вернет сразу все, может долго выполняться, пока не получит от апи все пины
         if (count($pins) > 0) {
             echo2("Получили пины для сайта $domain, всего " . count($pins));
@@ -79,8 +83,7 @@ while ($domains = get_domains_to_parse(200)) {
                 '30_days_top10_pins_actions' => 0,
                 'top10_pins_oldest_action' => 0,
                 'top1_pin_url' => 0,
-                'top1_pin_activity' => 0,
-                'domain_available' => 3);
+                'top1_pin_activity' => 0);
             $domain_review['domain'] = $domain;
             $domain_review['pins_total'] = count($boards_tmp);
             $domain_review['boards_unique'] = $tmp;
@@ -98,25 +101,19 @@ while ($domains = get_domains_to_parse(200)) {
                 }
             }
             if (($domain_review['saves'] + $domain_review['likes'] + $domain_review['repins']) > 1000) {
-                if (checkdnsrr($domain,'ns') == false) {
-                    echo2("Домен имеет больше 1000 сигналов и ДОСТУПЕН для регистрации. Парсим активности по топ10 пинов за последние 30 дней!");
-                    $days_7 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 7 дней
-                    $days_30 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 30 дней
-                    $top1_pin_url = ''; //URL топ пина
-                    $top1_pin_activity = ''; // Активностей TOP1 пина
-                    $top10_pins_oldest_action = ''; //Функцией запишем сколько дней прошло с момента первой активности по топ 10 пинам на основе полученных активностей (топ5 например по каждому пину)
-                    $top_pins = get_top_pins();
-                    $top10_pins_days_active = get_pin_activity($top_pins);
-                    $domain_review['7_days_top10_pins_actions'] = $days_7;
-                    $domain_review['30_days_top10_pins_actions'] = $days_30;
-                    $domain_review['top10_pins_oldest_action'] = $top10_pins_oldest_action;
-                    $domain_review['top1_pin_url'] = $top1_pin_url;
-                    $domain_review['top1_pin_activity'] = $top1_pin_activity;
-                    $domain_review['domain_available'] = 1;
-                } else {
-                    echo2 ("Домен недоступен для регистрации, проходим мимо не тратим время!");
-                    $domain_review['domain_available'] = 0;
-                }
+                echo2("Домен имеет больше 1000 сигналов и ДОСТУПЕН для регистрации. Парсим активности по топ10 пинов за последние 30 дней!");
+                $days_7 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 7 дней
+                $days_30 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 30 дней
+                $top1_pin_url = ''; //URL топ пина
+                $top1_pin_activity = ''; // Активностей TOP1 пина
+                $top10_pins_oldest_action = ''; //Функцией запишем сколько дней прошло с момента первой активности по топ 10 пинам на основе полученных активностей (топ5 например по каждому пину)
+                $top_pins = get_top_pins();
+                $top10_pins_days_active = get_pin_activity($top_pins);
+                $domain_review['7_days_top10_pins_actions'] = $days_7;
+                $domain_review['30_days_top10_pins_actions'] = $days_30;
+                $domain_review['top10_pins_oldest_action'] = $top10_pins_oldest_action;
+                $domain_review['top1_pin_url'] = $top1_pin_url;
+                $domain_review['top1_pin_activity'] = $top1_pin_activity;
             }
             echo2("----- Закончили с доменом $domain -----");
             echo2(print_r($domain_review, 1));
@@ -126,11 +123,84 @@ while ($domains = get_domains_to_parse(200)) {
             echo2("#$i Для домена $domain нету пинов!");
         }
     }
+    if (time() - $start_time > 7200) {
+        get_thread_data(1);
+        $com = new Com('WScript.shell');
+        $com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 1 6 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
+        exit();
+    }
 }
 get_thread_data(1);
-$com = new Com('WScript.shell');
-$com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\pinterest_deep_db.php 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
 
+function pinterest_local_login($pin_acc, $pin_pwd)
+{
+    global $bot;
+    $bot = PinterestBot::create();
+    $bot->auth->login($pin_acc, $pin_pwd);
+    if ($bot->auth->isLoggedIn()) {
+        echo2("login success! Local IP and $pin_acc:$pin_pwd");
+    } else {
+        echo2("login failed!");
+        exit();
+    }
+}
+
+function get_thread_data($finish = false)
+{
+    global $link, $login_data;
+    if ($finish) {
+        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
+        dbquery($query);
+    } else {
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
+        $login_data = dbquery($query);
+        if (count($login_data) == 0) {
+            echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
+            exit();
+        }
+        return $login_data[0];
+    }
+}
+
+function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
+{
+    global $bot;
+    $proxy_data = explode(':', $proxy_data);
+    $pinterest_account = explode(':', $pinterest_account);
+
+    $bot = PinterestBot::create();
+    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+    $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
+
+    $proxy_data = implode(":", $proxy_data);
+    $pinterest_account = implode(":", $pinterest_account);
+    if ($bot->auth->isLoggedIn()) {
+        echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
+        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
+    } else {
+        echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
+        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
+        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
+        exit();
+    }
+}
+
+function get_domains_to_parse($count)
+{
+    global $table_source;
+    $list = dbquery("SELECT `id`,`domain` from `$table_source` WHERE `status` = 0 LIMIT $count");
+    $ids = '';
+    if (count($list) > 0) {
+        foreach ($list as $item) {
+            $ids .= $item['id'] . ' , ';
+        }
+        $ids = substr($ids, 0, -2);
+        dbquery("UPDATE `$table_source` SET `status` = 1 WHERE `id` IN ($ids)");
+        return $list;
+    } else {
+        return false;
+    }
+}
 
 function check_max($written, $attempt_to_write)
 {
@@ -225,82 +295,26 @@ function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
     if ($activity = $bot->pins->activity($id, $get_actions_per_pin)) {
         $activity = $activity->toArray();
     } else {
-        echo2 ("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
+        echo2("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
     }
     while (round((time() - strtotime($activity[$get_actions_per_pin - 1]['timestamp'])) / 86400) < $days_to_get) {
         $get_actions_per_pin += $get_actions_per_pin;
         if ($activity = $bot->pins->activity($id, $get_actions_per_pin)) {
             $activity = $activity->toArray();
         } else {
-            echo2 ("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
+            echo2("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
         }
     }
     return $activity;
 }
 
-function get_thread_data($finish = false)
-{
-    global $link,$login_data;
-    if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
-        dbquery($query);
-    } else {
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
-        $login_data = dbquery($query);
-        if (count($login_data) == 0) {
-            echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
-            exit();
-        }
-        return $login_data[0];
-    }
-}
-
-function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
-{
-    global $bot;
-    $proxy_data = explode(':', $proxy_data);
-    $pinterest_account = explode(':', $pinterest_account);
-
-    $bot = PinterestBot::create();
-    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
-    $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
-
-    $proxy_data = implode(":", $proxy_data);
-    $pinterest_account = implode(":", $pinterest_account);
-    if ($bot->auth->isLoggedIn()) {
-        echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
-    } else {
-        echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        echo2 ("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
-        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
-        exit();
-    }
-}
-
-function get_domains_to_parse($count)
-{
-    global $table_name;
-    $list = dbquery("SELECT `id`,`domain` from `$table_name` WHERE `status` = 0 LIMIT $count");
-    $ids = '';
-    if (count($list) > 0) {
-        foreach ($list as $item) {
-            $ids .= $item['id'] . ' , ';
-        }
-        $ids = substr($ids, 0, -2);
-        dbquery("UPDATE `$table_name` SET `status` = 2 WHERE `id` IN ($ids)");
-        return $list;
-    } else {
-        return false;
-    }
-}
-
+//Доработана под Dead
 function update_parsed_domain($domain_review, $domain_db_id)
 {
-    global $table_name;
+    global $table_name, $table_to_select;
     if ($domain_review) {
         $domain_review_numeric = array_values($domain_review);
-        $query = "UPDATE `$table_name` SET 
+        $query = "INSERT INTO `$table_name` SET 
 `status` = '1',
 `domain` = '$domain_review_numeric[0]',
 `pins_total` = $domain_review_numeric[1], 
@@ -317,10 +331,9 @@ function update_parsed_domain($domain_review, $domain_db_id)
 `30_days_top10_pins_actions` = $domain_review_numeric[12], 
 `top10_pins_oldest_action` = $domain_review_numeric[13], 
 `top1_pin_url` = '$domain_review_numeric[14]', 
-`top1_pin_activity` = $domain_review_numeric[15],
-`domain_available` = $domain_review_numeric[16]
-WHERE `id` = $domain_db_id ;";
+`top1_pin_activity` = $domain_review_numeric[15] ;";
         dbquery($query);
+        dbquery("UPDATE `$table_to_select` SET `status` = 2 WHERE `id` = $domain_db_id;");
     } else {
         $ids = '';
         foreach ($domain_db_id as $id) {

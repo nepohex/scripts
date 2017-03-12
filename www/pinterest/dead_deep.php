@@ -10,12 +10,17 @@ require('../../vendor/autoload.php');
 use seregazhuk\PinterestBot\Factories\PinterestBot;
 
 $debug_mode = 1;
+$console_mode = 1;
+$start_time = time();
+
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_nov';
-$table_gold = 'gold_nov';
+
+$table_name = 'pin_top10';
+$table_gold = 'pin_gold';
 mysqli_connect2($db_name);
+
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
 //$pin_pwd = 'xmi0aJByoB';
 //pinterest_local_login($pin_acc, $pin_pwd);
@@ -29,7 +34,7 @@ while ($domains = get_deep_domains_to_parse(1)) {
         $i++;
         //По дефолту fromsource отдает 50 результатов пинов, чтобы получить все надо 0 поставить, может долго думать
         $pins = $bot->pins->fromSource($domain, 0)->toArray();
-        file_put_contents("debug_data/pins_" . $domain . "_" . count($pins) . "_deep_start_srlz.txt", serialize($pins));
+//        file_put_contents("debug_data/pins_" . $domain . "_" . count($pins) . "_deep_start_srlz.txt", serialize($pins));
         // вернет сразу все, может долго выполняться, пока не получит от апи все пины
         if (count($pins) > 0) {
             echo2("Получили пины для сайта $domain, всего " . count($pins));
@@ -47,13 +52,19 @@ while ($domains = get_deep_domains_to_parse(1)) {
             $domains[0]['created_activity'] = $created_activity;
             $domains[0]['repins_activity'] = $repins_activity;
             $domains[0]['likes_activity'] = $likes_activity;
-            echo2(print_r($domains[0], 1));
+//            echo2(print_r($domains[0], 1));
             update_deep_parsed_domain($domains[0], $domain_db_id);
             put_deep_parsed_domain($domains[0]);
-            file_put_contents("debug_data/pins_deep_" . $domain . "_" . count($pins) . "_new2_srlz.txt", serialize($domains[0]));
+//            file_put_contents("debug_data/pins_deep_" . $domain . "_" . count($pins) . "_new2_srlz.txt", serialize($domains[0]));
         } else {
             echo2("#$i Для домена $domain нету пинов!");
         }
+    }
+	    if (time() - $start_time > 7200) {
+        get_thread_data(1);
+        $com = new Com('WScript.shell');
+        $com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 1 7 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
+        exit();
     }
 }
 get_thread_data(1);
@@ -374,8 +385,7 @@ function put_deep_parsed_domain($domain_arr)
 `repins_activity`,
 `likes_activity`,
 `top1_pin_url` ,
-`top1_pin_activity` ,
-`domain_available`
+`top1_pin_activity`
 ) VALUES (
 $domain_review_numeric[0],
 '$domain_review_numeric[1]',
@@ -397,8 +407,7 @@ $domain_review_numeric[22],
 $domain_review_numeric[23],
 $domain_review_numeric[24],
 '$domain_review_numeric[16]',
-$domain_review_numeric[17],
-$domain_review_numeric[18]
+$domain_review_numeric[17]
 )";
         dbquery($query);
     }
