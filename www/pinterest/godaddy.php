@@ -6,7 +6,7 @@
  * Time: 23:19
  */
 include('../new/includes/functions.php');
-$fp_log = fopen("godaddy_log.txt","a+");
+$fp_log = fopen("godaddy_log.txt", "a+");
 $double_log = 1;
 $db_pwd = '';
 $db_usr = 'root';
@@ -72,7 +72,8 @@ if (is_file($work_dir . $extracted_file)) {
             $time_to_moscow = 11 * 60 * 60; // PST - время которое выдает Godaddy (-8 Часов GMT), Москва +3 GMT.
             $moscow_end_date = $date + $time_to_moscow;
             $nice_end_date = date('d/m H:i', $moscow_end_date);
-            if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($domain))) {
+//            if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($domain))) {
+            if (strtolower($domain)) {
                 $counter_valid++;
                 $query = "INSERT INTO `pinterest`.`$pin_db` (`id`, `domain`, `status`,`price`,`end_date`) VALUES (NULL, '$domain', '0',$price,'$nice_end_date')";
                 if (dbquery($query, null, true, null, 'shutup') == 1) {
@@ -89,7 +90,7 @@ if (is_file($work_dir . $extracted_file)) {
     echo2("$counter_all / $counter_length / $counter_valid / $counter_uploaded");
     unlink($work_dir . $server_file);
     unlink($work_dir . $extracted_file);
-    echo2 ("Запускаем 50 потоков проверок godaddy_db");
+    echo2("Запускаем 50 потоков проверок godaddy_db");
     $com = new Com('WScript.shell');
     $com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 50 3 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
     fclose($fp_log);

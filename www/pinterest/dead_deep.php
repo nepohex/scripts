@@ -9,14 +9,14 @@ include('../new/includes/functions.php');
 require('../../vendor/autoload.php');
 use seregazhuk\PinterestBot\Factories\PinterestBot;
 
+//Не забыть что выставил status 5 для доступных доменов и идет выборка по ним!
 $debug_mode = 1;
-$console_mode = 1;
+//$console_mode = 1;
 $start_time = time();
 
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-
 $table_name = 'pin_top10';
 $table_gold = 'pin_gold';
 mysqli_connect2($db_name);
@@ -41,9 +41,9 @@ while ($domains = get_deep_domains_to_parse(1)) {
             $days_7 = 0; //Функцией запишем сколько активностей по всем пинам за последние 7 дней
             $days_30 = 0; //Функцией запишем сколько активностей по всем пинам за последние 30 дней
             $days_99 = 0; //Функцией запишем сколько активностей по всем пинам за последние 99 дней
-            $created_activity = ''; //Сколько из общих активностей по пину было именно создано новых
-            $repins_activity = ''; //Репинов. Также сюда запишем все неуникальные URL пинов.
-            $likes_activity = ''; //Лайков
+            $created_activity = 0; //Сколько из общих активностей по пину было именно создано новых
+            $repins_activity = 0; //Репинов. Также сюда запишем все неуникальные URL пинов.
+            $likes_activity = 0; //Лайков
             $pin_ids = get_pin_ids($pins);
             get_pin_activity($pin_ids);
             $domains[0]['7_days_all_pins_actions'] = $days_7;
@@ -60,7 +60,7 @@ while ($domains = get_deep_domains_to_parse(1)) {
             echo2("#$i Для домена $domain нету пинов!");
         }
     }
-	    if (time() - $start_time > 7200) {
+    if ((time() - $start_time) > 7200) {
         get_thread_data(1);
         $com = new Com('WScript.shell');
         $com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 1 7 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
@@ -193,13 +193,15 @@ function get_thread_data($finish = false)
 {
     global $link, $login_data;
     if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
+        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `php_self` = '' WHERE `id` = " . $login_data['id'];
         dbquery($query);
+        mysqli_close($link);
     } else {
-        $query = "SELECT * FROM `proxy` WHERE `used` in (3,0) LIMIT 1";
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
+            mysqli_close($link);
             exit();
         }
         return $login_data[0];
@@ -220,10 +222,12 @@ function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
+        $z = getmypid();
+        $name = basename($_SERVER['PHP_SELF']);
+        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' WHERE `id` = $db_proxy_id ;");
     } else {
         echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        echo2 ("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
+        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
         dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
         exit();
     }
@@ -330,7 +334,7 @@ function get_deep_domains_to_parse($count)
 {
     global $table_name;
     // status = '0 - не чекали, 1 - чекнули, 2 - в процессе (чекнули = пустой),  3 - start deep parse each pin, 4 - finish deep parse'
-    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) AND `domain_available` = 1 ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
+    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 5 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 100 ORDER BY `top1_pin_activity`  DESC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 1000 ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND `domain` = 'theittybittyboutique.com'");
@@ -345,7 +349,7 @@ function get_deep_domains_to_parse($count)
         return $list;
     } else {
         echo2("Нет больше доменов для парсинга");
-        get_thread_data(1);
+//        get_thread_data(1);
         return false;
     }
 }
@@ -364,51 +368,28 @@ function put_deep_parsed_domain($domain_arr)
     global $table_gold;
     if ($domain_arr) {
         $domain_review_numeric = array_values($domain_arr);
-        $query = "INSERT INTO  `$table_gold` (
-`id` ,
-`domain` ,
-`status` ,
-`pins_total` ,
-`boards_unique` ,
-`pins_unique_url` ,
-`saves` ,
-`likes` ,
-`repins` ,
-`stolen_pins` ,
-`stolen_saves` ,
-`stolen_likes` ,
-`stolen_repins` ,
-`7_days_all_pins_actions` ,
-`30_days_all_pins_actions` ,
-`99_days_all_pins_actions` ,
-`created_activity`,
-`repins_activity`,
-`likes_activity`,
-`top1_pin_url` ,
-`top1_pin_activity`
-) VALUES (
-$domain_review_numeric[0],
-'$domain_review_numeric[1]',
-'4',
-$domain_review_numeric[3], 
-$domain_review_numeric[4],
-$domain_review_numeric[5],
-$domain_review_numeric[6], 
-$domain_review_numeric[7], 
-$domain_review_numeric[8], 
-$domain_review_numeric[9], 
-$domain_review_numeric[10], 
-$domain_review_numeric[11], 
-$domain_review_numeric[12], 
-$domain_review_numeric[19], 
-$domain_review_numeric[20], 
-$domain_review_numeric[21],
-$domain_review_numeric[22], 
-$domain_review_numeric[23],
-$domain_review_numeric[24],
-'$domain_review_numeric[16]',
-$domain_review_numeric[17]
-)";
+        $query = "INSERT INTO  `$table_gold` SET 
+`id` = $domain_review_numeric[0],
+`domain` = '$domain_review_numeric[1]',
+`status` = '4',
+`pins_total` = $domain_review_numeric[3],
+`boards_unique` = $domain_review_numeric[4],
+`pins_unique_url` = $domain_review_numeric[5],
+`saves` = $domain_review_numeric[6],
+`likes` = $domain_review_numeric[7],
+`repins` = $domain_review_numeric[8],
+`stolen_pins` = $domain_review_numeric[9],
+`stolen_saves` = $domain_review_numeric[10],
+`stolen_likes` = $domain_review_numeric[11],
+`stolen_repins` = $domain_review_numeric[12],
+`7_days_all_pins_actions` = $domain_review_numeric[18],
+`30_days_all_pins_actions` = $domain_review_numeric[19],
+`99_days_all_pins_actions` = $domain_review_numeric[20],
+`created_activity` = $domain_review_numeric[21],
+`repins_activity` = $domain_review_numeric[22],
+`likes_activity` = $domain_review_numeric[23],
+`top1_pin_url` = '$domain_review_numeric[16]',
+`top1_pin_activity` = $domain_review_numeric[17];";
         dbquery($query);
     }
 }

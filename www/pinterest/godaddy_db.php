@@ -10,7 +10,7 @@ require('../../vendor/autoload.php');
 use seregazhuk\PinterestBot\Factories\PinterestBot;
 
 set_time_limit(0);
-ini_set('mysql.connect_timeout','86400');
+//ini_set('mysql.connect_timeout','86400');
 error_reporting(0);
 $console_mode = 1;
 $debug_mode = 1;
@@ -231,13 +231,14 @@ function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
     return $activity;
 }
 
-function get_thread_data($finish = false)
+function get_thread_data($finish = false, $db_proxy_id = false, $login_success = false)
 {
-    global $link,$login_data;
+    global $link, $login_data;
     if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
+        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `finish_time` = NOW() WHERE `id` = " . $login_data['id'];
         dbquery($query);
-    } else {
+//        mysqli_close($link);
+    } else if ($db_proxy_id == false) {
         $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
@@ -245,6 +246,13 @@ function get_thread_data($finish = false)
             exit();
         }
         return $login_data[0];
+    } else if ($db_proxy_id == true && $login_success == true) {
+        $z = getmypid();
+        $name = basename($_SERVER['PHP_SELF']);
+        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' , `iterations` = 0 , `start_time` = NOW(), `update_time` = NOW() WHERE `id` = $db_proxy_id ;");
+        return true;
+    } else if ($db_proxy_id == true && $login_success == false) {
+        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
     }
 }
 
@@ -262,11 +270,11 @@ function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
+        get_thread_data(false, $db_proxy_id, true);
     } else {
         echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        echo2 ("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
-        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
+        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
+        get_thread_data(false, $db_proxy_id, false);
         exit();
     }
 }

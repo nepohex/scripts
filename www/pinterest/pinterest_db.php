@@ -240,9 +240,9 @@ function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
 
 function get_thread_data($finish = false)
 {
-    global $link,$login_data;
+    global $link, $login_data;
     if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
+        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `php_self` = '' WHERE `id` = " . $login_data['id'];
         dbquery($query);
     } else {
         $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
@@ -269,10 +269,12 @@ function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
+        $z = getmypid();
+        $name = basename($_SERVER['PHP_SELF']);
+        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' WHERE `id` = $db_proxy_id ;");
     } else {
         echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        echo2 ("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
+        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
         dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
         exit();
     }

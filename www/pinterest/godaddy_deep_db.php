@@ -37,9 +37,9 @@ while ($domains = get_deep_domains_to_parse(1)) {
             $days_7 = 0; //Функцией запишем сколько активностей по всем пинам за последние 7 дней
             $days_30 = 0; //Функцией запишем сколько активностей по всем пинам за последние 30 дней
             $days_99 = 0; //Функцией запишем сколько активностей по всем пинам за последние 99 дней
-            $created_activity = ''; //Сколько из общих активностей по пину было именно создано новых
-            $repins_activity = ''; //Репинов. Также сюда запишем все неуникальные URL пинов.
-            $likes_activity = ''; //Лайков
+            $created_activity = '0'; //Сколько из общих активностей по пину было именно создано новых
+            $repins_activity = '0'; //Репинов. Также сюда запишем все неуникальные URL пинов.
+            $likes_activity = '0'; //Лайков
             $pin_ids = get_pin_ids($pins);
             get_pin_activity($pin_ids);
             $domains[0]['7_days_all_pins_actions'] = $days_7;
@@ -179,20 +179,28 @@ function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
     return $activity;
 }
 
-function get_thread_data($finish = false)
+function get_thread_data($finish = false, $db_proxy_id = false, $login_success = false)
 {
     global $link, $login_data;
     if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
+        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `finish_time` = NOW() WHERE `id` = " . $login_data['id'];
         dbquery($query);
-    } else {
-        $query = "SELECT * FROM `proxy` WHERE `used` in (3,0) LIMIT 1";
+//        mysqli_close($link);
+    } else if ($db_proxy_id == false) {
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
             exit();
         }
         return $login_data[0];
+    } else if ($db_proxy_id == true && $login_success == true) {
+        $z = getmypid();
+        $name = basename($_SERVER['PHP_SELF']);
+        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' , `iterations` = 0 , `start_time` = NOW(), `update_time` = NOW() WHERE `id` = $db_proxy_id ;");
+        return true;
+    } else if ($db_proxy_id == true && $login_success == false) {
+        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
     }
 }
 
@@ -210,11 +218,11 @@ function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
+        get_thread_data(false, $db_proxy_id, true);
     } else {
         echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        echo2 ("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
-        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
+        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
+        get_thread_data(false, $db_proxy_id, false);
         exit();
     }
 }
@@ -378,7 +386,7 @@ function put_deep_parsed_domain($domain_arr)
 `end_date` = '$num[17]',
 `top1_pin_url` = '$num[18]',
 `top1_pin_activity` = $num[19],
-`check_date` = TIMESTAMP ('');";
+`check_date` = NOW();";
         dbquery($query);
     }
 }

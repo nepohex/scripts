@@ -12,11 +12,13 @@ use seregazhuk\PinterestBot\Factories\PinterestBot;
 $console_mode = 1;
 $debug_mode = 1;
 $start_time = time();
+
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
 $table_source = 'pin_dead';
 $table_name = 'pin_top10';
+
 mysqli_connect2($db_name);
 
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
@@ -123,7 +125,7 @@ while ($domains = get_domains_to_parse(10)) {
             echo2("#$i Для домена $domain нету пинов!");
         }
     }
-    if (time() - $start_time > 7200) {
+    if ((time() - $start_time) > 7200) {
         get_thread_data(1);
         $com = new Com('WScript.shell');
         $com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 1 6 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
@@ -131,59 +133,6 @@ while ($domains = get_domains_to_parse(10)) {
     }
 }
 get_thread_data(1);
-
-function pinterest_local_login($pin_acc, $pin_pwd)
-{
-    global $bot;
-    $bot = PinterestBot::create();
-    $bot->auth->login($pin_acc, $pin_pwd);
-    if ($bot->auth->isLoggedIn()) {
-        echo2("login success! Local IP and $pin_acc:$pin_pwd");
-    } else {
-        echo2("login failed!");
-        exit();
-    }
-}
-
-function get_thread_data($finish = false)
-{
-    global $link, $login_data;
-    if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' WHERE `id` = " . $login_data['id'];
-        dbquery($query);
-    } else {
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
-        $login_data = dbquery($query);
-        if (count($login_data) == 0) {
-            echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
-            exit();
-        }
-        return $login_data[0];
-    }
-}
-
-function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
-{
-    global $bot;
-    $proxy_data = explode(':', $proxy_data);
-    $pinterest_account = explode(':', $pinterest_account);
-
-    $bot = PinterestBot::create();
-    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
-    $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
-
-    $proxy_data = implode(":", $proxy_data);
-    $pinterest_account = implode(":", $pinterest_account);
-    if ($bot->auth->isLoggedIn()) {
-        echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        dbquery("UPDATE `proxy` SET `used` = '1' WHERE `id` = $db_proxy_id");
-    } else {
-        echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
-        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
-        exit();
-    }
-}
 
 function get_domains_to_parse($count)
 {
@@ -200,30 +149,6 @@ function get_domains_to_parse($count)
     } else {
         return false;
     }
-}
-
-function check_max($written, $attempt_to_write)
-{
-    if ($written < $attempt_to_write) {
-        $written = $attempt_to_write;
-    }
-    if ($written === null) {
-        $written = 0;
-    }
-    return $written;
-}
-
-function clean_url($url)
-{
-    //для medhair много урлов с решеткой вконце (addthis), приравниваем
-    if (strpos($url, "#") == true) {
-        $url = stristr($url, "#", true);
-    }
-    //https приравниваем к http
-    if (preg_match("/https.*/", $url)) {
-        $url = 'http' . substr($url, 5);
-    }
-    return $url;
 }
 
 function get_top_pins($count = 10)
@@ -263,7 +188,7 @@ function get_pin_activity($pin_ids, $get_actions_per_pin = 5)
     global $days_7, $days_30, $top10_pins_oldest_action;
     foreach ($pin_ids as $id) {
         $activity = get_pin_actions_till_date($id, $get_actions_per_pin, 31);
-        if (count($activity) > 0) {
+        if (count($activity) > 0 && $activity == true) {
             foreach ($activity as $item) {
                 $timestamps[] = strtotime($item['timestamp']);
             }
@@ -282,6 +207,127 @@ function get_pin_activity($pin_ids, $get_actions_per_pin = 5)
     asort($days_passed);
     $top10_pins_oldest_action = end($days_passed);
     return $days_passed;
+}
+
+//Доработана под Dead
+function update_parsed_domain($domain_review, $domain_db_id)
+{
+    global $table_name, $table_source;
+    if ($domain_review) {
+        $domain_review_numeric = array_values($domain_review);
+        $query = "INSERT INTO `$table_name` SET 
+`status` = '1',
+`domain` = '$domain_review_numeric[0]',
+`pins_total` = $domain_review_numeric[1], 
+`boards_unique` = $domain_review_numeric[2],
+`pins_unique_url` = $domain_review_numeric[3],
+`saves` = $domain_review_numeric[4], 
+`likes` = $domain_review_numeric[5], 
+`repins` = $domain_review_numeric[6], 
+`stolen_pins` = $domain_review_numeric[7], 
+`stolen_saves` = $domain_review_numeric[8], 
+`stolen_likes` = $domain_review_numeric[9], 
+`stolen_repins` = $domain_review_numeric[10], 
+`7_days_top10_pins_actions` = $domain_review_numeric[11], 
+`30_days_top10_pins_actions` = $domain_review_numeric[12], 
+`top10_pins_oldest_action` = $domain_review_numeric[13], 
+`top1_pin_url` = '$domain_review_numeric[14]', 
+`top1_pin_activity` = $domain_review_numeric[15] ;";
+        dbquery($query);
+        dbquery("UPDATE `$table_source` SET `status` = 2 WHERE `id` = $domain_db_id;");
+    } else {
+        $ids = '';
+        foreach ($domain_db_id as $id) {
+            $ids .= $id . ' , ';
+            if (count($ids) == 1000) {
+                $ids = substr($ids, 0, -2);
+                $query = "UPDATE `$table_name` SET `status` = '1' WHERE `id` IN ($ids)";
+                dbquery($query);
+                $ids = '';
+            }
+        }
+    }
+
+}
+
+function pinterest_local_login($pin_acc, $pin_pwd)
+{
+    global $bot;
+    $bot = PinterestBot::create();
+    $bot->auth->login($pin_acc, $pin_pwd);
+    if ($bot->auth->isLoggedIn()) {
+        echo2("login success! Local IP and $pin_acc:$pin_pwd");
+    } else {
+        echo2("login failed!");
+        exit();
+    }
+}
+
+function get_thread_data($finish = false)
+{
+    global $link, $login_data;
+    if ($finish) {
+        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `php_self` = '' WHERE `id` = " . $login_data['id'];
+        dbquery($query);
+		mysqli_close ($link);
+    } else {
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
+        $login_data = dbquery($query);
+        if (count($login_data) == 0) {
+            echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
+            exit();
+        }
+        return $login_data[0];
+    }
+}
+
+function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
+{
+    global $bot;
+    $proxy_data = explode(':', $proxy_data);
+    $pinterest_account = explode(':', $pinterest_account);
+
+    $bot = PinterestBot::create();
+    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+    $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
+
+    $proxy_data = implode(":", $proxy_data);
+    $pinterest_account = implode(":", $pinterest_account);
+    if ($bot->auth->isLoggedIn()) {
+        echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
+        $z = getmypid();
+        $name = basename($_SERVER['PHP_SELF']);
+        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' WHERE `id` = $db_proxy_id ;");
+    } else {
+        echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
+        echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
+        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
+        exit();
+    }
+}
+
+function check_max($written, $attempt_to_write)
+{
+    if ($written < $attempt_to_write) {
+        $written = $attempt_to_write;
+    }
+    if ($written === null) {
+        $written = 0;
+    }
+    return $written;
+}
+
+function clean_url($url)
+{
+    //для medhair много урлов с решеткой вконце (addthis), приравниваем
+    if (strpos($url, "#") == true) {
+        $url = stristr($url, "#", true);
+    }
+    //https приравниваем к http
+    if (preg_match("/https.*/", $url)) {
+        $url = 'http' . substr($url, 5);
+    }
+    return $url;
 }
 
 /**
@@ -306,45 +352,4 @@ function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
         }
     }
     return $activity;
-}
-
-//Доработана под Dead
-function update_parsed_domain($domain_review, $domain_db_id)
-{
-    global $table_name, $table_to_select;
-    if ($domain_review) {
-        $domain_review_numeric = array_values($domain_review);
-        $query = "INSERT INTO `$table_name` SET 
-`status` = '1',
-`domain` = '$domain_review_numeric[0]',
-`pins_total` = $domain_review_numeric[1], 
-`boards_unique` = $domain_review_numeric[2],
-`pins_unique_url` = $domain_review_numeric[3],
-`saves` = $domain_review_numeric[4], 
-`likes` = $domain_review_numeric[5], 
-`repins` = $domain_review_numeric[6], 
-`stolen_pins` = $domain_review_numeric[7], 
-`stolen_saves` = $domain_review_numeric[8], 
-`stolen_likes` = $domain_review_numeric[9], 
-`stolen_repins` = $domain_review_numeric[10], 
-`7_days_top10_pins_actions` = $domain_review_numeric[11], 
-`30_days_top10_pins_actions` = $domain_review_numeric[12], 
-`top10_pins_oldest_action` = $domain_review_numeric[13], 
-`top1_pin_url` = '$domain_review_numeric[14]', 
-`top1_pin_activity` = $domain_review_numeric[15] ;";
-        dbquery($query);
-        dbquery("UPDATE `$table_to_select` SET `status` = 2 WHERE `id` = $domain_db_id;");
-    } else {
-        $ids = '';
-        foreach ($domain_db_id as $id) {
-            $ids .= $id . ' , ';
-            if (count($ids) == 1000) {
-                $ids = substr($ids, 0, -2);
-                $query = "UPDATE `$table_name` SET `status` = '1' WHERE `id` IN ($ids)";
-                dbquery($query);
-                $ids = '';
-            }
-        }
-    }
-
 }

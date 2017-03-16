@@ -77,7 +77,7 @@ class Li_charts {
 	}
 	
 	#Получение статистики из csv
-	public function get_csv_stats($response, $info, $request) {
+	public static function get_csv_stats($response, $info, $request) {
 			
 		foreach($request->args as $k=>$v) $$k=$v;
 		$data = $response;
@@ -196,7 +196,7 @@ class Li_charts {
 
 
 
-	public function get_today_stat($response, $info, $request) {
+	public static function get_today_stat($response, $info, $request) {
 
 		foreach($request->args as $k=>$v) $$k=$v;
 		$data = $response;
@@ -250,7 +250,7 @@ class Li_charts {
 	}
 
 	#Авторизация и получение куки в LI
-	public function auth_li($domain,$pass) {
+	public static function auth_li($domain,$pass) {
 
 		$c = curl_init("http://www.li.ru/stat/");
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, TRUE);
@@ -275,7 +275,7 @@ class Li_charts {
 		return $cookie;
 	}
 
-	public function get_data($url,$cookie="") {
+	public static function get_data($url,$cookie="") {
 
 		$c = curl_init($url);
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, TRUE);

@@ -11,25 +11,67 @@ include('C:\OpenServer\domains\scripts.loc\www\php-whois\src\Phois\Whois\Whois.p
 use seregazhuk\PinterestBot\Factories\PinterestBot;
 header('Content-Type: text/html; charset=utf-8');
 $debug_mode = 1;
+
 $db_pwd = '';
 $db_usr = 'root';
-//mysqli_connect2("pinterest");
+mysqli_connect2("pinterest");
 $pin_db = 'domains_jan2';
+//$z = getmypid();
+//basename($_SERVER['PHP_SELF']);
+//$query = "SELECT `domain` FROM `pin_dead` WHERE `status` = 1";
+//$res1 = dbquery($query,1);
+//$query = "SELECT `domain` FROM `pin_top10`";
+//$res2 = dbquery($query,1);
+//    $res3 = array_diff($res1,$res2);
+//foreach ($res3 as $item){
+//    $query = "UPDATE `pin_dead` SET `status` = 0 WHERE `domain` = '$item'";
+//    dbquery($query);
+//}
+//exit();
 
-$pin_acc = 'inga.tarpavina.89@mail.ru';
-$pin_pwd = 'xmi0aJByoB';
-pinterest_local_login($pin_acc, $pin_pwd);
+//$data = file("available.txt",FILE_IGNORE_NEW_LINES);
+//foreach ($data as $item) {
+//   $item = trim($item);
+//   dbquery("UPDATE `pin_top10` SET `status` = 5 WHERE `domain` = '$item'");
+//}
+////exit();
+////
+//$data = file("not_available.txt",FILE_IGNORE_NEW_LINES);
+//foreach ($data as $item) {
+//   $item = trim($item);
+//   dbquery("UPDATE `pin_top10` SET `status` = 6 WHERE `domain` = '$item'");
+////    dbquery("UPDATE `pin_gold` SET `status` = 5 WHERE `domain` = '$item'");
+//}
+//exit();
 
-$domain = 'appthink.org';
-$pins = $bot->pins->fromSource($domain,20)->toArray();
-
-foreach ($pins as $pin) {
-    $domain_pins['summary']['pins'] += 1;
-    $domain_pins['summary']['saves'] = $pin['aggregated_pin_data']['aggregated_stats']['saves'];
-    $domain_pins['summary']['done'] = $pin['aggregated_pin_data']['aggregated_stats']['done'];
-    $domain_pins['summary']['likes'] = $pin['aggregated_pin_data']['aggregated_stats']['likes'];
-    $domain_pins['summary']['repins'] = $pin['repin_count'];
-}
+$query = "SELECT * FROM `pin_top10` WHERE `status` = 5 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  DESC;";
+//$query = "SELECT * FROM `pin_gold` WHERE `status` = 4 ORDER BY `pins_total` DESC ";
+$result = dbquery($query);
+array_to_csv("top_domains.csv",$result,true);
+exit();
+//$query = "SELECT * FROM `pin_check` WHERE `checked` = 0 LIMIT 1000";
+//$pins_db = dbquery($query, 1, 1);
+//foreach ($pins_db as $item) {
+//    $md5 = md5($item[1]);
+//    $query = "INSERT INTO `pin_check2` SET `pin` = '$item[1]' , `image_signature` = '$md5';";
+//    dbquery($query);
+//}
+//exit();
+//
+//$pin_acc = 'inga.tarpavina.89@mail.ru';
+//$pin_pwd = 'xmi0aJByoB';
+//pinterest_local_login($pin_acc, $pin_pwd);
+//
+//$domain = 'appthink.org';
+//$pins = $bot->pins->fromSource($domain,20)->toArray();
+//
+//foreach ($pins as $pin) {
+//    $domain_pins['summary']['pins'] += 1;
+//    $domain_pins['summary']['saves'] = $pin['aggregated_pin_data']['aggregated_stats']['saves'];
+//    $domain_pins['summary']['done'] = $pin['aggregated_pin_data']['aggregated_stats']['done'];
+//    $domain_pins['summary']['likes'] = $pin['aggregated_pin_data']['aggregated_stats']['likes'];
+//    $domain_pins['summary']['repins'] = $pin['repin_count'];
+//}
 //$fp = fopen("com_whois_avail.txt", "a+");
 //$domains = file('com_domains.txt', FILE_IGNORE_NEW_LINES);
 //foreach ($domains as $sld) {

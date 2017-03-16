@@ -22,7 +22,7 @@ if (!(file_exists($res_kk))) {
     echo2("Ключей в таблице KK_KEYS по фразе " . $keyword . " всего " . $db_results . ". Файла с выгрузкой обнаружено не было, начинаем выгружать из базы одним запросом! Результат будет сохранен в файл " . $res_kk);
     $query = "SELECT `key`,`adwords` FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%';";
     $tmp = dbquery($query);
-    array_to_csv($res_kk, $tmp, "Успешно Записали файл с выгрузкой из KK");
+    array_to_csv($res_kk, $tmp, false, "Успешно Записали файл с выгрузкой из KK");
     unset($tmp);
     echo_time_wasted();
 } else {
