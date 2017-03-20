@@ -9,13 +9,13 @@ include('../new/includes/functions.php');
 require('../../vendor/autoload.php');
 use seregazhuk\PinterestBot\Factories\PinterestBot;
 
-$console_mode = 1;
+//$console_mode = 1;
 $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_auc';
-$table_gold = 'gold_auc';
+$table_name = 'pin_houzz_top10';
+$table_gold = 'pin_houzz_gold';
 mysqli_connect2($db_name);
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
 //$pin_pwd = 'xmi0aJByoB';
@@ -30,7 +30,7 @@ while ($domains = get_deep_domains_to_parse(1)) {
         $i++;
         //По дефолту fromsource отдает 50 результатов пинов, чтобы получить все надо 0 поставить, может долго думать
         $pins = $bot->pins->fromSource($domain, 0)->toArray();
-        //file_put_contents("debug_data/pins_" . $domain . "_" . count($pins) . "_deep_start_srlz.txt", serialize($pins));
+//        file_put_contents("debug_data/pins_" . $domain . "_" . count($pins) . "_deep_start_srlz.txt", serialize($pins));
         // вернет сразу все, может долго выполняться, пока не получит от апи все пины
         if (count($pins) > 0) {
             echo2("Получили пины для сайта $domain, всего " . count($pins));
@@ -331,11 +331,10 @@ function get_deep_domains_to_parse($count)
 {
     global $table_name;
     // status = '0 - не чекали, 1 - чекнули, 2 - в процессе (чекнули = пустой),  3 - start deep parse each pin, 4 - finish deep parse'
-//    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) AND `domain_available` = 1 ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
-    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
+    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 5 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  ASC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 100 ORDER BY `top1_pin_activity`  DESC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 1000 ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
-//    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 1 AND `domain` = 'theittybittyboutique.com'");
+//    $list = dbquery("SELECT * FROM `$table_name` WHERE `domain` = 'chasefencing.net'");
     if (count($list) > 0) {
         $ids = '';
         foreach ($list as $item) {
@@ -356,7 +355,7 @@ function update_deep_parsed_domain($domain_review, $domain_db_id)
 {
     global $table_name;
     if ($domain_review) {
-        $query = "UPDATE `$table_name` SET `status` = '4' WHERE `id` = $domain_db_id ;";
+        $query = "UPDATE `$table_name` SET `status` = '9' WHERE `id` = $domain_db_id ;";
         dbquery($query);
     }
 }
@@ -365,54 +364,30 @@ function put_deep_parsed_domain($domain_arr)
 {
     global $table_gold;
     if ($domain_arr) {
-        $domain_review_numeric = array_values($domain_arr);
-        $query = "INSERT INTO  `$table_gold` (
-`id` ,
-`domain` ,
-`status` ,
-`pins_total` ,
-`boards_unique` ,
-`pins_unique_url` ,
-`saves` ,
-`likes` ,
-`repins` ,
-`stolen_pins` ,
-`stolen_saves` ,
-`stolen_likes` ,
-`stolen_repins` ,
-`7_days_all_pins_actions` ,
-`30_days_all_pins_actions` ,
-`99_days_all_pins_actions` ,
-`created_activity`,
-`repins_activity`,
-`likes_activity`,
-`top1_pin_url` ,
-`top1_pin_activity` ,
-`domain_available`
-) VALUES (
-$domain_review_numeric[0],
-'$domain_review_numeric[1]',
-'4',
-$domain_review_numeric[3], 
-$domain_review_numeric[4],
-$domain_review_numeric[5],
-$domain_review_numeric[6], 
-$domain_review_numeric[7], 
-$domain_review_numeric[8], 
-$domain_review_numeric[9], 
-$domain_review_numeric[10], 
-$domain_review_numeric[11], 
-$domain_review_numeric[12], 
-$domain_review_numeric[19], 
-$domain_review_numeric[20], 
-$domain_review_numeric[21],
-$domain_review_numeric[22], 
-$domain_review_numeric[23],
-$domain_review_numeric[24],
-'$domain_review_numeric[16]',
-$domain_review_numeric[17],
-$domain_review_numeric[18]
-)";
+        $num = array_values($domain_arr);
+        $query = "INSERT INTO  `$table_gold` SET 
+`id` = $num[0],
+`domain` = '$num[1]', 
+`status` = 9, 
+`pins_total` = $num[3], 
+`boards_unique` = $num[4],
+`pins_unique_url` = $num[5] ,
+`saves` = $num[6],
+`likes` = $num[7],
+`repins` = $num[8],
+`stolen_pins` = $num[9],
+`stolen_saves` = $num[10],
+`stolen_likes` = $num[11],
+`stolen_repins` = $num[12],
+`7_days_all_pins_actions` = $num[18],
+`30_days_all_pins_actions` = $num[19],
+`99_days_all_pins_actions` = $num[20],
+`created_activity` = $num[21],
+`repins_activity` = $num[22],
+`likes_activity` = $num[23],
+`top1_pin_url` = '$num[16]',
+`top1_pin_activity` = $num[17],
+`check_date` = NOW();";
         dbquery($query);
     }
 }

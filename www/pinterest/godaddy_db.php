@@ -181,14 +181,27 @@ function get_top_pins($count = 10)
     return $top_pins;
 }
 
-function get_pin_activity($pin_ids, $get_actions_per_pin = 5)
+function get_pin_activity($pin_ids, $get_actions_per_pin = 5, $fastmode = true)
 {
     global $days_7, $days_30, $top10_pins_oldest_action;
     foreach ($pin_ids as $id) {
+        $tmp_7_days = 0;
         $activity = get_pin_actions_till_date($id, $get_actions_per_pin, 31);
-        if (count($activity) > 0) {
+        if (count($activity) > 0 && $activity == true) {
             foreach ($activity as $item) {
                 $timestamps[] = strtotime($item['timestamp']);
+            }
+            if ($fastmode == true) {
+                foreach ($timestamps as $timestamp) {
+                    $tmp_seconds_passed = time() - $timestamp;
+                    $tmp_days_passed = round($tmp_seconds_passed / 86400);
+                    if ($tmp_days_passed < 8) {
+                        $tmp_7_days++;
+                    }
+                }
+                if ($tmp_7_days > 100) {
+                    break;
+                }
             }
         }
     }
@@ -239,7 +252,10 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
         dbquery($query);
 //        mysqli_close($link);
     } else if ($db_proxy_id == false) {
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
+        //Для замеров скорости новых проксей.
+//        $query = "SELECT * FROM `proxy` WHERE `used` = 0 AND `speed` = 0 LIMIT 1";
+        //Стандартно по скорости
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 ORDER BY `speed` DESC LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");

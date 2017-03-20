@@ -16,8 +16,8 @@ $start_time = time();
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'pin_check2';
-$table_result = 'pin_dead';
+$table_name = 'pin_houzz';
+$table_result = 'pin_houzz_dead';
 mysqli_connect2($db_name);
 
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
@@ -44,7 +44,7 @@ while ($pins_db = dbquery($query, 1, 1)) {
             $counter_pins++;
             //$queries[] = "INSERT INTO `$table_name` SET `pin` ='" . $pin['id'] . "' , `image_signature` = '" . $pin['image_signature'] . "';";
             if ($pin['domain'] !== 'Uploaded by user' && substr_count($pin['domain'], '.') == 1) {
-                $valid_tld++;
+//                $valid_tld++;
                 $domain = $pin['domain'];
                 $pin_found = $pin['id'];
                 if (checkdnsrr($domain, 'ns') == false && checkdnsrr($domain, 'a') == false) {
@@ -91,7 +91,10 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
         dbquery($query);
 //        mysqli_close($link);
     } else if ($db_proxy_id == false) {
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
+        //Для замеров скорости новых проксей.
+//        $query = "SELECT * FROM `proxy` WHERE `used` = 0 AND `speed` = 0 LIMIT 1";
+        //Стандартно по скорости
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 ORDER BY `speed` DESC LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");

@@ -7,37 +7,24 @@
  */
 
 $com = new Com('WScript.shell');
-$scripts = array('', 'pinterest_db.php', 'pinterest_deep_db.php', 'godaddy_db.php', 'godaddy_deep_db.php', 'dead_search.php', 'dead_db.php', 'dead_deep.php');
-switch ($argv[2]) {
-    case 1:
-        $go = $scripts[1];
-        break;
-    case 2:
-        $go = $scripts[2];
-        break;
-    case 3:
-        $go = $scripts[3];
-        break;
-    case 4:
-        $go = $scripts[4];
-        break;
-    case 5:
-        $go = $scripts[5];
-        break;
-    case 6:
-        $go = $scripts[6];
-        break;
-    case 7:
-        $go = $scripts[7];
-        break;
-    default:
-        $go = '';
-}
+$scripts = array(
+    0 => '',
+    1 => 'pinterest_db.php',
+    2 => 'pinterest_deep_db.php',
+    3 => 'godaddy_db.php',
+    4 => 'godaddy_deep_db.php',
+    5 => 'dead_search.php',
+    6 => 'dead_db.php',
+    7 => 'dead_deep.php',
+    8 => 'dead_houzz.php',
+    9 => 'dead_houzz_db.php',
+    10 => 'dead_houzz_deep.php');
 if ($argv[3]) {
     $sleep = $argv[3];
 } else {
     $sleep = 7;
 }
+$go = $scripts[$argv[2]];
 echo "STARTING $go - $argv[1] TIMES , SLEEP $sleep" . PHP_EOL;
 echo date('r') . PHP_EOL;
 flush();

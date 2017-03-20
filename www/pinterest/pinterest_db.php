@@ -17,7 +17,7 @@ $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_nov';
+$table_name = 'domains_auc';
 mysqli_connect2($db_name);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
@@ -98,7 +98,7 @@ while ($domains = get_domains_to_parse(200)) {
                 }
             }
             if (($domain_review['saves'] + $domain_review['likes'] + $domain_review['repins']) > 1000) {
-                if (checkdnsrr($domain,'ns') == false) {
+                //if (checkdnsrr($domain,'ns') == false) {
                     echo2("Домен имеет больше 1000 сигналов и ДОСТУПЕН для регистрации. Парсим активности по топ10 пинов за последние 30 дней!");
                     $days_7 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 7 дней
                     $days_30 = 0; //Функцией запишем сколько активностей в топ10 пинов за последние 30 дней
@@ -113,10 +113,10 @@ while ($domains = get_domains_to_parse(200)) {
                     $domain_review['top1_pin_url'] = $top1_pin_url;
                     $domain_review['top1_pin_activity'] = $top1_pin_activity;
                     $domain_review['domain_available'] = 1;
-                } else {
-                    echo2 ("Домен недоступен для регистрации, проходим мимо не тратим время!");
-                    $domain_review['domain_available'] = 0;
-                }
+//                } else {
+//                    echo2 ("Домен недоступен для регистрации, проходим мимо не тратим время!");
+//                    $domain_review['domain_available'] = 0;
+//                }
             }
             echo2("----- Закончили с доменом $domain -----");
             echo2(print_r($domain_review, 1));
@@ -188,14 +188,27 @@ function get_top_pins($count = 10)
     return $top_pins;
 }
 
-function get_pin_activity($pin_ids, $get_actions_per_pin = 5)
+function get_pin_activity($pin_ids, $get_actions_per_pin = 5, $fastmode = true)
 {
     global $days_7, $days_30, $top10_pins_oldest_action;
     foreach ($pin_ids as $id) {
+        $tmp_7_days = 0;
         $activity = get_pin_actions_till_date($id, $get_actions_per_pin, 31);
-        if (count($activity) > 0) {
+        if (count($activity) > 0 && $activity == true) {
             foreach ($activity as $item) {
                 $timestamps[] = strtotime($item['timestamp']);
+            }
+            if ($fastmode == true) {
+                foreach ($timestamps as $timestamp) {
+                    $tmp_seconds_passed = time() - $timestamp;
+                    $tmp_days_passed = round($tmp_seconds_passed / 86400);
+                    if ($tmp_days_passed < 8) {
+                        $tmp_7_days++;
+                    }
+                }
+                if ($tmp_7_days > 100) {
+                    break;
+                }
             }
         }
     }
@@ -238,20 +251,31 @@ function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
     return $activity;
 }
 
-function get_thread_data($finish = false)
+function get_thread_data($finish = false, $db_proxy_id = false, $login_success = false)
 {
     global $link, $login_data;
     if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `php_self` = '' WHERE `id` = " . $login_data['id'];
+        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `finish_time` = NOW() WHERE `id` = " . $login_data['id'];
         dbquery($query);
-    } else {
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
+//        mysqli_close($link);
+    } else if ($db_proxy_id == false) {
+        //Для замеров скорости новых проксей.
+//        $query = "SELECT * FROM `proxy` WHERE `used` = 0 AND `speed` = 0 LIMIT 1";
+        //Стандартно по скорости
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 ORDER BY `speed` DESC LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
             exit();
         }
         return $login_data[0];
+    } else if ($db_proxy_id == true && $login_success == true) {
+        $z = getmypid();
+        $name = basename($_SERVER['PHP_SELF']);
+        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' , `iterations` = 0 , `start_time` = NOW(), `update_time` = NOW() WHERE `id` = $db_proxy_id ;");
+        return true;
+    } else if ($db_proxy_id == true && $login_success == false) {
+        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
     }
 }
 
@@ -269,13 +293,11 @@ function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
-        $z = getmypid();
-        $name = basename($_SERVER['PHP_SELF']);
-        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' WHERE `id` = $db_proxy_id ;");
+        get_thread_data(false, $db_proxy_id, true);
     } else {
         echo2("LOGIN FAILED! Proxy ==> $proxy_data Account ==> $pinterest_account");
         echo2("SETTING PROXY TO STATUS 2 (аккаунт пинтереста возможно не рабочий!)");
-        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
+        get_thread_data(false, $db_proxy_id, false);
         exit();
     }
 }
