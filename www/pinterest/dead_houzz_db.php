@@ -4,6 +4,9 @@
  * User: Max
  * Date: 10.03.2017
  * Time: 23:41
+ * На 22.03 берет из Table Source домены вероятно доступные к регистрации.
+ * Стандартный статус = 0 > checkdnsr который не верен в плане доступности регистрации или нет.
+ * Можно прогнать дополнительно через Godaddy и присвоить доступным доменам статус 5, 8 - про которые Godaddy не знает.
  */
 include('../new/includes/functions.php');
 require('../../vendor/autoload.php');
@@ -19,6 +22,9 @@ $db_name = 'pinterest';
 $table_source = 'pin_houzz_dead';
 $table_name = 'pin_houzz_top10';
 
+$old_status = 5; //Статус домена который выбирать из $table_source. 5 = доступен, проверен Godaddy, 8 - неизвестно после проверки, 0 - не проверялся.
+$work_status = 3; //Рабочий статус. Домен на проверке.
+$new_status = 4; //Статус который пропишем в исходную таблицу после проверки домена;
 mysqli_connect2($db_name);
 
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
@@ -26,8 +32,13 @@ mysqli_connect2($db_name);
 //pinterest_local_login($pin_acc, $pin_pwd);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
+$db_proxy_id = $login_data['id'];
+if ($dead_proxy) {
+    dbquery("UPDATE `proxy` SET `used` = '4' WHERE `id` = $db_proxy_id");
+    exit();
+}
 //$pin_ids = file("pin_ids.txt", FILE_IGNORE_NEW_LINES);
-while ($domains = get_domains_to_parse(10)) {
+while ($domains = get_domains_to_parse(50)) {
     echo2("Загрузили " . count($domains) . " доменов из базы со статусом 0. Обновили им статус на 2 = в процессе");
     foreach ($domains as $domain) {
         $domain_db_id = $domain['id'];
@@ -136,15 +147,15 @@ get_thread_data(1);
 
 function get_domains_to_parse($count)
 {
-    global $table_source;
-    $list = dbquery("SELECT `id`,`domain` from `$table_source` WHERE `status` = 0 LIMIT $count");
+    global $table_source, $old_status, $work_status;
+    $list = dbquery("SELECT `id`,`domain` from `$table_source` WHERE `status` = $old_status LIMIT $count");
     $ids = '';
     if (count($list) > 0) {
         foreach ($list as $item) {
             $ids .= $item['id'] . ' , ';
         }
         $ids = substr($ids, 0, -2);
-        dbquery("UPDATE `$table_source` SET `status` = 1 WHERE `id` IN ($ids)");
+        dbquery("UPDATE `$table_source` SET `status` = $work_status WHERE `id` IN ($ids)");
         return $list;
     } else {
         return false;
@@ -225,11 +236,11 @@ function get_pin_activity($pin_ids, $get_actions_per_pin = 5, $fastmode = true)
 //Доработана под Dead
 function update_parsed_domain($domain_review, $domain_db_id)
 {
-    global $table_name, $table_source;
+    global $table_name, $table_source, $old_status, $new_status;
     if ($domain_review) {
         $domain_review_numeric = array_values($domain_review);
         $query = "INSERT INTO `$table_name` SET 
-`status` = '1',
+`status` = $old_status,
 `domain` = '$domain_review_numeric[0]',
 `pins_total` = $domain_review_numeric[1], 
 `boards_unique` = $domain_review_numeric[2],
@@ -247,7 +258,7 @@ function update_parsed_domain($domain_review, $domain_db_id)
 `top1_pin_url` = '$domain_review_numeric[14]', 
 `top1_pin_activity` = $domain_review_numeric[15] ;";
         dbquery($query);
-        dbquery("UPDATE `$table_source` SET `status` = 2 WHERE `id` = $domain_db_id;");
+        dbquery("UPDATE `$table_source` SET `status` = $new_status WHERE `id` = $domain_db_id;");
     } else {
         $ids = '';
         foreach ($domain_db_id as $id) {
@@ -307,14 +318,16 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
 function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
 {
     global $bot;
-    $proxy_data = explode(':', $proxy_data);
-    $pinterest_account = explode(':', $pinterest_account);
-
     $bot = PinterestBot::create();
-    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+    $pinterest_account = explode(':', $pinterest_account);
+    if ($proxy_data == true) {
+        $proxy_data = explode(':', $proxy_data);
+        $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+        $proxy_data = implode(":", $proxy_data);
+    } else {
+        $proxy_data = "LOCAL_IP";
+    }
     $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
-
-    $proxy_data = implode(":", $proxy_data);
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");

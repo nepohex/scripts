@@ -16,6 +16,11 @@ $db_usr = 'root';
 $db_name = 'pinterest';
 $table_name = 'pin_houzz_top10';
 $table_gold = 'pin_houzz_gold';
+
+//0 - не чекали, 1 - чекнули, 2 - в процессе (чекнули = пустой), 3 - start deep parse each pin, 4 - finish deep parse, 5 - real available,not checked 6 - not ava not checked, 7 - not ava, checked, 8 - unknown ava, 9 - real ava, checked, 10 - unknown, checked
+$old_status = 5; //Статус который забираем из $table_name
+$new_status = 9; // Статус который присваиваем после обработки в обоих таблицах.
+
 mysqli_connect2($db_name);
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
 //$pin_pwd = 'xmi0aJByoB';
@@ -23,6 +28,11 @@ mysqli_connect2($db_name);
 //$domains = array('69-withjesus.com');
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
+$db_proxy_id = $login_data['id'];
+if ($dead_proxy) {
+    dbquery("UPDATE `proxy` SET `used` = '4' WHERE `id` = $db_proxy_id");
+    exit();
+}
 while ($domains = get_deep_domains_to_parse(1)) {
     foreach ($domains as $domain) {
         $domain_db_id = $domain['id'];
@@ -210,14 +220,16 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
 function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
 {
     global $bot;
-    $proxy_data = explode(':', $proxy_data);
-    $pinterest_account = explode(':', $pinterest_account);
-
     $bot = PinterestBot::create();
-    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+    $pinterest_account = explode(':', $pinterest_account);
+    if ($proxy_data == true) {
+        $proxy_data = explode(':', $proxy_data);
+        $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+        $proxy_data = implode(":", $proxy_data);
+    } else {
+        $proxy_data = "LOCAL_IP";
+    }
     $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
-
-    $proxy_data = implode(":", $proxy_data);
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");
@@ -329,9 +341,9 @@ function get_pin_ids($pins)
 
 function get_deep_domains_to_parse($count)
 {
-    global $table_name;
+    global $table_name, $old_status;
     // status = '0 - не чекали, 1 - чекнули, 2 - в процессе (чекнули = пустой),  3 - start deep parse each pin, 4 - finish deep parse'
-    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = 5 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  ASC LIMIT $count");
+    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` = $old_status AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) ORDER BY `30_days_top10_pins_actions`  ASC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 100 ORDER BY `top1_pin_activity`  DESC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `status` IN (1,2) AND `top1_pin_activity` > 1000 ORDER BY `30_days_top10_pins_actions`  DESC LIMIT $count");
 //    $list = dbquery("SELECT * FROM `$table_name` WHERE `domain` = 'chasefencing.net'");
@@ -353,22 +365,22 @@ function get_deep_domains_to_parse($count)
 
 function update_deep_parsed_domain($domain_review, $domain_db_id)
 {
-    global $table_name;
+    global $table_name, $new_status;
     if ($domain_review) {
-        $query = "UPDATE `$table_name` SET `status` = '9' WHERE `id` = $domain_db_id ;";
+        $query = "UPDATE `$table_name` SET `status` = $new_status  WHERE `id` = $domain_db_id ;";
         dbquery($query);
     }
 }
 
 function put_deep_parsed_domain($domain_arr)
 {
-    global $table_gold;
+    global $table_gold, $new_status;
     if ($domain_arr) {
         $num = array_values($domain_arr);
         $query = "INSERT INTO  `$table_gold` SET 
 `id` = $num[0],
 `domain` = '$num[1]', 
-`status` = 9, 
+`status` = $new_status, 
 `pins_total` = $num[3], 
 `boards_unique` = $num[4],
 `pins_unique_url` = $num[5] ,

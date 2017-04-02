@@ -26,6 +26,10 @@ mysqli_connect2($db_name);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
 $db_proxy_id = $login_data['id'];
+if ($dead_proxy) {
+    dbquery("UPDATE `proxy` SET `used` = '4' WHERE `id` = $db_proxy_id");
+    exit();
+}
 //$pin_ids = file("pin_ids.txt", FILE_IGNORE_NEW_LINES);
 
 $added = 0; //Нашли мертвых Нужных нам доменов
@@ -114,14 +118,16 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
 function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
 {
     global $bot;
-    $proxy_data = explode(':', $proxy_data);
-    $pinterest_account = explode(':', $pinterest_account);
-
     $bot = PinterestBot::create();
-    $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+    $pinterest_account = explode(':', $pinterest_account);
+    if ($proxy_data == true) {
+        $proxy_data = explode(':', $proxy_data);
+        $bot->getHttpClient()->useProxy($proxy_data[0], $proxy_data[1], $proxy_data[2] . ':' . $proxy_data[3]);
+        $proxy_data = implode(":", $proxy_data);
+    } else {
+        $proxy_data = "LOCAL_IP";
+    }
     $bot->auth->login($pinterest_account[0], $pinterest_account[1]);
-
-    $proxy_data = implode(":", $proxy_data);
     $pinterest_account = implode(":", $pinterest_account);
     if ($bot->auth->isLoggedIn()) {
         echo2("Login Success! Proxy ==> $proxy_data Account ==> $pinterest_account");

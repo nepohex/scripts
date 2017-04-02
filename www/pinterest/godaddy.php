@@ -5,9 +5,15 @@
  * Date: 04.03.2017
  * Time: 23:19
  */
-include('../new/includes/functions.php');
-$fp_log = fopen("godaddy_log.txt", "a+");
+include("C:\\OpenServer\\domains\\scripts.loc\\www\\new\\includes\\functions.php");
+chdir ("C:\\OpenServer\\domains\\scripts.loc\\www\\pinterest\\");
+//$debug_mode = 1;
+$fp_log = fopen("C:\\OpenServer\\domains\\scripts.loc\\www\\pinterest\\godaddy_log.txt", "a+");
+ini_set('log_errors', 'On');
+ini_set('error_log', "C:\\OpenServer\\domains\\scripts.loc\\www\\pinterest\\godaddy_log.txt");
 $double_log = 1;
+echo2 (getcwd ());
+
 $db_pwd = '';
 $db_usr = 'root';
 mysqli_connect2("pinterest");
@@ -70,7 +76,7 @@ if (is_file($work_dir . $extracted_file)) {
             $price = $matches2[1];
             $date = strtotime(substr($matches3[0], 0, -3));
             $time_to_moscow = 11 * 60 * 60; // PST - время которое выдает Godaddy (-8 Часов GMT), Москва +3 GMT.
-            $moscow_end_date = $date + $time_to_moscow;
+            $moscow_end_date = $date - $time_to_moscow;
             $nice_end_date = date('d/m H:i', $moscow_end_date);
 //            if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($domain))) {
             if (strtolower($domain)) {
@@ -91,7 +97,9 @@ if (is_file($work_dir . $extracted_file)) {
     unlink($work_dir . $server_file);
     unlink($work_dir . $extracted_file);
     echo2("Запускаем 50 потоков проверок godaddy_db");
-    $com = new Com('WScript.shell');
-    $com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 50 3 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
+//    $com = new Com('WScript.shell');
+//    $com->run("php C:\\OpenServer\\domains\\scripts.loc\\www\\pinterest\\exec.php 50 3 2>&1", 0, false); //2ой параметр положительный чтобы консоль видимой была
+    exec("php C:\\OpenServer\\domains\\scripts.loc\\www\\pinterest\\exec.php 50 3 7 2>&1");
+    echo2 ("Запустили потоки, отвисло после exec");
     fclose($fp_log);
 }

@@ -13,96 +13,175 @@ require('../../vendor/autoload.php');
 header('Content-Type: text/html; charset=utf-8');
 $debug_mode = 1;
 
+//Сливание базы с хоста с локальной
+//$db_pwd = 'Ma4STVXhTc';
+//$db_usr = 'admin_ipzon';
+//$db_name = 'admin_pinterest';
+//$db_host = '93.170.76.157';
+//mysqli_connect2($db_name,$db_host);
+//
+//$db_insert = 'pin_houzz_dead';
+//$db_select = 'pin_houzz_dead';
+//dbquery("USE $db_name");
+////$query = "SELECT `pin_id`,`domain`,`timestamp` FROM `$db_select` WHERE `status` = 0;";
+//$query = "SELECT `id` from `pin_houzz` WHERE `checked` != 0;";
+//$insert = dbquery($query, 1);
+////dbquery("UPDATE `$db_select` SET `status` = 7;");
+//
+//$db_pwd = '';
+//$db_usr = 'root';
+//mysqli_connect2("pinterest");
+//
+//foreach ($insert as $item) {
+//    $query = "UPDATE `pin_houzz` SET `checked` = 1 WHERE `id` = $item";
+//        if (dbquery($query, false, 1, false, 1) == 1) {
+//        $new++;
+//    }
+//}
+////foreach ($insert as $item) {
+////    $query = "INSERT INTO `$db_insert` SET `pin_id` = $item[0], `domain` = '$item[1]' , `timestamp` = '$item[2]'";
+////    if (dbquery($query, false, 1, false, 1) == 1) {
+////        $new++;
+////    }
+////}
+//echo2($new);
+//exit();
+
 $db_pwd = '';
 $db_usr = 'root';
 mysqli_connect2("pinterest");
 $pin_db = 'domains_auc';
 
+//$com = new Com('WScript.shell');
+//$com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 1 3 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
+//
+//$exec = exec('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 10 3 2>&1');
+//$exec = exec('php C:\OpenServer\domains\scripts.loc\www\pinterest\exec.php 5 3 2>&1');
+//var_dump($output,$array);
 //Блок проверки Godaddy доступности > подумать куда перенести.
-//$table = 'pin_houzz_top10';
+//$table = 'pin_houzz_top10'; //PIN TOP 10 PARSED
 //$query = "SELECT `domain` FROM `$table` WHERE `status` = 1 AND (`7_days_top10_pins_actions` > 100 OR `30_days_top10_pins_actions` > 200) LIMIT 500";
-//$res = dbquery($query, 1);
-//
-//$i = 0;
-//
-//while (count($res) > 0) {
-//    $ch = curl_init();
-//    $domains = urlencode(implode(',', $res));
-//    $url = 'https://ru.godaddy.com/domains/actions/dodomainbulksearch.aspx?source=%2fdomains%2fbulk-domain-search.aspx';
-//    curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
-//    curl_setopt($ch, CURLOPT_HEADER, 0); // пустые заголовки
-//    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // возвратить то что вернул сервер
-//    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
-//    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
-//    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
-//    if ($proxy_ip) {
-//        curl_setopt($ch, CURLOPT_PROXY, $proxy_ip);
-//        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_login);
-//    }
-//    curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt'); // сохранять куки в файл
-//    curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
-//    curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
-//    curl_setopt($ch, CURLOPT_POSTFIELDS, 'domainNames=' . $domains . '&dotTypes=&extrnl=1&bulk=1&redirectTo=customize');
+$table = 'pin_houzz_dead';
+$count = dbquery("SELECT count(*) FROM `$table` WHERE `status` = 0;");
+echo2("Начинаем проверку $count доменов в Godaddy");
+$query = "SELECT `domain` FROM `$table` WHERE `status` = 0 LIMIT 500";
+$res = dbquery($query, 1);
+$proxy = get_proxy();
+$fail = 0;
+
+while (count($res) > 0) {
+    get_proxy();
+    $ch = curl_init();
+    $domains = urlencode(implode(',', $res));
+    $url = 'https://ru.godaddy.com/domains/actions/dodomainbulksearch.aspx?source=%2fdomains%2fbulk-domain-search.aspx';
+    curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
+    curl_setopt($ch, CURLOPT_HEADER, 0); // пустые заголовки
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // возвратить то что вернул сервер
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
+    if ($proxy_ip) {
+        curl_setopt($ch, CURLOPT_PROXY, $proxy_ip);
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_login);
+    }
+    curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt'); // сохранять куки в файл
+    curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
+    curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
+    curl_setopt($ch, CURLOPT_POSTFIELDS, 'domainNames=' . $domains . '&dotTypes=&extrnl=1&bulk=1&redirectTo=customize');
+    $data = curl_exec($ch);
+    exec_domain_status($data, $res);
+    update_status($unknown, $not_ava, $ava, $table);
+    curl_close($ch);
+    unlink('cookie.txt');
+//    $url = 'https://ru.godaddy.com/domains/actions/json/removedomainsfrompending.aspx?TargetDivID=x&RemoveAll=true';
 //    $data = curl_exec($ch);
-//    exec_domain_status($data, $res);
-//    update_status($unknown, $not_ava, $ava, $table);
-//    unlink('cookie.txt');
-//    curl_close($ch);
-////    $url = 'https://ru.godaddy.com/domains/actions/json/removedomainsfrompending.aspx?TargetDivID=x&RemoveAll=true';
-////    $data = curl_exec($ch);
-//    unset ($ava, $not_ava, $unknown);
-//    $res = dbquery($query, 1);
-//}
-//function exec_domain_status($html, $pack)
-//{
-//    global $ava, $not_ava, $unknown;
-//    preg_match_all('/<input type=\'checkbox\' id=\'(.*)\' name/i', $html, $tmp_ava);
-//    preg_match_all('/<td align="left" class="t11 OneLinkNoTx"><label for=\'(.*)\' title/i', $html, $tmp_not_ava);
-//    if (count($tmp_not_ava[1]) < 10) {
-//        echo2("Скорее всего какая-то проблема с Godaddy, результат запроса сохранен в godaddy_response.txt");
-//        file_put_contents('godaddy_response.txt', $html);
-//        file_put_contents('godaddy_pack.txt', serialize($pack));
-//    }
-//    $unknown = array_diff($pack, $tmp_not_ava[1]);
-//    $ava = $tmp_ava[1];
-//    $not_ava = array_diff($tmp_not_ava[1], $tmp_ava[1]);
-//}
-//
-//function update_status($unknown, $not_ava, $ava, $table)
-//{
-//    if (count($unknown) > 0) {
-//        foreach ($unknown as $item) {
-//            dbquery("UPDATE `$table` SET `status` = 8 WHERE `domain` = '$item';");
-//        }
-//    }
-//    if (count($not_ava) > 0) {
-//        foreach ($not_ava as $item) {
-//            dbquery("UPDATE `$table` SET `status` = 6 WHERE `domain` = '$item';");
-//        }
-//    }
-//    if (count($ava) > 0) {
-//        foreach ($ava as $item) {
-//            dbquery("UPDATE `$table` SET `status` = 5 WHERE `domain` = '$item';");
-//        }
-//    }
-//}
-//
-//exit();
+    unset ($ava, $not_ava, $unknown);
+    $res = dbquery($query, 1);
+    sleep(120);
+}
+
+function exec_domain_status($html, $pack)
+{
+    global $ava, $not_ava, $unknown, $fail,$proxy_ip;
+    preg_match_all('/<input type=\'checkbox\' id=\'(.*)\' name/i', $html, $tmp_ava);
+    preg_match_all('/<td align="left" class="t11 OneLinkNoTx"><label for=\'(.*)\' title/i', $html, $tmp_not_ava);
+    if (count($tmp_not_ava[1]) < 1) {
+        echo2("Скорее всего какая-то проблема с Godaddy, результат запроса сохранен в godaddy_response.txt");
+        file_put_contents('godaddy_response.txt', $html);
+        file_put_contents('godaddy_pack.txt', serialize($pack));
+        echo2 ("$proxy_ip");
+        $fail++;
+        if ($fail == 10) {
+            exit("Уже 10 Fail! Exit!");
+        }
+    }
+    $unknown = array_diff($pack, $tmp_not_ava[1]);
+    if (count($unknown) == count($pack)) {
+        echo2("100% проблема с Godaddy, результат запроса сохранен в godaddy_response.txt");
+        file_put_contents('godaddy_response.txt', $html);
+        file_put_contents('godaddy_pack.txt', serialize($pack));
+        echo2 ("$proxy_ip");
+        exit();
+    }
+    $ava = $tmp_ava[1];
+    $not_ava = array_diff($tmp_not_ava[1], $tmp_ava[1]);
+    echo2(count($unknown) . ' / ' . count($ava) . ' / ' . count($not_ava) . " unknown / ava / notava / proxy $proxy_ip");
+}
+
+function update_status($unknown, $not_ava, $ava, $table)
+{
+    if (count($unknown) > 0) {
+        foreach ($unknown as $item) {
+            dbquery("UPDATE `$table` SET `status` = 8 WHERE `domain` = '$item';");
+        }
+    }
+    if (count($not_ava) > 0) {
+        foreach ($not_ava as $item) {
+            dbquery("UPDATE `$table` SET `status` = 6 WHERE `domain` = '$item';");
+        }
+    }
+    if (count($ava) > 0) {
+        foreach ($ava as $item) {
+            dbquery("UPDATE `$table` SET `status` = 5 WHERE `domain` = '$item';");
+        }
+    }
+}
+
+function get_proxy()
+{
+    global $link, $login_data, $proxy_ip, $proxy_login;
+    if (!$login_data) {
+        $query = "SELECT DISTINCT `proxy` FROM `proxy` WHERE `proxy` != 0 and `used` != 4 ORDER BY `speed` DESC LIMIT 200";
+        $login_data = dbquery($query, 1);
+        if (count($login_data) == 0) {
+            echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
+            exit();
+        }
+    } else {
+        shuffle($login_data);
+        $tmp = explode(":", $login_data[0]);
+        $proxy_ip = $tmp[0] . ":" . $tmp[1];
+        $proxy_login = $tmp[2] . ":" . $tmp[3];
+    }
+    return $login_data;
+}
+
+exit();
 
 //Сливание базы с хоста с локальной
-//$db_insert = 'pin_houzz_dead_local';
-//$db_select = 'pin_houzz_dead';
+$db_insert = 'pin_houzz_dead_local';
+$db_select = 'pin_houzz_dead';
 
-//$query = "SELECT `pin_id`,`domain`,`timestamp` FROM `$db_select` WHERE `status` = 0";
-//$insert = dbquery($query,1);
-//foreach ($insert as $item) {
-//    $query = "INSERT INTO `$db_insert` SET `pin_id` = $item[0], `domain` = '$item[1]' , `timestamp` = '$item[2]'";
-//    if (dbquery($query,false,1,false,1) == 1) {
-//        $new++;
-//    }
-//}
-//echo2 ($new);
-//exit();
+$query = "SELECT `pin_id`,`domain`,`timestamp` FROM `$db_select` WHERE `status` = 0";
+$insert = dbquery($query, 1);
+foreach ($insert as $item) {
+    $query = "INSERT INTO `$db_insert` SET `pin_id` = $item[0], `domain` = '$item[1]' , `timestamp` = '$item[2]'";
+    if (dbquery($query, false, 1, false, 1) == 1) {
+        $new++;
+    }
+}
+echo2($new);
+exit();
 //$query = "SELECT * FROM `proxy` WHERE `iterations` > 1";
 //$proxy = dbquery($query,1);
 //$i = 0;

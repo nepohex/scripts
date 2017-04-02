@@ -91,7 +91,10 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
         dbquery($query);
 //        mysqli_close($link);
     } else if ($db_proxy_id == false) {
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 LIMIT 1";
+        //Для замеров скорости новых проксей.
+//        $query = "SELECT * FROM `proxy` WHERE `used` = 0 AND `speed` = 0 LIMIT 1";
+        //Стандартно по скорости
+        $query = "SELECT * FROM `proxy` WHERE `used` = 0 ORDER BY `speed` DESC LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
