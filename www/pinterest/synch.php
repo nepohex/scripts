@@ -81,15 +81,16 @@ while (count($res) > 300) {
     curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
     curl_setopt($ch, CURLOPT_POSTFIELDS, 'domainNames=' . $domains . '&dotTypes=&extrnl=1&bulk=1&redirectTo=customize');
     $data = curl_exec($ch);
-    exec_domain_status($data, $res);
-    update_status($unknown, $not_ava, $ava, $table);
+    if (exec_domain_status($data, $res) == false) {
+        sleep(5);
+    } else {
+        update_status($unknown, $not_ava, $ava, $table);
+        sleep(20);
+    }
     curl_close($ch);
     unlink(__DIR__."/cookie.txt");
-//    $url = 'https://ru.godaddy.com/domains/actions/json/removedomainsfrompending.aspx?TargetDivID=x&RemoveAll=true';
-//    $data = curl_exec($ch);
     unset ($ava, $not_ava, $unknown);
     $res = dbquery($query, 1);
-    sleep(120);
 }
 echo2 ("Не нашлось 300 доменов для проверки. Заканчиваем");
 
@@ -114,11 +115,13 @@ function exec_domain_status($html, $pack)
         file_put_contents('godaddy_response.txt', $html);
         file_put_contents('godaddy_pack.txt', serialize($pack));
         echo2("$proxy_ip");
+        return false;
         exit();
     }
     $ava = $tmp_ava[1];
     $not_ava = array_diff($tmp_not_ava[1], $tmp_ava[1]);
     echo2(count($unknown) . ' / ' . count($ava) . ' / ' . count($not_ava) . " unknown / ava / notava / proxy $proxy_ip");
+    return true;
 }
 
 function update_status($unknown, $not_ava, $ava, $table)

@@ -13,6 +13,9 @@ require('../../vendor/autoload.php');
 header('Content-Type: text/html; charset=utf-8');
 $debug_mode = 1;
 
+$a = 348888302364594101;
+$b = '34888830236459410fdghdfg1';
+
 //Сливание базы с хоста с локальной
 //$db_pwd = 'Ma4STVXhTc';
 //$db_usr = 'admin_ipzon';

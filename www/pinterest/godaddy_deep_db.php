@@ -40,7 +40,7 @@ while ($domains = get_deep_domains_to_parse(1)) {
             $created_activity = '0'; //Сколько из общих активностей по пину было именно создано новых
             $repins_activity = '0'; //Репинов. Также сюда запишем все неуникальные URL пинов.
             $likes_activity = '0'; //Лайков
-            $pin_ids = get_pin_ids($pins);
+            $pin_ids = get_pin_ids($pins, $domain);
             get_pin_activity($pin_ids);
             $domains[0]['7_days_all_pins_actions'] = $days_7;
             $domains[0]['30_days_all_pins_actions'] = $days_30;
@@ -302,25 +302,29 @@ function pinterest_local_login($pin_acc, $pin_pwd)
     }
 }
 
-function get_pin_ids($pins)
+function get_pin_ids($pins, $domain)
 {
     global $repins_activity;
     $urls = array();
     if (count($pins) > 0) {
         foreach ($pins as $pin) {
-            $repins_activity++;
-            $url = clean_url($pin['link']);
-            //Для некоторых URL бывает по 100к досок, а иногда по 0.
-            $aggr_stat = $pin['aggregated_pin_data']['aggregated_stats']['saves'] + $pin['aggregated_pin_data']['aggregated_stats']['done'] + $pin['aggregated_pin_data']['aggregated_stats']['likes'];
-            //Если URL один и тот же считаем его как 1 пин
-            $arr_element = $url . $aggr_stat;
-            if ($urls[$arr_element] == null) {
-                $urls[$arr_element][] = $pin['id'];
-                $repins_activity--;
+            if (preg_match('/.*' . $domain . '.*/i', $pin['domain'])) {
+                $repins_activity++;
+                $url = clean_url($pin['link']);
+                //Для некоторых URL бывает по 100к досок, а иногда по 0.
+                $aggr_stat = $pin['aggregated_pin_data']['aggregated_stats']['saves'] + $pin['aggregated_pin_data']['aggregated_stats']['done'] + $pin['aggregated_pin_data']['aggregated_stats']['likes'];
+                //Если URL один и тот же считаем его как 1 пин
+                $arr_element = $url . $aggr_stat;
+                if ($urls[$arr_element] == null) {
+                    $urls[$arr_element][] = $pin['id'];
+                    $repins_activity--;
+                }
             }
         }
-        foreach ($urls as $id) {
-            $ids[] = $id[0];
+        if (count($urls) > 0) {
+            foreach ($urls as $id) {
+                $ids[] = $id[0];
+            }
         }
     } else {
         echo2("Пинов 0 передали, не можем получить Pin ids");
