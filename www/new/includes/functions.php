@@ -6,7 +6,10 @@
  * Time: 1:10
  */
 
-function mysqli_connect2($db_name = null)
+if ($start == false) {
+    $start = microtime(true);
+}
+function mysqli_connect2($db_name = null, $db_host = 'localhost')
 {
     //Возвращает $link - соединение с DB.
     global $db_pwd, $db_usr, $link;
@@ -28,7 +31,7 @@ function mysqli_connect2($db_name = null)
         die('Установка MYSQLI_OPT_CONNECT_TIMEOUT завершилась провалом');
     }
 
-    if (!mysqli_real_connect($link, 'localhost', $db_usr, $db_pwd, $db_name)) {
+    if (!mysqli_real_connect($link, $db_host, $db_usr, $db_pwd, $db_name)) {
         die('Ошибка подключения (' . mysqli_connect_errno() . ') '
             . mysqli_connect_error());
     } else {
@@ -42,7 +45,7 @@ function convert($memory_usage)
     return @round($memory_usage / pow(1024, ($i = floor(log($memory_usage, 1024)))), 2) . ' ' . $unit[$i];
 }
 
-function echo_time_wasted($i = null)
+function echo_time_wasted($i = null, $msg = null)
 {
     global $start;
     $time = microtime(true) - $start;
@@ -52,9 +55,9 @@ function echo_time_wasted($i = null)
         $format = "мин";
     }
     if ($i) {
-        echo2("Идем по строке " . $i . " Скрипт выполняется уже " . number_format($time, 2) . " $format " . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
+        echo2("Идем по строке " . $i . " $msg . Скрипт выполняется уже " . number_format($time, 2) . " $format " . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
     } else {
-        echo2("Скрипт выполняется уже " . number_format($time, 2) . " $format" . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
+        echo2("$msg . Скрипт выполняется уже " . number_format($time, 2) . " $format" . " Памяти выделено в пике " . convert(memory_get_peak_usage(true)));
     }
 
 }
@@ -67,14 +70,20 @@ function print_r2($array)
     flush();
 }
 
-function echo2($str)
+function echo2($str, $double_log = false)
 {
-    global $fp_log, $debug_mode;
-    if ($debug_mode == 'true' | $debug_mode == '1') {
-        echo "$str" . PHP_EOL;
-        flush();
-    } else {
-        fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+    global $fp_log, $debug_mode, $double_log, $console_mode;
+    if ($console_mode == false) {
+        if ($double_log && $fp_log) {
+            echo "$str" . PHP_EOL;
+            flush();
+            fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+        } elseif ($debug_mode == 'true' | $debug_mode == '1') {
+            echo date("d-m-Y H:i:s") . " - " . $str . PHP_EOL;
+            flush();
+        } else {
+            fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+        }
     }
 }
 
@@ -144,20 +153,22 @@ function pwdgen($length, $include_punctuation = null)
 
 }
 
-function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null, $msg_if_empty_select = null)
-    /**
-     * На входе нужен sql resource $link , mysqli_init
-     * ПРИНИМАЕТ: массив или строку Insert / Update запросов.
-     * ПРИНИМАЕТ: SELECT запрос, возвращает ассоциативный массив с результатами по дефолту
-     * 2ой параметр - fetch_row, передавать нужно любую не пустую переменную.
-     * Если нет связи с DB, пробует соединиться по глобальной переменной db_name.
-     * Если результат SELECT - единичное поле - возвращает STRING с результатом.
-     * Если SELECT - 1 столбец, возвращает 1уровневый массив.
-     * Оповещает об ошибках.
-     */
-    #todo дописать функционал affected_rows для insert/update
-    #todo убрать вывод ошибок по параметру.
-    #todo добавить возможность отправлять такие запросы без ошибок INSERT INTO  `image_index`.`semrush_keys` SELECT * FROM  `image_index`.`tmp_semrush` ;
+/**
+ * @param $queryarr mixed SQL запрос или массив запросов. Одиночный запрос имеет ряд параметров на выбор.
+ * @param null $fetch_row_not_assoc Делать fetch_row
+ * @param null $return_affected_rows Возвращать количество затронутых строк
+ * @param null $msg_if_empty_select В случае успеха выводить сообщение
+ * @param null $stfu Если какие-либо ошибки из разряда (дублирующая строка) - не выводить о них сообщений.
+ * @return array|int Если Select возвращает строки, если нужно вывести COUNT вернет как STRING
+ *
+ * На входе нужен sql resource $link , mysqli_init
+ * ПРИНИМАЕТ: массив или строку Insert / Update запросов.
+ * ПРИНИМАЕТ: SELECT запрос, возвращает ассоциативный массив с результатами по дефолту
+ * Если нет связи с DB, пробует соединиться по глобальной переменной db_name.
+ * Если результат SELECT - единичное поле - возвращает STRING с результатом.
+ * Если SELECT - 1 столбец, возвращает 1уровневый массив.
+ */
+function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null, $msg_if_empty_select = null, $stfu = null)
 {
     global $link, $db_name;
 
@@ -172,13 +183,13 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
     if (is_array($queryarr)) {
         foreach ($queryarr as $query) {
             $sqlres = mysqli_query($link, $query);
-            if ($error = mysqli_error($link)) {
+            if ($error = mysqli_error($link) && $stfu == false) {
                 echo2("Mysqli error $error в запросе $query");
             }
         }
     } else { //Если не массив, то может быть и SELECT, можно вернуть значение.
         $sqlres = mysqli_query($link, $queryarr);
-        if ($error = mysqli_error($link)) {
+        if ($error = mysqli_error($link) && $stfu == false) {
             echo2("Mysqli error $error в запросе $queryarr");
         }
         if (strstr($queryarr, "SELECT")) {
@@ -270,12 +281,17 @@ function printr_to_array($str)
 
 }
 
-function csv_to_array($csv_filepath, $delimiter = ';')
+function csv_to_array($csv_filepath, $delimiter = ';', $column_number = null)
 {
     if (is_file($csv_filepath)) {
         $csv = array_map('str_getcsv', file($csv_filepath));
         foreach ($csv as $line) {
-            $csv_lines[] = explode($delimiter, $line[0]);
+            if ($column_number) {
+                $tmp = explode($delimiter, $line[0]);
+                $csv_lines[] = $tmp[$column_number];
+            } else {
+                $csv_lines[] = explode($delimiter, $line[0]);
+            }
         }
         return $csv_lines;
     } else {
@@ -283,9 +299,49 @@ function csv_to_array($csv_filepath, $delimiter = ';')
     }
 }
 
-function array_to_csv($fname_csv, $array, $success_msg = null, $write_mode = 'a', $csv_delimiter = ';')
+/**
+ * Csv to array с игнором двойных кавычек
+ * @param $csv_filepath string путь к файлу csv
+ * @param $delimiter string разделитель csv
+ * @param $column_number int нумерация с 0! если нужен 2ой столбец в файле, ставим 1.
+ * @param $ignore_header bool не вставлять 1ую строку с заголовками в результат
+ * @return array
+ */
+function csv_to_array2($csv_filepath, $delimiter = ';', $column_number = null, $ignore_header = null)
 {
+    if (is_file($csv_filepath)) {
+        $fp = fopen($csv_filepath, "r");
+        $i = 0;
+        while (($row = fgetcsv($fp, 0, $delimiter)) !== FALSE) {
+            if ($ignore_header && $i == 0) {
+            } else {
+                if ($column_number) {
+                    $csv_lines[] = $row[$column_number];
+                } else {
+                    $csv_lines[] = $row;
+                }
+            }
+            $i++;
+        }
+        fclose($fp);
+        return $csv_lines;
+    } else {
+        echo2("Функция csv_to_array не может получить контент файла $csv_filepath (должен быть CSV)");
+    }
+}
+
+function array_to_csv($fname_csv, $array, $header = false, $success_msg = null, $write_mode = 'a', $csv_delimiter = ';')
+{
+    $i = 0;
+    $head = '';
     if ($fp = fopen($fname_csv, $write_mode)) {
+        if ($i == 0 && $header == true) {
+            foreach ($array[0] as $key => $value) {
+                $head .= $key . $csv_delimiter;
+            }
+            $head .= PHP_EOL;
+            fputs($fp, $head);
+        }
         foreach ($array as $row) {
             fputcsv($fp, $row, $csv_delimiter);
         }
@@ -298,6 +354,39 @@ function array_to_csv($fname_csv, $array, $success_msg = null, $write_mode = 'a'
         return false;
     }
 }
+
+/**
+ * @param $array Ассоциативный массив который сортируем
+ * @param $cols Название колонки по которой сортируем, можно несколько. Пример использования $arr2 = array_msort($arr1, array('name'=>SORT_DESC, 'cat'=>SORT_ASC));
+ * @return array
+ */
+function array_msort($array, $cols)
+{
+    $colarr = array();
+    foreach ($cols as $col => $order) {
+        $colarr[$col] = array();
+        foreach ($array as $k => $row) {
+            $colarr[$col]['_' . $k] = strtolower($row[$col]);
+        }
+    }
+    $eval = 'array_multisort(';
+    foreach ($cols as $col => $order) {
+        $eval .= '$colarr[\'' . $col . '\'],' . $order . ',';
+    }
+    $eval = substr($eval, 0, -1) . ');';
+    eval($eval);
+    $ret = array();
+    foreach ($colarr as $col => $arr) {
+        foreach ($arr as $k => $v) {
+            $k = substr($k, 1);
+            if (!isset($ret[$k])) $ret[$k] = $array[$k];
+            $ret[$k][$col] = $array[$k][$col];
+        }
+    }
+    return $ret;
+
+}
+
 
 /**
  * При выгрузке из базы названий картинок чистит эти названия и превращает в будущие Title
@@ -335,13 +424,38 @@ function clean_files_name($string, $pattern = null, $replace_symbols = null)
 }
 
 /**
+ * Функция подготовки содержимого файла installer который будет запускаться из папки домена из хостинга.
+ * Создание базы и пользователя, прав, импорт дампа в базу.
+ * @param string $conf_tpl Путь к файлу который будет шаблоном нашего инсталлер файла
+ * @param string $final_conf_path Полный путь с названием файла Инсталлера
+ * @param string $installer_db_host Хост удаленной базы данных (99% - localhost)
+ * @param string $installer_db_usr Пользователь, чаще рут
+ * @param $installer_db_pwd Пароль рута под которым зайдем и будем создавать базу, пользователя и импортировать в нее.
+ * @param $wp_conf_db_name Сгенеренные скриптом название базы
+ * @param $wp_conf_db_usr Юзер
+ * @param $wp_conf_db_pwd Пароль
+ * @param $sql_dump Название дампа который будем импортировать в БД
+ */
+function gen_installer($conf_tpl, $final_conf_path, $installer_db_host = 'localhost', $installer_db_usr = 'root', $installer_db_pwd, $wp_conf_db_name, $wp_conf_db_usr, $wp_conf_db_pwd, $sql_dump)
+{
+    $tmp = file_get_contents($conf_tpl);
+    $installer_data = '<?php' . PHP_EOL . '$wp_conf_db_name = \'' . $wp_conf_db_name . '\';' . PHP_EOL . '$wp_conf_db_usr = \'' . $wp_conf_db_usr . '\';' . PHP_EOL . '$wp_conf_db_pwd = \'' . $wp_conf_db_pwd . '\';' . PHP_EOL . '$installer_db_host = \'' . $installer_db_host . '\';' . PHP_EOL . '$installer_db_usr = \'' . $installer_db_usr . '\';' . PHP_EOL . '$installer_db_pwd = \'' . $installer_db_pwd . '\';' . PHP_EOL . '$sql_dump = \'' . $sql_dump . '\';' . PHP_EOL . $tmp;
+    file_put_contents($final_conf_path, $installer_data);
+    if (is_file($final_conf_path)) {
+        echo2("Инсталлер для удаленного хоста по адресу $final_conf_path создан и записан!");
+    } else {
+        echo2("Не удалось записать файл конфига по адресу $final_conf_path");
+    }
+}
+
+/**
  * Функция ищет все синонимы и объединяет их с основным словом, которое указано в начале массива synonyms Как первый элемент.
  * @param $words_used array Массив где ключ = Слово, значение = цифра
  * @param $synonyms array Многомерный массив где первое значение - родитель, а дети далее в массиве
  * @param int $limit_iterations сколько раз пробегать по массиву слов, оптимально 200-300.
  * @return array Массив с отсортированными словами с учетом синонимов
  */
-function merge_synonyms($words_used , $synonyms, $limit_iterations = 200)
+function merge_synonyms($words_used, $synonyms, $limit_iterations = 200)
 {
     arsort($words_used);
     reset($words_used);
@@ -398,4 +512,76 @@ class Spintax
         $parts = explode('|', $text);
         return $parts[array_rand($parts)];
     }
+}
+//todo функции нужна валидация
+function Export_Database($host, $user, $pass, $name, $tables = false, $backup_name = false, $result_dir = false)
+{
+    if ($result_dir == false) {
+        global $result_dir;
+    }
+    $mysqli = new mysqli($host, $user, $pass, $name);
+    $mysqli->select_db($name);
+    $mysqli->query("SET NAMES 'utf8'");
+
+    $queryTables = $mysqli->query('SHOW TABLES');
+    while ($row = $queryTables->fetch_row()) {
+        $target_tables[] = $row[0];
+    }
+    if ($tables !== false) {
+        $target_tables = array_intersect($target_tables, $tables);
+    }
+    foreach ($target_tables as $table) {
+        $result = $mysqli->query('SELECT * FROM ' . $table);
+        $fields_amount = $result->field_count;
+        $rows_num = $mysqli->affected_rows;
+        $res = $mysqli->query('SHOW CREATE TABLE ' . $table);
+        $TableMLine = $res->fetch_row();
+        $content = (!isset($content) ? '' : $content) . "\n\n" . $TableMLine[1] . ";\n\n";
+
+        for ($i = 0, $st_counter = 0; $i < $fields_amount; $i++, $st_counter = 0) {
+            while ($row = $result->fetch_row()) { //when started (and every after 100 command cycle):
+                if ($st_counter % 100 == 0 || $st_counter == 0) {
+                    $content .= "\nINSERT INTO " . $table . " VALUES";
+                }
+                $content .= "\n(";
+                for ($j = 0; $j < $fields_amount; $j++) {
+                    $row[$j] = str_replace("\n", "\\n", addslashes($row[$j]));
+                    if (isset($row[$j])) {
+                        $content .= '"' . $row[$j] . '"';
+                    } else {
+                        $content .= '""';
+                    }
+                    if ($j < ($fields_amount - 1)) {
+                        $content .= ',';
+                    }
+                }
+                $content .= ")";
+                //every after 100 command cycle [or at last line] ....p.s. but should be inserted 1 cycle eariler
+                if ((($st_counter + 1) % 100 == 0 && $st_counter != 0) || $st_counter + 1 == $rows_num) {
+                    $content .= ";";
+                } else {
+                    $content .= ",";
+                }
+                $st_counter = $st_counter + 1;
+            }
+        }
+        $content .= "\n\n\n";
+    }
+    //$backup_name = $backup_name ? $backup_name : $name."___(".date('H-i-s')."_".date('d-m-Y').")__rand".rand(1,11111111).".sql";
+    $backup_name = $backup_name ? $backup_name : $name . ".sql";
+//    header('Content-Type: application/octet-stream');
+//    header("Content-Transfer-Encoding: Binary");
+//    header("Content-disposition: attachment; filename=\"".$backup_name."\"");
+    file_put_contents($result_dir . $backup_name, $content);
+//    echo $content;
+    if (is_file($result_dir.$backup_name)) {
+        echo2("Дампнули базу данных в " . $result_dir . $backup_name);
+    } else {
+        echo2 ("Дампнуть базу данных ИЛИ сохранить в папку $result_dir не получилось");
+    }
+}
+
+function remove_none_word_chars($string)
+{
+    return preg_replace('~[^\\pL\d]+~u', ' ', $string);
 }
