@@ -13,8 +13,39 @@ require('../../vendor/autoload.php');
 header('Content-Type: text/html; charset=utf-8');
 $debug_mode = 1;
 
-$a = 348888302364594101;
-$b = '34888830236459410fdghdfg1';
+$db_pwd = '';
+$db_usr = 'root';
+mysqli_connect2("pinterest");
+$table = 'domains_expired';
+
+$dirfiles = scandir("sources_expired");
+foreach ($dirfiles as $parsefname) {
+    if (strpos($parsefname, ".txt")) {
+        $txt = file("sources_expired/" . $parsefname, FILE_IGNORE_NEW_LINES);
+        $count += count($txt);
+        echo_time_wasted(null, "Начинаем обрабатывать файл $parsefname с " . count($txt) . " строками");
+        foreach ($txt as $item) {
+            $i++;
+            if (preg_match('/^[0-9]+\./', $item) == false) {
+//                if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($item))) {
+                    $count_valid++;
+                    $query = "INSERT INTO `pinterest`.`$table` (`id`, `domain`, `status`) VALUES (NULL, '$item', '0')";
+                    if (dbquery($query, null, true, null, 'shutup') == 1) {
+                        $count_uploaded++;
+                    }
+//                }
+            }
+            if ($i % 10000 == 0) {
+                echo2("    Идем по строке $i , загружено $count_uploaded");
+            }
+        }
+        echo_time_wasted(null, "    Прошли по фильтру доменной зоны $count_valid , в базу догрузили $count_uploaded");
+    }
+}
+$count_status = dbquery("SELECT COUNT(*) FROM `$table` WHERE `status` = 0");
+echo2("Загружено $count из файла доменов , из них прошли по фильтру доменной зоны $count_valid, всего в базе со статусом 0 $count_status , в базу догрузили $count_uploaded");
+echo_time_wasted();
+exit();
 
 //Сливание базы с хоста с локальной
 //$db_pwd = 'Ma4STVXhTc';
@@ -329,34 +360,6 @@ $query = "SELECT * FROM `domains` WHERE `status` = 1 AND `domain` NOT LIKE '%hai
 //    dbquery($query);
 //}
 //SELECT * FROM `domains_feb` where `domain` REGEXP 'net$|com$|org$|info$|biz$|xyz$'
-$dirfiles = scandir("sources_expired");
-foreach ($dirfiles as $parsefname) {
-    if (strpos($parsefname, ".txt")) {
-        $txt = file("sources_expired/" . $parsefname, FILE_IGNORE_NEW_LINES);
-        $count += count($txt);
-        echo_time_wasted(null, "Начинаем обрабатывать файл $parsefname с " . count($txt) . " строками");
-        foreach ($txt as $item) {
-            $i++;
-            if (preg_match('/^[0-9]+\./', $item) == false) {
-                if (preg_match('/^[-a-z0-9]+\.biz|com|net|org|info|us|xyz|online|pro|tv|black|red$/', strtolower($item))) {
-                    $count_valid++;
-                    $query = "INSERT INTO `pinterest`.`$pin_db` (`id`, `domain`, `status`) VALUES (NULL, '$item', '0')";
-                    if (dbquery($query, null, true, null, 'shutup') == 1) {
-                        $count_uploaded++;
-                    }
-                }
-            }
-            if ($i % 10000 == 0) {
-                echo2("    Идем по строке $i , загружено $count_uploaded");
-            }
-        }
-        echo_time_wasted(null, "    Прошли по фильтру доменной зоны $count_valid , в базу догрузили $count_uploaded");
-    }
-}
-$count_status = dbquery("SELECT COUNT(*) FROM `$pin_db` WHERE `status` = 0");
-echo2("Загружено $count из файла доменов , из них прошли по фильтру доменной зоны $count_valid, всего в базе со статусом 0 $count_status , в базу догрузили $count_uploaded");
-echo_time_wasted();
-exit();
 
 $date = strtotime('Tue, 21 Feb 2017 10:08:50 +0000');
 echo date(DATE_RFC822, $date);

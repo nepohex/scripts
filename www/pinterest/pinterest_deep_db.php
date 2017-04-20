@@ -14,8 +14,8 @@ $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_auc';
-$table_gold = 'gold_auc';
+$table_name = 'domains_expired';
+$table_gold = 'gold_expired';
 mysqli_connect2($db_name);
 //$pin_acc = 'inga.tarpavina.89@mail.ru';
 //$pin_pwd = 'xmi0aJByoB';
@@ -302,25 +302,29 @@ function pinterest_local_login($pin_acc, $pin_pwd)
     }
 }
 
-function get_pin_ids($pins)
+function get_pin_ids($pins, $domain)
 {
     global $repins_activity;
     $urls = array();
     if (count($pins) > 0) {
         foreach ($pins as $pin) {
-            $repins_activity++;
-            $url = clean_url($pin['link']);
-            //Для некоторых URL бывает по 100к досок, а иногда по 0.
-            $aggr_stat = $pin['aggregated_pin_data']['aggregated_stats']['saves'] + $pin['aggregated_pin_data']['aggregated_stats']['done'] + $pin['aggregated_pin_data']['aggregated_stats']['likes'];
-            //Если URL один и тот же считаем его как 1 пин
-            $arr_element = $url . $aggr_stat;
-            if ($urls[$arr_element] == null) {
-                $urls[$arr_element][] = $pin['id'];
-                $repins_activity--;
+            if (preg_match('/.*' . $domain . '.*/i', $pin['domain'])) {
+                $repins_activity++;
+                $url = clean_url($pin['link']);
+                //Для некоторых URL бывает по 100к досок, а иногда по 0.
+                $aggr_stat = $pin['aggregated_pin_data']['aggregated_stats']['saves'] + $pin['aggregated_pin_data']['aggregated_stats']['done'] + $pin['aggregated_pin_data']['aggregated_stats']['likes'];
+                //Если URL один и тот же считаем его как 1 пин
+                $arr_element = $url . $aggr_stat;
+                if ($urls[$arr_element] == null) {
+                    $urls[$arr_element][] = $pin['id'];
+                    $repins_activity--;
+                }
             }
         }
-        foreach ($urls as $id) {
-            $ids[] = $id[0];
+        if (count($urls) > 0) {
+            foreach ($urls as $id) {
+                $ids[] = $id[0];
+            }
         }
     } else {
         echo2("Пинов 0 передали, не можем получить Pin ids");

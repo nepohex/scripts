@@ -83,14 +83,19 @@ function echo2($str, $double_log = false)
             flush();
             if (get_resource_type($fp_log) == 'stream') {
                 fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+                return;
             } else {
                 $fp = fopen($fp_log, 'a+');
                 fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+                return;
             }
-        } elseif ($debug_mode === 'true') {
+        }
+        if ($debug_mode == true) {
             echo date("d-m-Y H:i:s") . " - " . $str . PHP_EOL;
             flush();
-        } else {
+            return;
+        }
+        if ($fp_log) {
             if (get_resource_type($fp_log) == 'stream') {
                 fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
             } else {

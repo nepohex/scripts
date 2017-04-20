@@ -12,16 +12,16 @@ use seregazhuk\PinterestBot\Factories\PinterestBot;
 set_time_limit(0);
 ini_set('mysql.connect_timeout','86400');
 error_reporting(0);
-$console_mode = 1;
+//$console_mode = 1;
 $debug_mode = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'pinterest';
-$table_name = 'domains_auc';
+$table_name = 'domains_expired';
 mysqli_connect2($db_name);
 $login_data = get_thread_data();
 pinterest_login($login_data['id'], $login_data['proxy'], $login_data['pin_acc']);
-while ($domains = get_domains_to_parse(200)) {
+while ($domains = get_domains_to_parse(50)) {
     echo2("Загрузили " . count($domains) . " доменов из базы со статусом 0. Обновили им статус на 2 = в процессе");
     foreach ($domains as $domain) {
         $domain_db_id = $domain['id'];
@@ -128,8 +128,8 @@ while ($domains = get_domains_to_parse(200)) {
     }
 }
 get_thread_data(1);
-$com = new Com('WScript.shell');
-$com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\pinterest_deep_db.php 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
+//$com = new Com('WScript.shell');
+//$com->run('php C:\OpenServer\domains\scripts.loc\www\pinterest\pinterest_deep_db.php 2>&1', 0, false); //2ой параметр положительный чтобы консоль видимой была
 
 
 function check_max($written, $attempt_to_write)
@@ -227,42 +227,18 @@ function get_pin_activity($pin_ids, $get_actions_per_pin = 5, $fastmode = true)
     return $days_passed;
 }
 
-/**
- * @param $id int Pin id
- * @param $get_actions_per_pin int По сколько действий по пину за раз выгружать
- * @param $days_to_get int 31 = Выгрузить все действия не старше чем 31 день.
- */
-function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
-{
-    global $bot;
-    if ($activity = $bot->pins->activity($id, $get_actions_per_pin)) {
-        $activity = $activity->toArray();
-    } else {
-        echo2 ("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
-    }
-    while (round((time() - strtotime($activity[$get_actions_per_pin - 1]['timestamp'])) / 86400) < $days_to_get) {
-        $get_actions_per_pin += $get_actions_per_pin;
-        if ($activity = $bot->pins->activity($id, $get_actions_per_pin)) {
-            $activity = $activity->toArray();
-        } else {
-            echo2 ("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
-        }
-    }
-    return $activity;
-}
-
 function get_thread_data($finish = false, $db_proxy_id = false, $login_success = false)
 {
     global $link, $login_data;
     if ($finish) {
-        $query = "UPDATE `proxy` SET `used` = '0' , `pid` = '', `finish_time` = NOW() WHERE `id` = " . $login_data['id'];
+        $query = "UPDATE `proxy2` SET `used` = '0' , `pid` = '', `finish_time` = NOW() WHERE `id` = " . $login_data['id'];
         dbquery($query);
 //        mysqli_close($link);
     } else if ($db_proxy_id == false) {
         //Для замеров скорости новых проксей.
 //        $query = "SELECT * FROM `proxy` WHERE `used` = 0 AND `speed` = 0 LIMIT 1";
         //Стандартно по скорости
-        $query = "SELECT * FROM `proxy` WHERE `used` = 0 ORDER BY `speed` DESC LIMIT 1";
+        $query = "SELECT * FROM `proxy2` WHERE `used` = 0 ORDER BY `speed` DESC LIMIT 1";
         $login_data = dbquery($query);
         if (count($login_data) == 0) {
             echo2("Нет больше не занятых проксей и аккаунтов! Проверить статусы!");
@@ -272,10 +248,10 @@ function get_thread_data($finish = false, $db_proxy_id = false, $login_success =
     } else if ($db_proxy_id == true && $login_success == true) {
         $z = getmypid();
         $name = basename($_SERVER['PHP_SELF']);
-        dbquery("UPDATE `proxy` SET `used` = '1', `pid` = $z , `php_self` = '$name' , `iterations` = 0 , `start_time` = NOW(), `update_time` = NOW() WHERE `id` = $db_proxy_id ;");
+        dbquery("UPDATE `proxy2` SET `used` = '1', `pid` = $z , `php_self` = '$name' , `iterations` = 0 , `start_time` = NOW(), `update_time` = NOW() WHERE `id` = $db_proxy_id ;");
         return true;
     } else if ($db_proxy_id == true && $login_success == false) {
-        dbquery("UPDATE `proxy` SET `used` = '2' WHERE `id` = $db_proxy_id");
+        dbquery("UPDATE `proxy2` SET `used` = '2' WHERE `id` = $db_proxy_id");
     }
 }
 
@@ -302,6 +278,30 @@ function pinterest_login($db_proxy_id, $proxy_data, $pinterest_account)
         get_thread_data(false, $db_proxy_id, false);
         exit();
     }
+}
+
+/**
+ * @param $id int Pin id
+ * @param $get_actions_per_pin int По сколько действий по пину за раз выгружать
+ * @param $days_to_get int 31 = Выгрузить все действия не старше чем 31 день.
+ */
+function get_pin_actions_till_date($id, $get_actions_per_pin, $days_to_get)
+{
+    global $bot;
+    if ($activity = $bot->pins->activity($id, $get_actions_per_pin)) {
+        $activity = $activity->toArray();
+    } else {
+        echo2("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
+    }
+    while (round((time() - strtotime($activity[$get_actions_per_pin - 1]['timestamp'])) / 86400) < $days_to_get) {
+        $get_actions_per_pin += $get_actions_per_pin;
+        if ($activity = $bot->pins->activity($id, $get_actions_per_pin)) {
+            $activity = $activity->toArray();
+        } else {
+            echo2("Activity fasle! Возможно меньше чем мы запрашиваем есть экшенов!");
+        }
+    }
+    return $activity;
 }
 
 function get_domains_to_parse($count)
