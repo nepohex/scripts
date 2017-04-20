@@ -70,6 +70,10 @@ function print_r2($array)
     flush();
 }
 
+/** $fp_log задать как file handle (fopen) или название файла куда писать, файл будет создан по пути который указан в переменной.
+ * @param $str Строка которую вывести
+ * @param bool $double_log Метод логирования
+ */
 function echo2($str, $double_log = false)
 {
     global $fp_log, $debug_mode, $double_log, $console_mode;
@@ -77,12 +81,22 @@ function echo2($str, $double_log = false)
         if ($double_log && $fp_log) {
             echo "$str" . PHP_EOL;
             flush();
-            fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
-        } elseif ($debug_mode == 'true' | $debug_mode == '1') {
+            if (get_resource_type($fp_log) == 'stream') {
+                fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            } else {
+                $fp = fopen($fp_log, 'a+');
+                fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            }
+        } elseif ($debug_mode === 'true') {
             echo date("d-m-Y H:i:s") . " - " . $str . PHP_EOL;
             flush();
         } else {
-            fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            if (get_resource_type($fp_log) == 'stream') {
+                fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            } else {
+                $fp = fopen($fp_log, 'a+');
+                fwrite($fp, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            }
         }
     }
 }
@@ -513,6 +527,7 @@ class Spintax
         return $parts[array_rand($parts)];
     }
 }
+
 //todo функции нужна валидация
 function Export_Database($host, $user, $pass, $name, $tables = false, $backup_name = false, $result_dir = false)
 {
@@ -574,10 +589,10 @@ function Export_Database($host, $user, $pass, $name, $tables = false, $backup_na
 //    header("Content-disposition: attachment; filename=\"".$backup_name."\"");
     file_put_contents($result_dir . $backup_name, $content);
 //    echo $content;
-    if (is_file($result_dir.$backup_name)) {
+    if (is_file($result_dir . $backup_name)) {
         echo2("Дампнули базу данных в " . $result_dir . $backup_name);
     } else {
-        echo2 ("Дампнуть базу данных ИЛИ сохранить в папку $result_dir не получилось");
+        echo2("Дампнуть базу данных ИЛИ сохранить в папку $result_dir не получилось");
     }
 }
 

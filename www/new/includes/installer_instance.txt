@@ -1,0 +1,55 @@
+//EXAMPLE DATA TO WORK PROPERLY!
+//$wp_conf_db_name = 'wtfowned_eyr5zf';
+//$wp_conf_db_usr = 'wtfowned_DbdX1H';
+//$wp_conf_db_pwd = '4G0gTkbXUzcC';
+//$installer_db_host = 'localhost';
+//$installer_db_usr = 'root';
+//$installer_db_pwd = '';
+//$sql_dump = 'extractor_instance_updated.sql';
+
+$link = mysqli_init();
+if (!$link) {
+    die('mysqli_init завершилась провалом');
+}
+if (!mysqli_real_connect($link, $installer_db_host, $installer_db_usr, $installer_db_pwd)) {
+    die('Ошибка подключения (' . mysqli_connect_errno() . ') '
+        . mysqli_connect_error());
+} else {
+    echo("Связь с MYSQL есть.");
+}
+$queries[] = "CREATE USER '$wp_conf_db_usr'@'$installer_db_host' IDENTIFIED BY '$wp_conf_db_pwd';";
+$queries[] = "CREATE DATABASE $wp_conf_db_name;";
+$queries[] = "GRANT ALL ON $wp_conf_db_name.* TO '$wp_conf_db_usr'@'$installer_db_host';";
+$queries[] = "USE $wp_conf_db_name;";
+
+foreach ($queries as $query) {
+    if (!mysqli_query($link, $query)) {
+        echo "FAIL QUERY: " . $query. PHP_EOL . mysqli_error($link) . PHP_EOL;
+    } else {
+        echo "SUCCESS QUERY: " . $query. PHP_EOL;
+        flush();
+    }
+}
+
+// Temporary variable, used to store current query
+$templine = '';
+// Read in entire file
+$lines = file(__DIR__ . '/'.$sql_dump);
+// Loop through each line
+foreach ($lines as $line) {
+// Skip it if it's a comment
+    if (substr($line, 0, 2) == '--' || $line == '')
+        continue;
+
+// Add this line to the current segment
+    $templine .= $line;
+// If it has a semicolon at the end, it's the end of the query
+    if (substr(trim($line), -1, 1) == ';') {
+        // Perform the query
+        mysqli_query($link, $templine) or print('Error performing query \'<strong>' . $templine . '\': ' . mysqli_error() . '<br /><br />');
+        // Reset temp variable to empty
+        $templine = '';
+    }
+}
+echo "Tables imported successfully";
+mysqli_close($link);

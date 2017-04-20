@@ -13,17 +13,15 @@ include "includes/spin_tpls.php";
 include "includes/functions.php";
 
 //Обязательные к изменению функции от сайта к сайту
-$site_name = 'guyshair.site'; // Без слешей, только домен
-$keyword = "guy";
-$blogname = ucwords("Hairstyles for guys 2017");
-$blogdescription = $blogname.". Haircuts for young men.";
+$site_name = 'graduatedhairstyles.info'; // Без слешей, только домен
+$keyword = "graduat";
+$blogname = ucwords("Trendy graduated haircuts 2017");
+$blogdescription = $blogname.". The most requested haircut in 2016-2017 years.";
 
 //HOSTING DATA для инсталлера и корректных конфигов Wp super cache
 $wp_conf_db_prefix = 'wtfowned_';
-//Это путь к плагину который идет в wp-config
-$wpcachehome = '/home/wtfowned/web/' . $site_name . '/public_html/wp-content/plugins/wp-super-cache/';
-//Это путь куда будет складываться кеш
-$wp_cache_dir = '/home/wtfowned/web/' . $site_name . '/public_html/cache/';
+$wpcachehome = '/home/wtfowned/web/' . $site_name . '/public_html/cache/';
+$wp_super_cachehome = '/home/wtfowned/web/' . $site_name . '/public_html/wp-content/plugins/wp-super-cache/';
 $installer_db_host = 'localhost';
 $installer_db_usr = 'root';
 $installer_db_pwd = 'RABCkgt0rKhF';
