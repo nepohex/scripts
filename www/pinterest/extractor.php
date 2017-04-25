@@ -12,6 +12,9 @@ use seregazhuk\PinterestBot\Factories\PinterestBot;
 
 //$console_mode = 1;
 $debug_mode = 1;
+$double_log = 1;
+$fp_log = __DIR__.'/extractor/log.txt';
+
 $start_time = time();
 
 $domains = file(__DIR__ . '/extractor/small_domains.txt', FILE_IGNORE_NEW_LINES);
@@ -53,7 +56,7 @@ foreach ($domains as $domain) {
 
     pinterest_local_login($pin_acc, $pin_pwd);
 
-    gen_wp_db_conf();
+    gen_wp_db_conf($site_name, $wp_conf_db_prefix);
     import_db_instance();
     mk_site_dir($wp_dir);
     copy(__DIR__ . '/pin_inst.zip', $domain_dir . '/pin_inst.zip');
@@ -190,7 +193,7 @@ function pins_wp_insert($arr, $domain, $wp_image_upload_date_prefix)
         $queries[] = "INSERT INTO `wp_redirection_items` (`id`, `url`, `regex`, `position`, `last_count`, `last_access`, `group_id`, `status`, `action_type`, `action_code`, `action_data`, `match_type`, `title`) VALUES (NULL, '$redir_url', '0', '2', '1', '2017-04-11 23:06:44', '1', 'enabled', 'url', '301', '" . $item['id'] . "', 'url', NULL);";
     }
     dbquery($queries);
-    echo2 ("Добавили всего ".count($urls)." URL , на них приходится $z картинок которые легли в эти посты.");
+    echo2("Добавили всего " . count($urls) . " URL , на них приходится $z картинок которые легли в эти посты.");
     return $index;
 }
 
