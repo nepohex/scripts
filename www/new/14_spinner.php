@@ -56,13 +56,15 @@ if ($result) {
 //Проверяем есть ли синонимы для ключевика сайта среди синонимов, чтобы чекнуть специальные Спинтаксы под ключ (или синонимы его)
 foreach ($synonyms as $synonim) {
     if (in_array($keyword, $synonim)) {
-        $spin_comments[] = $keyword;
+//        $spin_comments[] = $keyword;
         foreach ($synonim as $item) {
-            $spin_comments[] = $item;
+//            $spin_comments[] = $item;
+            $spin_synonims[] = $item;
         }
     }
 }
 //Начинаем выгружать из базы тексты для спинов в массив
+//не работает пока что функционал т.к. нет комментов.
 $actually_variants = 0;
 if ($spin_comments) {
     foreach ($spin_comments as $spin_comment) {
@@ -92,7 +94,17 @@ $posts = dbquery($query);
 if ($mega_spin == true) {
     mysqli_connect2($db_name_spin);
     $mega_spin_variants = 0; // Сколько у нас всего вариантов под этот ключевик в базе для Mega Spin.
-    $query = "SELECT `id`,`h3`,`img_alt`,`avg_len` from `data` WHERE `h3` LIKE '%$keyword%' OR `img_alt` LIKE '%$keyword%';";
+    if ($spin_synonims) {
+        $tmp = ' '.implode('| ',$spin_synonims);
+        //Костыль для men/woman
+        if (in_array('men',$spin_synonims)) {
+            $query = "SELECT `id`,`h3`,`img_alt`,`avg_len` from `data` WHERE (`h3` REGEXP '.*$tmp.*' OR `img_alt` REGEXP '.*$tmp.*') and `h3` NOT LIKE '%wom%' AND `img_alt` NOT LIKE '%wom%';";
+        } else {
+            $query = "SELECT `id`,`h3`,`img_alt`,`avg_len` from `data` WHERE `h3` REGEXP '.*$tmp.*' OR `img_alt` REGEXP '.*$tmp.*';";
+        }
+    } else {
+        $query = "SELECT `id`,`h3`,`img_alt`,`avg_len` from `data` WHERE `h3` LIKE '%$keyword%' OR `img_alt` LIKE '%$keyword%';";
+    }
     $sqlres = mysqli_query($link, $query);
     while ($tmp = mysqli_fetch_assoc($sqlres)) {
         $mega_spin_tpls[] = $tmp;
@@ -176,15 +188,6 @@ if ($mega_spin == true) {
 //Начинаем генерить тексты для постов
 $i = 0;
 $counter_used_new = 0; //Сколько шаблонов использовали после обновлени текстов
-function add_concat_spin_text($spec_separator = '')
-{
-    global $posts, $i, $spintax, $tmp, $spin_fragments_separator, $tmp_ind_spin_rows, $spin_rows, $counter_used_new;
-    $posts[$i]['spintext'] .= $spec_separator;
-    $posts[$i]['spintext'] .= $spintax->process($tmp['text']);
-    $posts[$i]['spintext'] .= $spin_fragments_separator;
-    $spin_rows[$tmp_ind_spin_rows]['used'] += 1;
-    $counter_used_new++;
-}
 
 mysqli_connect2();
 foreach ($posts as $post) {
@@ -246,6 +249,16 @@ mysqli_connect2($db_name_spin);
 foreach ($spin_rows as $spin_row) {
     $query = "UPDATE `my_spintax` SET `used` = `used` + " . $spin_row['used'] . " WHERE `id` = '" . $spin_row['id'] . "';";
     dbquery($query);
+}
+
+function add_concat_spin_text($spec_separator = '')
+{
+    global $posts, $i, $spintax, $tmp, $spin_fragments_separator, $tmp_ind_spin_rows, $spin_rows, $counter_used_new;
+    $posts[$i]['spintext'] .= $spec_separator;
+    $posts[$i]['spintext'] .= $spintax->process($tmp['text']);
+    $posts[$i]['spintext'] .= $spin_fragments_separator;
+    $spin_rows[$tmp_ind_spin_rows]['used'] += 1;
+    $counter_used_new++;
 }
 
 echo2("Всего строк Спинтакса было в базе " . count($texts) . ", вариантов $variants, которые всего использованы $used раз. Будут использованы не все стрроки.");

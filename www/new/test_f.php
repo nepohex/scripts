@@ -1,5 +1,41 @@
 <?php
-$sites = array('bun-hairstyles.com','graduatedhairstyles.info','dreadlocks2017.xyz','platinumhair.info','sidepartedhairstyles.men','punkhairstyles.us');
+//Угол поворота, важно в минусовом значении.
+$degrees = -3;
+$filename = 'scr.jpg';
+$filename2 = 'scr_new.jpg';
+$filename3 = 'scr_new3.jpg';
+
+//find the original image size
+$image_info = getimagesize($filename);
+$original_width = $image_info[0];
+$original_height = $image_info[1];
+
+$image_source = imagecreatefromjpeg($filename);
+
+//rotate
+$rotate = imagerotate($image_source, $degrees, 0);
+$rotated_width = imagesx($rotate);
+$rotated_height = imagesy($rotate);
+
+//Координаты смещения относительно x - y
+$x_pos = $original_width - $rotated_width;
+$y_pos = $original_height - $rotated_height;
+
+//Новые размеры изображения
+$new_width = $original_width - ($rotated_width - $original_width);
+$new_height = $original_height - ($rotated_height - $original_height);
+
+$new_image = imagecreatetruecolor($new_width, $new_height);
+
+imagecopyresampled($new_image, $rotate, $x_pos, $y_pos, 0, 0, $rotated_width, $rotated_height, $rotated_width, $rotated_height);
+
+//save over the new image.
+imagejpeg($new_image, $filename3);
+exit();
+$img = 'http://momdresses.net/wp-content/uploads/2016/12/585_ann_demeulemeester_hairstyles_spring.jpg';
+$z = trim($img, ".") . "-150x150.jpg";
+$zz = substr($img, 0, strlen($img) - 4) . "-150x150.jpg";
+$sites = array('bun-hairstyles.com', 'graduatedhairstyles.info', 'dreadlocks2017.xyz', 'platinumhair.info', 'sidepartedhairstyles.men', 'punkhairstyles.us');
 foreach ($sites as $site_name) {
     $work_dir = 'F:\Dumps\\' . $site_name; // Пока нигде не использовано
 // База данных Wordpress
@@ -86,7 +122,7 @@ exit();
 $debug_mode = 1;
 $fp_log = 'log.txt';
 $tmp = get_resource_type($fp_log);
-$fp_log = fopen($fp_log,'a');
+$fp_log = fopen($fp_log, 'a');
 $tmp = get_resource_type($fp_log);
 function echo2($str, $double_log = false)
 {
@@ -104,6 +140,7 @@ function echo2($str, $double_log = false)
         }
     }
 }
+
 $scripts_chain = array('status.txt');
 function next_script($php_self = null, $start = null, $fin = null)
 {
@@ -132,5 +169,6 @@ function next_script($php_self = null, $start = null, $fin = null)
         echo2("Не можем найти следующего скрипта после " . $php_self);
     }
 }
+
 //next_script(0,1);
 next_script();

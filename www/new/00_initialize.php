@@ -10,23 +10,28 @@ include "multiconf.php";
 foreach ($project_dirs as $dir) {
     mkdir2($dir, 1);
 }
-//$fp_log = fopen($result_dir . $log_file, "a");
+$pwd_log = fopen(__DIR__ . '/passwords_log.txt', "a");
+$installer_log = fopen(__DIR__ . '/installer_command.txt', "a");
+
 echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
 
 //Генерим данные для хостинга-конфига
 mkdir2($work_dir . '/wp-content');
-gen_wp_db_conf();
+gen_wp_db_conf($site_name, $installer['db_prefix'], $keyword);
 
 $tmp = file_get_contents('includes/' . $wp_conf_tpl);
-file_put_contents($work_dir . '/wp-config.php', '<?php' . PHP_EOL . 'define (\'WPCACHEHOME\', \'' . $wpcachehome . '\');' . PHP_EOL . 'define(\'DB_NAME\', \'' . $wp_conf_db_name . '\');' . PHP_EOL . 'define(\'DB_USER\', \'' . $wp_conf_db_usr . '\');' . PHP_EOL . 'define(\'DB_PASSWORD\', \'' . $wp_conf_db_pwd . '\');' . PHP_EOL . $tmp);
+file_put_contents($work_dir . '/wp-config.php', '<?php' . PHP_EOL . 'define (\'WPCACHEHOME\', \'' . $installer['wpcachepluginpath'] . '\');' . PHP_EOL . 'define(\'DB_NAME\', \'' . $wp_conf_db_name . '\');' . PHP_EOL . 'define(\'DB_USER\', \'' . $wp_conf_db_usr . '\');' . PHP_EOL . 'define(\'DB_PASSWORD\', \'' . $wp_conf_db_pwd . '\');' . PHP_EOL . $tmp);
 echo2("Сгенерили wp-config для нового сайта, db_name , db_user , db_pwd : $wp_conf_db_name $wp_conf_db_usr $wp_conf_db_pwd");
 
 $tmp = file_get_contents('includes/' . $wp_conf_cache_tpl);
-file_put_contents($work_dir . '/wp-content/wp-cache-config.php', '<?php' . PHP_EOL . '$cache_path = \'' . $wp_super_cachehome . '\';' . PHP_EOL . $tmp);
+file_put_contents($work_dir . '/wp-content/wp-cache-config.php', '<?php' . PHP_EOL . '$cache_path = \'' . $installer['cache_dir'] . '\';' . PHP_EOL . $tmp);
 
 copy(__DIR__ . '/includes/wp_instance_files_db.zip', $work_dir . '/site.zip');
 
-gen_installer(__DIR__ . '/includes/installer_instance.txt', $work_dir . '/installer.php', $installer_db_host, $installer_db_usr, $installer_db_pwd, $wp_conf_db_name, $wp_conf_db_usr, $wp_conf_db_pwd, 'dump.sql');
+gen_installer(__DIR__ . '/includes/installer_instance.txt', $work_dir . '/installer.php', $installer['db_host'], $installer['db_usr'], $installer['db_pwd'], $wp_conf_db_name, $wp_conf_db_usr, $wp_conf_db_pwd, 'dump.sql');
+echo2("Записываем команду инсталлера в лог __DIR__.'/installer_command.txt");
+fwrite($installer_log, $installer['command'] . PHP_EOL);
+echo2($installer['command']);
 // Закончили
 
 function import_db_instance()
@@ -43,6 +48,7 @@ function import_db_instance()
     global $default_cat_name;
     global $site_name;
     global $default_cat_slug;
+    global $pwd_log;
 
     $link = mysqli_init();
 
@@ -72,6 +78,7 @@ function import_db_instance()
             }
             $tmp_pwd = pwdgen(14);
             echo2("Пароль для нового сайта $tmp_pwd");
+            fwrite($pwd_log, $site_name . PHP_EOL . $tmp_pwd . PHP_EOL);
             $tmp_pwd = md5($tmp_pwd);
             $queries_prepare[] = "UPDATE  `wp_terms` SET  `name` =  '" . $default_cat_name . "', `slug` =  '" . $default_cat_slug . "' WHERE  `wp_terms`.`term_id` =1;";
             $queries_prepare[] = "INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (NULL, '1', '2016-12-13 17:42:41', '2016-12-13 14:42:41', '[kwayy-sitemap]', 'Sitemap', '', 'publish', 'closed', 'closed', '', 'sitemap', '', '', '2016-12-13 17:42:41', '2016-12-13 14:42:41', '', '0', '" . $site_url . "?page_id=50', '0', 'page', '', '0');";

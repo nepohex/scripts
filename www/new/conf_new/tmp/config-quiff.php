@@ -13,10 +13,10 @@ include "includes/spin_tpls.php";
 include "includes/functions.php";
 
 //Обязательные к изменению функции от сайта к сайту
-$site_name = 'blondehair2017.com'; // Без слешей, только домен
-$keyword = "blond";
-$blogname = ucwords("Blonde hairstyles 2017");
-$blogdescription = $blogname.". Suggests of perfect hairstyle for blonde with any hair type and length ";
+$site_name = 'quiffhaircut.xyz'; // Без слешей, только домен
+$keyword = "quiff";
+$blogname = ucwords("Outstanding Quiff Hairstyle Ideas 2017");
+$blogdescription = $blogname.". Over 500 best mens quiff hairstyles in single place.";
 
 //HOSTING DATA для инсталлера и корректных конфигов Wp super cache
 $wp_conf_db_prefix = 'wtfowned_';
@@ -31,12 +31,12 @@ $installer_db_pwd = 'RABCkgt0rKhF';
 $mega_spin = 1; // Запуск SPIN из шаблонов дополнительной базы, если есть таблицы с текстами под разные картинки, выбираться будут по маске.
 
 // Основные функции с которыми можно "играться" и менять от сайта к сайту
-$images_per_site = 6000; // Сколько картинок брать на 1 сайт (без учета их размера, еще может сильно сократиться, обычно на 20% в итоге выходит)
+$images_per_site = 2000; // Сколько картинок брать на 1 сайт (без учета их размера, еще может сильно сократиться, обычно на 20% в итоге выходит)
 $gen_addings = 1; // 1 = только ВЧ популярные фразы вначале добавляются к Title (переменная $uniq_addings), 2 - только нч берутся, 3 - все.
 $posts_spintext_volume = 300; // Количество символов спинтакс текста
 $cats = 25; // Сколько категорий автоматом создать
-$image_title_max_strlen = 85; // Максимальное количество символов в длине названии картинки, примерно 1/3 базы с очень длинными уникальными названиями которые невозмжно уникализировать или сократить cute-hairstyle-for-medium-length-hair-2016-cute-hairstyles-for-medium-length-hair-tutorial-short-haircuts-1.jpg
-$image_title_min_strlen = 15;
+$image_title_max_strlen = 90; // Максимальное количество символов в длине названии картинки, примерно 1/3 базы с очень длинными уникальными названиями которые невозмжно уникализировать или сократить cute-hairstyle-for-medium-length-hair-2016-cute-hairstyles-for-medium-length-hair-tutorial-short-haircuts-1.jpg
+$image_title_min_strlen = 10;
 $only_uniq_img = false; // Если True то из CSV файла выгрузки из базы картинок возьмем только те которые имеют уникальные тайтлы. Хорошо опробовать на "больших" категориях. В Short ключе например 25% отсекается сразу.
 $min_img_size = 40000; // размер в байтах картинки минимальный
 $seasonal_add = true; // Будем к Title дописывать год, ниже % скольки тайтлам

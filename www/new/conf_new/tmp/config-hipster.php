@@ -13,10 +13,10 @@ include "includes/spin_tpls.php";
 include "includes/functions.php";
 
 //Обязательные к изменению функции от сайта к сайту
-$site_name = 'guyshair.site'; // Без слешей, только домен
-$keyword = "guy";
-$blogname = ucwords("Hairstyles for guys 2017");
-$blogdescription = $blogname.". Haircuts for young men.";
+$site_name = 'hipsterhair.xyz'; // Без слешей, только домен
+$keyword = "hipster";
+$blogname = ucwords("Hipster hairstyles 2017");
+$blogdescription = $blogname.". Choose your own special hairstyle from biggest internet hipster gallery!";
 
 //HOSTING DATA для инсталлера и корректных конфигов Wp super cache
 $wp_conf_db_prefix = 'wtfowned_';

@@ -44,6 +44,6 @@ foreach ($titles as $item) {
 $tmp = serialize($titles);
 file_put_contents($result_dir . $res, $tmp);
 
-echo2("Fin! Всего итемов в массиве _" . $counter . " _ , из них уникальных в пределах сайта _ " . $z . " _ . Тех у кого нашлось больше " . $max_doubles . " вариантов - " . $counter_too_much_doubles . "_");
+echo2("Fin! Всего итемов в массиве _" . $counter . " _ , из них уникальных в пределах сайта (повторов = 0) _ " . $z . " _ . Тех у кого нашлось больше " . $max_doubles . " вариантов - " . $counter_too_much_doubles . "_");
 echo2("Результат записали в файл " . $result_dir . $res);
 next_script ();

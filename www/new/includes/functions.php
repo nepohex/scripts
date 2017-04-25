@@ -81,12 +81,12 @@ function echo2($str, $double_log = false)
         if ($double_log && $fp_log) {
             echo "$str" . PHP_EOL;
             flush();
-            if (get_resource_type($fp_log) == 'stream') {
+            if (is_resource($fp_log)) {
                 fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
                 return;
             } else {
                 $fp = fopen($fp_log, 'a+');
-                fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+                fwrite($fp, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
                 return;
             }
         }
@@ -96,7 +96,7 @@ function echo2($str, $double_log = false)
             return;
         }
         if ($fp_log) {
-            if (get_resource_type($fp_log) == 'stream') {
+            if (is_resource($fp_log)) {
                 fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
             } else {
                 $fp = fopen($fp_log, 'a+');
@@ -243,10 +243,17 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
     }
 }
 
-function gen_wp_db_conf()
+/**
+ * @param $site_name Домен без слешей и прочего.
+ * @param $wp_conf_db_prefix Префикс базы данных
+ * @param string $keyword Ключевик сайта, если его нет, будет использован $site_name
+ */
+function gen_wp_db_conf($site_name, $wp_conf_db_prefix, $keyword = false)
 {
-    global $site_name, $keyword, $wp_conf_db_prefix;
     global $wp_conf_db_name, $wp_conf_db_usr, $wp_conf_db_pwd;
+    if ($keyword == false) {
+        $keyword = $site_name;
+    }
     $tmp = strlen($wp_conf_db_prefix . $keyword);
     if ($tmp < 16) {
         $wp_conf_db_name = $wp_conf_db_prefix . $keyword . pwdgen(15 - $tmp);

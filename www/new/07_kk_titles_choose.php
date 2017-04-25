@@ -52,6 +52,7 @@ if ($unset_kk_doubles == true) {
 }
 $i = 0;
 $z = 0;
+$counter_absolute_unique = 0; // Абсолютно уникальных в пределах сайта
 $counter_unique_titles = 0 ; // Уникальных тайтлов на сайте для которых не ищем новые.
 $counter_non_unique_titles = 0; // Неуникальных, для которых нашли варианты.
 $counter_looked_for_titles = 0; // Для них искали варианты и не нашли.
@@ -95,6 +96,9 @@ foreach ($srlz_post_titles as $r) {
         $i++;
         unset($t,$s);
     } else {
+        if ($r['uniq'] == 1) {
+            $counter_absolute_unique++;
+        }
         $counter_unique_titles++;
         $i++;
         if ($i % 500 == 0) {
@@ -104,7 +108,7 @@ foreach ($srlz_post_titles as $r) {
     }
 }
 
-echo2 ("Уник / Не уник тайлов было / Получилось сделать из них уник / Сколько вариантов на них пришлось $counter_unique_titles / $counter_looked_for_titles / $counter_non_unique_titles / $variants");
+echo2 ("Абсолютно уникальных в пределах сайта / Условно Уник (повторов меньше чем в переменной limit_unique($limit_uniq) было / Не уник тайлов было / Получилось сделать из них уник / Сколько вариантов на них пришлось $counter_absolute_unique / $counter_unique_titles / $counter_looked_for_titles / $counter_non_unique_titles / $variants");
 $srlz_post_titles = serialize($srlz_post_titles);
 file_put_contents($result_dir.$res2,$srlz_post_titles);
 echo2 ("Результаты сохранили в папку со скриптом, ".$result_dir.$res2);
