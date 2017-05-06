@@ -30,9 +30,9 @@ foreach ($titles as $title1) {
         }
     }
     $i++;
-    if ($i % 500 == 0) {
-        echo_time_wasted($i);
-    }
+//    if ($i % 500 == 0) {
+//        echo_time_wasted($i);
+//    }
 }
 
 foreach ($titles as $item) {

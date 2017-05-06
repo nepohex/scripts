@@ -612,3 +612,10 @@ function remove_none_word_chars($string)
 {
     return preg_replace('~[^\\pL\d]+~u', ' ', $string);
 }
+
+function write_status ($arr) {
+    foreach ($arr as $key => $item) {
+        $queries[] = "UPDATE `image_index`.`generated_sites` SET `$key` = '$item'";
+    }
+    dbquery($queries);
+}

@@ -11,7 +11,7 @@ next_script (0,1);
 
 $fname_used = $selects_dir . '/' . $keyword . "_images_used.csv";
 $tmpres = str_replace(".csv", "", $big_res_to_split) . "_" . $images_per_site . "_rand_lines.csv";
-$take_only_unused_images = true;
+//$take_only_unused_images = true; //debug
 
 if ($take_only_unused_images && is_file($fname_used) == false) {
     $fp = fopen($selects_dir . '/' . $big_res_to_split, "r");
@@ -48,9 +48,9 @@ if ($take_only_unused_images && is_file($fname_used) == false) {
         } else {
             $unused_lines[] = $id;
         }
-        if ($i > 0 && $i % 1000 == 0) {
-            echo_time_wasted($i);
-        }
+//        if ($i > 0 && $i % 1000 == 0) {
+//            echo_time_wasted($i);
+//        }
         if ($i == $images_per_site) {
             break;
         }
@@ -126,9 +126,9 @@ if ($take_only_unused_images && is_file($fname_used) == false) {
         } else {
             $unused_lines[] = $id;
         }
-        if ($i > 0 && $i % 1000 == 0) {
-            echo_time_wasted($i);
-        }
+//        if ($i > 0 && $i % 1000 == 0) {
+//            echo_time_wasted($i);
+//        }
         if ($i == $images_per_site) {
             break;
         }
@@ -204,9 +204,9 @@ if ($take_only_unused_images && is_file($fname_used) == false) {
             $unused_image_ids[] = $tmp[0];
             $unused_lines[] = $id;
         }
-        if ($i > 0 && $i % 1000 == 0) {
-            echo_time_wasted($i);
-        }
+//        if ($i > 0 && $i % 1000 == 0) {
+//            echo_time_wasted($i);
+//        }
         if ($i == $images_per_site) {
             break;
         }

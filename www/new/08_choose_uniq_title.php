@@ -54,9 +54,9 @@ foreach ($srlz_post_titles as $item) {
         unset($srlz_post_titles[$i]['preg_kk']);
     }
     $i++;
-    if (is_int($i/300)) {
-        echo_time_wasted($i);
-    }
+//    if (is_int($i/300)) {
+//        echo_time_wasted($i);
+//    }
 }
 echo2 ("New_title получают из KK с ненулевой частотой $new_title_counter, а для тех кому не нашлись годные - генерим по маске используя для подстановки массив из переменной 'uniq_addings' из ".count($uniq_addings) . " элементов в пропорциях от популярности запросов по Гуглу. Итого таких генереных получилось $gen_title_counter");
 echo2 ("Нетронутых, уникальных в пределах сайта Title оказалось _ $old_title_counter _ , их не трогали!");

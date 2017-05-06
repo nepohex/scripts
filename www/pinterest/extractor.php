@@ -13,6 +13,8 @@ use seregazhuk\PinterestBot\Factories\PinterestBot;
 //$console_mode = 1;
 $debug_mode = 1;
 $double_log = 1;
+$minimum_actions = 0; // Означает что даже посты с 1 экшеном (картинки) будут загружены на сайт и в базу.
+
 $fp_log = __DIR__.'/extractor/log.txt';
 
 $start_time = time();
@@ -77,11 +79,11 @@ foreach ($domains as $domain) {
     $pins_unique = extract_unique_pins();
     get_imgs($pins_unique, $wp_dir);
     mysqli_connect2($db_name);
-    pins_wp_insert($pins_unique, $domain, $wp_image_upload_date_prefix);
+    pins_wp_insert($pins_unique, $domain, $wp_image_upload_date_prefix, $minimum_actions);
     Export_Database($db_host, $db_usr, $db_pwd, $db_name, $tables = false, $backup_name = 'dump.sql', $domain_dir . '/');
 }
 
-function pins_wp_insert($arr, $domain, $wp_image_upload_date_prefix)
+function pins_wp_insert($arr, $domain, $wp_image_upload_date_prefix, $minimum_actions)
 {
     $wp_image_upload_date_prefix = '2017/04/';
     $site_url = 'http://' . $domain;
@@ -99,7 +101,7 @@ function pins_wp_insert($arr, $domain, $wp_image_upload_date_prefix)
     $urls = array();
     foreach ($arr as $item) {
         $i++;
-        if ($item['actions'] > 2) {
+        if ($item['actions'] > $minimum_actons) {
             $z++;
             $img_name = basename($item['image']['url']);
             $tmp = explode(".", $img_name);
@@ -190,6 +192,9 @@ function pins_wp_insert($arr, $domain, $wp_image_upload_date_prefix)
         } else {
             $redir_url = $tmp['path'];
         }
+        //todo надо допилить, т.к. если есть символы регулярки - не работает
+//        $tmp_regex = $redir_url.'(.*)';
+//        $queries[] = "INSERT INTO `wp_redirection_items` (`id`, `url`, `regex`, `position`, `last_count`, `last_access`, `group_id`, `status`, `action_type`, `action_code`, `action_data`, `match_type`, `title`) VALUES (NULL, '$tmp_regex', '1', '2', '1', '2017-04-11 23:06:44', '1', 'enabled', 'url', '301', '" . $item['id'] . "', 'url', NULL);";
         $queries[] = "INSERT INTO `wp_redirection_items` (`id`, `url`, `regex`, `position`, `last_count`, `last_access`, `group_id`, `status`, `action_type`, `action_code`, `action_data`, `match_type`, `title`) VALUES (NULL, '$redir_url', '0', '2', '1', '2017-04-11 23:06:44', '1', 'enabled', 'url', '301', '" . $item['id'] . "', 'url', NULL);";
     }
     dbquery($queries);

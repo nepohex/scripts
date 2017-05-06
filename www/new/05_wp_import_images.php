@@ -58,9 +58,9 @@ foreach ($img_names as $img_name) {
         $wp_postmeta_start_pos++;
     }
     $i++;
-    if ($i % 500 == 0) {
-        echo_time_wasted($i);
-    }
+//    if ($i % 500 == 0) {
+//        echo_time_wasted($i);
+//    }
     unset($queries);
 }
 next_script ();

@@ -53,9 +53,9 @@ foreach ($wp_postmetas as $metas) {
             $z++;
         } else {
             //Здесь IF это таймер т.к. скрипт может выполняться долго
-            if ($i % 500 == 0) {
-                echo_time_wasted($i);
-            }
+//            if ($i % 500 == 0) {
+//                echo_time_wasted($i);
+//            }
             $wp_postmetas[$i]['post_title'] = $post_attach[$z]['post_title'];
             $wp_postmetas[$i]['post_name'] = $post_attach[$z]['post_name'];
             $wp_postmetas[$i]['guid'] = $post_attach[$z]['guid'];

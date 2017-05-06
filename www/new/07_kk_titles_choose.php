@@ -30,9 +30,9 @@ if ($unset_kk_doubles == true) {
         }
         $i = 0;
         $z++;
-        if ($z % 500 == 0) {
-            echo_time_wasted($z);
-        }
+//        if ($z % 500 == 0) {
+//            echo_time_wasted($z);
+//        }
     }
     if ($unset_all_doubles == true) {
         $unset_arr1 = array_unique($unset_arr1);
@@ -108,7 +108,7 @@ foreach ($srlz_post_titles as $r) {
     }
 }
 
-echo2 ("Абсолютно уникальных в пределах сайта / Условно Уник (повторов меньше чем в переменной limit_unique($limit_uniq) было / Не уник тайлов было / Получилось сделать из них уник / Сколько вариантов на них пришлось $counter_absolute_unique / $counter_unique_titles / $counter_looked_for_titles / $counter_non_unique_titles / $variants");
+echo2 ("Абсолютно уникальных / Условно Уник (повторов меньше чем в $ limit_unique($limit_uniq) / Не уник тайлов было / Получилось сделать из них уник / Сколько вариантов на них пришлось \n $counter_absolute_unique / $counter_unique_titles / $counter_looked_for_titles / $counter_non_unique_titles / $variants");
 $srlz_post_titles = serialize($srlz_post_titles);
 file_put_contents($result_dir.$res2,$srlz_post_titles);
 echo2 ("Результаты сохранили в папку со скриптом, ".$result_dir.$res2);

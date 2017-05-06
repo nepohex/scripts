@@ -86,6 +86,8 @@ if ($spin_comments) {
 
 //Реконнект к основной базе сайта.
 mysqli_connect2();
+echo2 ("Сохраняем базу данных до спинтакса в файл $result_dir dump_before_spin.sql чтобы в случае чего продожить с этого шага");
+Export_Database($db_host, $db_usr, $db_pwd, $db_name, $tables = false, $backup_name = 'dump_before_spin.sql', $result_dir);
 //Получаем список постов из основной базы.
 $query = "SELECT `ID`,`post_title` FROM `wp_posts` WHERE (`post_status` = 'publish' OR `post_status` = 'pending') AND `post_type` = 'post';";
 $posts = dbquery($query);
@@ -95,9 +97,9 @@ if ($mega_spin == true) {
     mysqli_connect2($db_name_spin);
     $mega_spin_variants = 0; // Сколько у нас всего вариантов под этот ключевик в базе для Mega Spin.
     if ($spin_synonims) {
-        $tmp = ' '.implode('| ',$spin_synonims);
+        $tmp = ' ' . implode('| ', $spin_synonims);
         //Костыль для men/woman
-        if (in_array('men',$spin_synonims)) {
+        if (in_array('men', $spin_synonims)) {
             $query = "SELECT `id`,`h3`,`img_alt`,`avg_len` from `data` WHERE (`h3` REGEXP '.*$tmp.*' OR `img_alt` REGEXP '.*$tmp.*') and `h3` NOT LIKE '%wom%' AND `img_alt` NOT LIKE '%wom%';";
         } else {
             $query = "SELECT `id`,`h3`,`img_alt`,`avg_len` from `data` WHERE `h3` REGEXP '.*$tmp.*' OR `img_alt` REGEXP '.*$tmp.*';";
@@ -127,6 +129,7 @@ if ($mega_spin == true) {
         $i = 0;
         $counter_mega_tpls_matched = 0; //Сколько постов получили шаблон генерации Mega tpl.
         $preg_tpls_replace = array('  ', ' .* .* ', ' .* ', ' .*', '.* ', '.*.*');
+        //todo Проработать цикл, на 1000 записей работает более 30 минут.
         foreach ($posts as $post) {
             $tmp = str_ireplace($excluded_spin_words, ".*", $post['post_title']); //Удаляем основные слова, меняем на шаблон.
             $tmp = str_ireplace($predlogi, ".*", $tmp); //Предлоги и прочая хрень.
@@ -135,7 +138,15 @@ if ($mega_spin == true) {
             // Начинаем поиск постов подходящих под регулярку.
             shuffle($mega_spin_tpls); //Чтобы всем по-ровну досталось. Эффективность на 50% выше с рандомом!
             foreach ($mega_spin_tpls as $mega_spin_tpl) {
-                if (preg_match($posts[$i]['tpl'], $mega_spin_tpl['h3']) | preg_match($posts[$i]['tpl'], $mega_spin_tpl['img_alt'])) {
+                //if else if сделан для ускорения регулярки чтобы сразу 2 раза не пробегать.
+                if (preg_match($posts[$i]['tpl'], $mega_spin_tpl['h3'])) {
+                    $mega_spin_used_ids[] = $mega_spin_tpl['id'];
+                    $posts[$i]['mega_tpl_id'] = $mega_spin_tpl['id'];
+                    $posts[$i]['mega_tpl_img_alt'] = $mega_spin_tpl['img_alt'];
+                    unset ($posts[$i]['tpl']);
+                    $counter_mega_tpls_matched++;
+                    break;
+                } else if (preg_match($posts[$i]['tpl'], $mega_spin_tpl['img_alt'])) {
                     $mega_spin_used_ids[] = $mega_spin_tpl['id'];
                     $posts[$i]['mega_tpl_id'] = $mega_spin_tpl['id'];
                     $posts[$i]['mega_tpl_img_alt'] = $mega_spin_tpl['img_alt'];
@@ -153,7 +164,12 @@ if ($mega_spin == true) {
         unset($mega_spin_tpls, $excluded_spin_words);
         echo2("Mega Spin нашлись для $counter_mega_tpls_matched / " . count($posts) . " постов. ");
         $mega_spin_used_ids = array_unique($mega_spin_used_ids);
+        echo2("Сохраняем данные для MegaSpin в $result_dir : посты с ID в массиве Posts, Megaspin tpl ids.");
 
+        file_put_contents($result_dir . "mega_spin_used_ids.txt", serialize($mega_spin_used_ids));
+        file_put_contents($result_dir . "posts_spin_data.txt", serialize($posts));
+
+        mysqli_connect2($db_name_spin);
         // Обновляем данные в базе по количеству использований шаблонов.
         $counter_used_megaspin_ids = array_count_values($mega_spin_used_ids);
         foreach ($counter_used_megaspin_ids as $idkey => $tmp) {
@@ -238,9 +254,9 @@ foreach ($posts as $post) {
     $query = "UPDATE `wp_posts` SET `post_content` = CONCAT(`post_content`,'" . addslashes($posts[$i]['spintext']) . "') WHERE `ID` = '" . $posts[$i]['ID'] . "';";
     dbquery($query);
     unset ($posts[$i], $tmp_doubles_arr);
-    if ($i % 1000 == 0) {
-        echo_time_wasted($i);
-    }
+//    if ($i % 1000 == 0) {
+//        echo_time_wasted($i);
+//    }
     $i++;
 }
 
