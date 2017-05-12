@@ -9,6 +9,7 @@
 if ($start == false) {
     $start = microtime(true);
 }
+//todo Дописать проверку переменных глобальных
 function mysqli_connect2($db_name = null, $db_host = 'localhost')
 {
     //Возвращает $link - соединение с DB.
