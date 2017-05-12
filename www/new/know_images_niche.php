@@ -101,7 +101,7 @@ for ($i = 0; $i < 400; $i++) {
     $valid_images[$z] = dbquery($query);
     next($words_used);
 }
-asort($valid_images);
+arsort($valid_images);
 echo2("Посчитали файлы в базе доступной длины межу $image_title_min_strlen и $image_title_max_strlen под каждый ключ. Записали результат в файл в формате CSV " . $image_index_niches2);
 $fp = fopen($image_index_niches2, "w");
 foreach ($valid_images as $key => $value) {
