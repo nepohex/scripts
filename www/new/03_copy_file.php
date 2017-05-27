@@ -59,7 +59,7 @@ foreach ($csv_new as $filepath) {
                 $filepath[4] .= ".png";
                 break;
         }
-        if ($image_data[$i]['filesize'] > $min_img_size) {
+        if ($image_data[$i]['filesize'] > $min_img_size && $image_data[$i]['filesize'] < $max_img_size) {
             $img_new_fullpath = $img_dir . $i . '_' . $filepath[4];
             if (file_exists($img_new_fullpath)) {
                 //$fname[] = $i . '_' . $filepath[4];

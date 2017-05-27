@@ -151,7 +151,9 @@ foreach ($sites as $site) {
 	echo ($cat!="index") ? "&cat=$cat" : "";
 	echo ($period!="") ? "&period=$period" : "";
 
-	echo "\">$domain</a> <small style=\"float: right;\"><a href=\"http://www.liveinternet.ru/stat/$domain/\" target=_blank>LI</a></small>";
+	echo "\">$domain</a> <small style=\"float: right;\"><a href=\"http://www.liveinternet.ru/stat/$domain/\" target=_blank>LI</a>  ";
+	echo "<a href=\"https://www.google.com/?#newwindow=1&safe=off&q=site:$domain\" target=_blank>G</a> ";
+	echo "<a href=\"https://www.google.com/webmasters/tools/search-analytics?hl=ru&siteUrl=http://$domain/&authuser=0#state=%5Bnull%2C%5B%5Bnull%2Cnull%2Cnull%2C28%5D%5D%2Cnull%2C%5B%5Bnull%2C6%2C%5B%22IMAGE%22%5D%5D%5D%2Cnull%2C%5B1%2C2%5D%2C1%2C0%2Cnull%2C%5B2%5D%5D\" target=_blank>C</a></small>";
 	if($today) {
 		echo "
 			<td>".number_format($today[$domain]['visitors'])." ".$this->diff($today[$domain]['diff_visitors'],0)."

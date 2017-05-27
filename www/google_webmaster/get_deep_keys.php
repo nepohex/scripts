@@ -20,7 +20,7 @@ echo2("Было в таблице $import_table записей с ключами
 
 $replace2 = array('2017', '2016', '2014', '2013', '2015');
 
-$time = time() - (30 * 24 * 60 * 60);
+$time = time() - (10 * 24 * 60 * 60);
 $minumum_date = date('Y-m-d', $time);
 $current_date = $minumum_date;
 
@@ -54,7 +54,7 @@ echo2("Выгрузили " . count($sites) . " сайтов, начинаем �
 foreach ($sites as $site) {
     $t = 0;
     $current_date = $minumum_date;
-    while ($t < 29) {
+    while ($t < 8) {
 //Пример 1 - получение 5000 ключей с их статистикой по поиску по картинкам
         $service = new Google_Service_Webmasters($client);
         $request = new Google_Service_Webmasters_SearchAnalyticsQueryRequest();
@@ -69,7 +69,7 @@ foreach ($sites as $site) {
         $data = $result['modelData']['rows'];
         sleep(1);
         if (count($data) > 4950) {
-            echo2("#$t Для сайта $site найдено более 4950 ключей, начинаем глубокую выгрузку");
+            echo2("#$current_date Для сайта $site найдено более 4950 ключей, начинаем глубокую выгрузку");
             foreach ($data as $item) {
                 $tmp = $item['keys'][0];
                 if (ctype_alnum(str_replace(' ', '', $tmp))) {
