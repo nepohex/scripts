@@ -11,6 +11,19 @@ require('../../vendor/autoload.php');
 $fp_log = "log.txt";
 $double_log = 1;
 
+if ($argv[1] == false) {
+    $prev_days_to_parse = 14;
+} else {
+    $prev_days_to_parse = $argv[1];
+}
+
+if ($argv[2] == false) {
+    $iterations = 50; //Сколько запросов делать с самыми популярными словами из первой выгрузки. Из 5000 набирается 1000 слов.
+} else {
+    $iterations = $argv[2];
+}
+echo2("Starting to parse all domains for keys in Google Webmaster for last $prev_days_to_parse days, Parse $iterations keys if >4950 keys found.");
+
 $db_usr = 'root';
 $import_db = 'image_index';
 $import_table = 'semrush_keys';
@@ -18,9 +31,10 @@ mysqli_connect2($import_db);
 $import_keys = dbquery("SELECT COUNT(*) FROM `$import_db`.`$import_table`;");
 echo2("Было в таблице $import_table записей с ключами = $import_keys");
 
+// убираем сезонные запросы, с ними итак все понятно
 $replace2 = array('2017', '2016', '2014', '2013', '2015');
 
-$time = time() - (10 * 24 * 60 * 60);
+$time = time() - ($prev_days_to_parse * 24 * 60 * 60);
 $minumum_date = date('Y-m-d', $time);
 $current_date = $minumum_date;
 
@@ -50,11 +64,12 @@ foreach ($tmps as $site) {
     }
 }
 echo2("Выгрузили " . count($sites) . " сайтов, начинаем собирать по ним инфу");
+print_r2($sites);
 
 foreach ($sites as $site) {
     $t = 0;
     $current_date = $minumum_date;
-    while ($t < 8) {
+    while ($t < $prev_days_to_parse - 2) {
 //Пример 1 - получение 5000 ключей с их статистикой по поиску по картинкам
         $service = new Google_Service_Webmasters($client);
         $request = new Google_Service_Webmasters_SearchAnalyticsQueryRequest();
@@ -65,7 +80,6 @@ foreach ($sites as $site) {
         $request->setRowLimit('5000');
         $result = $service->searchanalytics->query($site, $request);
 
-        $iterations = 50; //Сколько запросов делать с самыми популярными словами из первой выгрузки. Из 5000 набирается 1000 слов.
         $data = $result['modelData']['rows'];
         sleep(1);
         if (count($data) > 4950) {
