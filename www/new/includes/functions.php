@@ -6,7 +6,7 @@
  * Time: 1:10
  */
 
-if ($start == false) {
+if (!isset($start)) {
     $start = microtime(true);
 }
 //todo Дописать проверку переменных глобальных
@@ -414,6 +414,25 @@ function array_msort($array, $cols)
 
 }
 
+/** Функция выявляет только уникальные элементы многомерного массива и возвращает массив с уникальными элементами по ключу
+ * @param $array массив для сортировки
+ * @param $key ключ многомерного массива по которому определяет уникальность
+ * @return array
+ */
+function unique_multidim_array($array, $key) {
+    $temp_array = array();
+    $i = 0;
+    $key_array = array();
+
+    foreach($array as $val) {
+        if (!in_array($val[$key], $key_array)) {
+            $key_array[$i] = $val[$key];
+            $temp_array[$i] = $val;
+        }
+        $i++;
+    }
+    return $temp_array;
+}
 
 /**
  * При выгрузке из базы названий картинок чистит эти названия и превращает в будущие Title
@@ -425,6 +444,9 @@ function clean_files_name($string, $pattern = null, $replace_symbols = null)
     }
     if ($pattern == false) {
         $pattern = '/-.?[0-9]\w+/i';
+    }
+    if ($replace_symbols == null) {
+        $replace_symbols = '';
     }
     //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
     if (stripos($string, 'over')) {
@@ -443,7 +465,7 @@ function clean_files_name($string, $pattern = null, $replace_symbols = null)
         }
     }
     //Говнокостыль для извлечения вот такого Cool-Hairstyle-For-Ladies-Over-40.jpg , цифер 40
-    if ($matchez) {
+    if (isset($matchez[0])) {
         $final .= ' ' . $matchez[0];
     }
     $final = trim(str_replace('  ', ' ', $final));
