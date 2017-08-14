@@ -5,9 +5,9 @@
  * Date: 13.08.2017
  * Time: 12:12
  */
-//include('../new/includes/functions.php');
-//$fp_log = "log.txt";
-//$double_log = 1;
+include('../new/includes/functions.php');
+$fp_log = "log.txt";
+$double_log = 1;
 
 $i = new gisearch("kittens on a piano");
 echo '<a href="'. $i->get_source() .'"><img src="'. $i->get_link() .'" /> '. $i->get_title() .'</a>';
