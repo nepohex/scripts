@@ -14,7 +14,7 @@ $domain_name = 'pophaircuts.com';
 
 $ascii_preg = '/&#[1-9]{4};/'; //Вылазят символы типа &#8217; из ASCII, не знаю как избавиться - по регулярке все удаляю.
 $result_dir = 'result';
-$result_fname = $result_dir . '/texts_' . $domain_name . '.csv';
+$result_fname = $result_dir . '/texts_2' . $domain_name . '.csv';
 $result_sitename_fp = $result_dir . "/sitemap_" . $domain_name . ".txt";
 
 $urls = file($result_sitename_fp, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

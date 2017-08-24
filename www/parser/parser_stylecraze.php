@@ -16,7 +16,7 @@ $domain_name = 'stylecraze.com';
 $bad_symbols = array('â', 'â', 'â', 'вЂ', 'вЂ™', 'â','вЂ™');
 $bad_symbols2 = array('â', 'ГўВЂВ”');;
 $result_dir = 'result';
-$result_fname = $result_dir . '/texts_' . $domain_name . '.csv';
+$result_fname = $result_dir . '/texts2_' . $domain_name . '.csv';
 $result_sitename_fp = $result_dir . "/sitemap_" . $domain_name . ".txt";
 
 function check_arr_implode($array)
