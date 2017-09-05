@@ -80,7 +80,7 @@ function echo2($str, $double_log = false)
     global $fp_log, $debug_mode, $double_log, $console_mode;
     if ($console_mode == false) {
         if ($double_log && $fp_log) {
-            echo "$str" . PHP_EOL;
+            echo date("d-m-Y H:i:s") . " - " . $str . PHP_EOL;
             flush();
             if (is_resource($fp_log)) {
                 fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
@@ -226,18 +226,24 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
                     $result[] = $tmp;
                 }
             }
-            // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
-            if (count($result) == 1 && count($result[0]) == 1) {
-                foreach ($result as $value) {
-                    foreach ($value as $key => $item) {
-                        return $item;
+            //Если пустой результат
+            if (isset($result)){
+                // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
+                if (count($result) == 1 && count($result[0]) == 1) {
+                    foreach ($result as $value) {
+                        foreach ($value as $key => $item) {
+                            return $item;
+                        }
                     }
                 }
+                if ($result == false && $msg_if_empty_select == true) {
+                    echo2("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
+                }
+                return $result;
+            } else if ($msg_if_empty_select == true){
+                echo2 ("Пустой SELECT получился");
+                return null;
             }
-            if ($result == false && $msg_if_empty_select == true) {
-                echo2("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
-            }
-            return $result;
         } else if ($return_affected_rows) {
             return mysqli_affected_rows($link);
         }
@@ -419,12 +425,13 @@ function array_msort($array, $cols)
  * @param $key ключ многомерного массива по которому определяет уникальность
  * @return array
  */
-function unique_multidim_array($array, $key) {
+function unique_multidim_array($array, $key)
+{
     $temp_array = array();
     $i = 0;
     $key_array = array();
 
-    foreach($array as $val) {
+    foreach ($array as $val) {
         if (!in_array($val[$key], $key_array)) {
             $key_array[$i] = $val[$key];
             $temp_array[$i] = $val;
@@ -636,7 +643,8 @@ function remove_none_word_chars($string)
     return preg_replace('~[^\\pL\d]+~u', ' ', $string);
 }
 
-function write_status ($arr) {
+function write_status($arr)
+{
     foreach ($arr as $key => $item) {
         $queries[] = "UPDATE `image_index`.`generated_sites` SET `$key` = '$item'";
     }

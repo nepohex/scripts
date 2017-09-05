@@ -5,13 +5,19 @@
  * Date: 28.11.2016
  * Time: 19:17
  * Будем делить файл с картинками на количество картинок необходимых для 1 сайта.
+ * Фильтрация по длине картинок, функционал разделения на использованные-не использованные картинки ранее.
  */
 include "multiconf.php";
-next_script (0,1);
+next_script(0, 1);
 
-$fname_used = $selects_dir . '/' . $keyword . "_images_used.csv";
-$tmpres = str_replace(".csv", "", $big_res_to_split) . "_" . $images_per_site . "_rand_lines.csv";
+if ($google_images_mode == TRUE) {
+    $fname_used = $selects_dir . '/' . $keyword . "_google_images_used.csv";
+    $tmpres = str_replace(".csv", "", $big_res_to_split) . "_" . $images_per_site . "_google_rand_lines.csv";
 //$take_only_unused_images = true; //debug
+} else {
+    $fname_used = $selects_dir . '/' . $keyword . "_images_used.csv";
+    $tmpres = str_replace(".csv", "", $big_res_to_split) . "_" . $images_per_site . "_rand_lines.csv";
+}
 
 if ($take_only_unused_images && is_file($fname_used) == false) {
     $fp = fopen($selects_dir . '/' . $big_res_to_split, "r");
@@ -249,6 +255,34 @@ if ($take_only_unused_images && is_file($fname_used) == false) {
         fclose($fp);
     }
 }
+
+//Google Images mode
+//if ($take_only_unused_images && is_file($fname_used) == false) {
+//
+//    //Пишем использованные картинки и не использованные в отдельные файлы
+//    if ($write_used_images == true && count($used_lines) > 10) {
+//
+//    } else {
+//        fclose($fp);
+//    }
+//} else if ($take_only_unused_images == false) {
+//
+//    //Пишем использованные картинки и не использованные в отдельные файлы
+//    if ($write_used_images == true && count($used_lines) > 10) {
+//
+//    } else {
+//        fclose($fp);
+//    }
+//} else if ($take_only_unused_images == true && is_file($fname_used) == true) {
+//
+//    //Пишем использованные картинки и не использованные в отдельные файлы
+//    if ($write_used_images == true && count($used_lines) > 10) {
+//
+//    } else {
+//        fclose($fp);
+//    }
+//}
+
 
 echo2("Создали новый рабочий файл с картинками под названием " . $import_dir . $tmpres);
 echo2("Максимальная длина названия картинки установлена в  " . $image_title_max_strlen);

@@ -20,11 +20,13 @@ mkdir2($work_dir . '/wp-content');
 gen_wp_db_conf($site_name, $installer['db_prefix'], $keyword);
 
 $tmp = file_get_contents('includes/' . $wp_conf_tpl);
-file_put_contents($work_dir . '/wp-config.php', '<?php' . PHP_EOL . 'define (\'WPCACHEHOME\', \'' . $installer['wpcachepluginpath'] . '\');' . PHP_EOL . 'define(\'DB_NAME\', \'' . $wp_conf_db_name . '\');' . PHP_EOL . 'define(\'DB_USER\', \'' . $wp_conf_db_usr . '\');' . PHP_EOL . 'define(\'DB_PASSWORD\', \'' . $wp_conf_db_pwd . '\');' . PHP_EOL . $tmp);
+//file_put_contents($work_dir . '/wp-config.php', '<?php' . PHP_EOL . 'define (\'WPCACHEHOME\', \'' . $installer['wpcachepluginpath'] . '\');' . PHP_EOL . 'define(\'DB_NAME\', \'' . $wp_conf_db_name . '\');' . PHP_EOL . 'define(\'DB_USER\', \'' . $wp_conf_db_usr . '\');' . PHP_EOL . 'define(\'DB_PASSWORD\', \'' . $wp_conf_db_pwd . '\');' . PHP_EOL . $tmp);
+file_put_contents($work_dir . '/wp-config.php', '<?php' . PHP_EOL . 'define (\'WPCACHEHOME\', ABSPATH.\'wp-content/plugins/wp-super-cache/\');' . PHP_EOL . 'define(\'DB_NAME\', \'' . $wp_conf_db_name . '\');' . PHP_EOL . 'define(\'DB_USER\', \'' . $wp_conf_db_usr . '\');' . PHP_EOL . 'define(\'DB_PASSWORD\', \'' . $wp_conf_db_pwd . '\');' . PHP_EOL . $tmp);
 echo2("Сгенерили wp-config для нового сайта, db_name , db_user , db_pwd : $wp_conf_db_name $wp_conf_db_usr $wp_conf_db_pwd");
 
 $tmp = file_get_contents('includes/' . $wp_conf_cache_tpl);
-file_put_contents($work_dir . '/wp-content/wp-cache-config.php', '<?php' . PHP_EOL . '$cache_path = \'' . $installer['cache_dir'] . '\';' . PHP_EOL . $tmp);
+//file_put_contents($work_dir . '/wp-content/wp-cache-config.php', '<?php' . PHP_EOL . '$cache_path = \'' . $installer['cache_dir'] . '\';' . PHP_EOL . $tmp);
+file_put_contents($work_dir . '/wp-content/wp-cache-config.php', '<?php' . PHP_EOL . '$cache_path = ABSPATH.\'wp-content/cache/\';' . PHP_EOL . $tmp);
 
 copy(__DIR__ . '/includes/wp_instance_files_db.zip', $work_dir . '/site.zip');
 
