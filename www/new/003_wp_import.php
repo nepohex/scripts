@@ -11,6 +11,16 @@ next_script(0, 1);
 
 $data = unserialize(file_get_contents($work_file));
 
+//07-09-2017 12:56:08 - Mysqli error 1 в запросе INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24168, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','', '80's ponytail hairstyles', '', 'inherit', 'closed', 'closed', '', '80's ponytail hairstyles', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 24169 , '/wp-content/uploads/2017/09/2847657.jpg', 0, 'attachment', 'image/jpeg', 0);
+//07-09-2017 12:56:08 - Mysqli error 1 в запросе INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24169, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','<img src="/wp-content/uploads/2017/09/2847657.jpg" alt="Fancy 80's Ponytail Hairstyles 2017" title="Fancy 80's Ponytail Hairstyles 2017" width="480" height="458" class="alignnone size-full wp-image-24168" />', 'Fancy 80's Ponytail Hairstyles 2017', '', 'publish', 'closed', 'closed', '', '2847657_fancy_80's_ponytail_hairstyles_2017', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 0, '/?p=24169', 0, 'post', '', 0);
+//07-09-2017 12:56:08 - Mysqli error 1 в запросе INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24170, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','', '80's ponytail hairstyles', '', 'inherit', 'closed', 'closed', '', '80's ponytail hairstyles', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 24171 , '/wp-content/uploads/2017/09/4447088.jpg', 0, 'attachment', 'image/png', 0);
+//07-09-2017 12:56:08 - Mysqli error 1 в запросе INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24171, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','<img src="/wp-content/uploads/2017/09/4447088.jpg" alt="New 80's Ponytail Hairstyles" title="New 80's Ponytail Hairstyles" width="210" height="261" class="alignnone size-full wp-image-24170" />', 'New 80's Ponytail Hairstyles', '', 'publish', 'closed', 'closed', '', '4447088_new_80's_ponytail_hairstyles', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 0, '/?p=24171', 0, 'post', '', 0);
+//
+//$key = "80's ponytail hairstyles";
+////$key = mysqli_real_escape_string($link, $key);
+//$key = addslashes($key);
+//$query = dbquery("INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24169, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','<img src=\"/wp-content/uploads/2017/09/2847657.jpg\" alt=\"Fancy 80's Ponytail Hairstyles 2017\" title=\"Fancy 80's Ponytail Hairstyles 2017\" width=\"480\" height=\"458\" class=\"alignnone size-full wp-image-24168\" />', 'Fancy 80's Ponytail Hairstyles 2017', '', 'publish', 'closed', 'closed', '', '2847657_fancy_80's_ponytail_hairstyles_2017', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 0, '/?p=24169', 0, 'post', '', 0);");
+
 // пример того что падает в wp_postmeta массив с данными о картинке
 $exmpl = unserialize('a:5:{s:5:"width";i:239;s:6:"height";i:239;s:4:"file";s:18:"2016/11/podves.jpg";s:5:"sizes";a:1:{s:9:"thumbnail";a:4:{s:4:"file";s:18:"podves-150x150.jpg";s:5:"width";i:150;s:6:"height";i:150;s:9:"mime-type";s:10:"image/jpeg";}}s:10:"image_meta";a:12:{s:8:"aperture";s:1:"0";s:6:"credit";s:0:"";s:6:"camera";s:0:"";s:7:"caption";s:0:"";s:17:"created_timestamp";s:1:"0";s:9:"copyright";s:0:"";s:12:"focal_length";s:1:"0";s:3:"iso";s:1:"0";s:13:"shutter_speed";s:1:"0";s:5:"title";s:0:"";s:11:"orientation";s:1:"0";s:8:"keywords";a:0:{}}}');
 
@@ -48,8 +58,9 @@ foreach ($data as $key_top => $key_images) {
         $site_img_name = $image['image_id'] . "." . get_good_filename($image['image_url']);
         $local_img_path = $img_dir . $site_img_name;
         $relative_site_img_path = '/wp-content/uploads/' . $wp_image_upload_date_prefix . $site_img_name;
+        $image['key'] = addslashes($image['key']);
         $gen_title = gen_new_title($image['key']);
-        $post_name = gen_post_name($image['image_id'],$gen_title);
+        $post_name = gen_post_name($image['image_id'], $gen_title, $bad_symbols);
         $data[$key_top][$key_bot]['new_title'] = $gen_title;
 
         if (is_file($local_img_path) && stripos(mime_content_type($local_img_path), "image") === 0) {
@@ -95,6 +106,7 @@ foreach ($data as $key_top => $key_images) {
         unset($queries);
     }
 }
+next_script();
 
 function gen_new_title($title)
 {
@@ -137,13 +149,14 @@ function get_good_filename($image_url)
     }
 }
 
+// Пока не используется!
 function get_post_tags($image_url)
 {
     global $db_name, $db_name_img;
     dbquery("USE `$db_name_img`");
-    $query = "SELECT `t3`.`key` from `google_images_relations` AS `t1`
-LEFT JOIN `google_images` AS `t2` ON `t1`.`image_id` = `t2`.`image_id`
-LEFT JOIN `semrush_keys` AS `t3` ON `t1`.`key_id` = `t3`.`key_id`
+    $query = "SELECT `t3`.`key` from `google_images_relations2` AS `t1`
+LEFT JOIN `google_images2` AS `t2` ON `t1`.`image_id` = `t2`.`image_id`
+LEFT JOIN `semrush_keys2` AS `t3` ON `t1`.`key_id` = `t3`.`key_id`
 WHERE `t2`.`image_url` = '$image_url'";
     $tags = dbquery($query, TRUE);
     dbquery("USE `$db_name`");
@@ -154,7 +167,8 @@ WHERE `t2`.`image_url` = '$image_url'";
     }
 }
 
-function gen_post_name ($image_id, $post_title) {
-    $post_name = strtolower($image_id."_".str_replace(" ","_",$post_title));
+function gen_post_name($image_id, $post_title, $bad_symbols)
+{
+    $post_name = strtolower($image_id . "_" . str_replace($bad_symbols, "_", $post_title));
     return $post_name;
 }

@@ -5,18 +5,23 @@
  * Date: 25.11.2016
  * Time: 0:35
  */
+ini_set('error_reporting', 0); // Нужно чтобы авторедирект работал нормально между файлами
+$debug_mode = 0; // 1 = debug , 0 = not. Регулирует вывод в Лог файл (бой), дебуг - обычный вывод.
+
+//debug
 //ini_set('error_reporting', E_ALL); // Нужно чтобы авторедирект работал нормально между файлами
-$debug_mode = 1; // 1 = debug , 0 = not. Регулирует вывод в Лог файл (бой), дебуг - обычный вывод.
+//$debug_mode = 1; // 1 = debug , 0 = not. Регулирует вывод в Лог файл (бой), дебуг - обычный вывод.
+//$double_log = 1;
 
 $start = microtime(true);
 include "includes/spin_tpls.php";
 include "includes/functions.php";
 
 //Обязательные к изменению функции от сайта к сайту
-$site_name = 'test500site.com'; // Без слешей, только домен
-$keyword = "curly";
-$blogname = ucwords("Curly hairstyles gallery 2017");
-$blogdescription = $blogname . ". Here are 25000 curly hairstyles always trendy from short to long hair.";
+$site_name = 'medium50000site.com'; // Без слешей, только домен
+$keyword = "medium";
+$blogname = ucwords("Medium hairstyles gallery 2017");
+$blogdescription = $blogname . ". Watch our super selection of Best Medium Hairstyles for any man and woman.";
 
 //HOSTING DATA для инсталлера и корректных конфигов Wp super cache
 $installer['site_owner'] = 'mounter'; //Логин пользователя владельца файлов сайта на хосте.
@@ -29,7 +34,7 @@ $installer['site_path'] = '/home/mounter/web/'; // depr
 //Непосредственно под каким юзером будем логиниться и создавать базу данных, импортировать дамп.
 $installer['db_host'] = 'localhost';
 $installer['db_usr'] = 'root';
-$installer['db_pwd'] = 'I5RouPcONw';
+$installer['db_pwd'] = 'NXbZViruS7fLmV6';
 // cd /home/wtfowned/web/mileycyrushair.site/public_html/;unzip -o -q site.zip;php installer.php;rm -f installer.php site.zip;chown -R  wtfowned /home/wtfowned/web/mileycyrushair.site/;
 $installer['command'] = 'cd ' . $installer['site_path'] . $site_name . '/public_html/;unzip -o -q site.zip;php installer.php;rm -f installer.php site.zip;chown -R ' . $installer['site_owner'] . ' ' . $installer['site_path'] . $site_name . ';';
 
@@ -43,17 +48,19 @@ $mega_spin = 1; // Запуск SPIN из шаблонов дополнител�
  * По такой схеме потенциал ключей и их картинок - 900к ключей * 100 картинок к каждой.
  * */
 $google_images_mode = 1; // 1 / TRUE
+$position_limit = 20; // Сколько картинок на ключ брать, по сути будет $images_per_site * $position , далее удалятся невалидные.
+$limit_imgs_per_key = 5; // Например, если делаем 5000 картинок на сайт, по 50 позиций вынимаем под каждый ключ, то данная настройка вынимает рандомные N из этих 50.
 
 // Основные функции с которыми можно "играться" и менять от сайта к сайту
-$images_per_site = 500; // Сколько картинок брать на 1 сайт (без учета их размера, еще может сильно сократиться, обычно на 20% в итоге выходит)
+$images_per_site = 50000; // Сколько картинок брать на 1 сайт (без учета их размера, еще может сильно сократиться, обычно на 20% в итоге выходит)
 $gen_addings = 3; // 1 = только ВЧ популярные фразы вначале добавляются к Title (переменная $uniq_addings), 2 - только нч берутся, 3 - все.
 $posts_spintext_volume = 300; // Количество символов спинтакс текста
-$cats = 10; // Сколько категорий автоматом создать
+$cats = 25; // Сколько категорий автоматом создать
 $image_title_max_strlen = 85; // Максимальное количество символов в длине названии картинки, примерно 1/3 базы с очень длинными уникальными названиями которые невозмжно уникализировать или сократить cute-hairstyle-for-medium-length-hair-2016-cute-hairstyles-for-medium-length-hair-tutorial-short-haircuts-1.jpg
 $image_title_min_strlen = 15;
 $only_uniq_img = false; // Если True то из CSV файла выгрузки из базы картинок возьмем только те которые имеют уникальные тайтлы. Хорошо опробовать на "больших" категориях. В Short ключе например 25% отсекается сразу.
-$min_img_size = 40000; // размер в байтах картинки минимальный
-$max_img_size = 1000000;
+$min_img_size = 60000; // размер в байтах картинки минимальный
+$max_img_size = 2000000;
 $seasonal_add = true; // Будем к Title дописывать год, ниже % скольки тайтлам
 $seasonal_titles = 4; // Кратно этой цифре каждому тайтлу будет присвоен $year_to_replace вконце / начале. 5 = 20%, 3 = 33% и т.п.
 $year_end_percent = 75; // Сколько годовых тайтлов допишется вконец. 75 = 75% в конец.
@@ -67,7 +74,11 @@ $take_only_unused_images = false; //Если запустить 2ой раз в 
 $work_dir = 'F:\Dumps\\' . $site_name; // Пока нигде не использовано
 $global_images_dir = 'F:\Dumps\google_images\\'; // Сюда будем сохранить картинки из Google
 $start_script = '0_initialize.php';
-$scripts_chain = array('00_initialize.php', '01_db_img_index_select.php', '02_csv_random_split.php', '03_copy_file.php', '04_generate_thumbs.php', '05_wp_import_images.php', '06_wp_check_uniq_titles.php', '07_kk_titles_choose.php', '08_choose_uniq_title.php', '09_insert_db_new_titles.php', '10_db_insert_posts.php', '11_wp_auto_suggest_category.php', '12_choose_category.php', '13_pending_posts.php', '14_spinner.php', '15_sql_export.php'); // Какой скрипт за каким следует
+if ($google_images_mode) {
+    $scripts_chain = array('00_initialize.php', '001_db_get_keys.php', '002_download.php', '003_wp_import.php', '004_wp_create_cats.php', '005_wp_fill_cats.php', '006_pending_posts.php', '007_spinner.php', '008_sql_export.php');
+} else {
+    $scripts_chain = array('00_initialize.php', '01_db_img_index_select.php', '02_csv_random_split.php', '03_copy_file.php', '04_generate_thumbs.php', '05_wp_import_images.php', '06_wp_check_uniq_titles.php', '07_kk_titles_choose.php', '08_choose_uniq_title.php', '09_insert_db_new_titles.php', '10_db_insert_posts.php', '11_wp_auto_suggest_category.php', '12_choose_category.php', '13_pending_posts.php', '14_spinner.php', '15_sql_export.php'); // Какой скрипт за каким следует
+}
 $big_res_to_split = $keyword . "_images.csv"; // Для вычленения отсюда необходимого количества позиций для 1 сайта
 $import_file = $keyword . "_images_" . $images_per_site . '_rand_lines.csv';
 //Dynamic название для Google mode
@@ -126,8 +137,9 @@ $image_words_separator = "_"; // Между словами в названии �
 $replace_symbols = array('.', '_', 'min', 'eleganthairstyles', 'hairstyleceleb', 'inethair', 'hairstylesmen', 'hairstylerunew', 'hairvintage', 'hairstyleswell', 'upload', 'hairstyleceleb', 'stylebistro', 'maomaotxt', 'aliexpress', 'dailymotion', 'maxresdefault', 'stayglam', 'shorthairstyleslong', 'thehairstyler', 'that39ll', 'consistentwith', 'harvardsol', 'amp', 'dfemale', 'herinterest', 'iataweb', 'men39s', 'tumblr', 'deva', 'thumbs', 'women39s', 'page', 'blog', 'ngerimbat', 'hair1', 'hairstylehub', 'hairjos', '+', 'jpg', 'jpeg', 'png', 'gif', 'bmp', '-', '!', '-min', '$', '%', '^', '&', '(', ')', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '"', '  '); // Эти символы будем менять при выгрузке из базы данных с картинками и менять их на пробелы чтобы были чистые названия
 $bad_symbols = array('39s', '$', '%', '^', '&', '(', ')', '=', '+', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '.', '"', '  '); //Заменим эти символы в имени файла на пробелы
 $wp_postmeta_start_pos = 100; //Лучше не трогать. Начальный ID для загрузки в базу данных картинок, будет также использован для автокатегорий
-$post_guid = 30000; //Лучше не трогать. Стартовый POST_ID /?p= который будет заливаться в WP
-$menu_guid = 99999; //Не трогать
+$post_guid = 130000; //Лучше не трогать. Стартовый POST_ID /?p= который будет заливаться в WP
+$menu_guid = 199999; //Не трогать
+$postmeta_id = 177776; // не трогать
 
 $clean_variants = true; // Если TRUE значит удаляем из первоначального массива все лишнее чтобы облегчить итоговый файл и увеличить скорость
 
@@ -141,7 +153,7 @@ $autocat_analyse = "words_used.txt"; //Сюда запишем какие сло
 //Переменные для уникализации
 //Это слова которые будут использоваться для добавления вначале заголовка для уникализации тех тайтлов которые не уникальны
 $filter_words = array('hairstyles', 'hairstyle ', 'haircuts', 'haircut ', ' hair ', ' for ', ' hairs '); // Слова которые будем заменять на регулярку при поиске, чтобы расширить семантику
-$uniq_addings = array(' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' cute ', ' cute ', ' cute ', ' cute ', ' cute ', ' cute ', ' easy ', ' easy ', ' easy ', ' easy ', ' easy ', ' easy ', ' natural ', ' natural ', ' natural ', ' natural ', ' natural ', ' natural ', ' best ', ' best ', ' best ', ' best ', ' best ', ' best ', ' new ', ' new ', ' new ', ' cool ', ' cool ', ' cool ', ' cool ', ' quick ', ' quick ', ' quick ', ' latest ', ' latest ', ' latest ', ' formal ', ' formal ', ' formal ', ' pretty ', ' popular ', ' modern ', ' nice ', ' trendy ', ' teens ', ' elegant ', ' trending ', ' hot ', ' everyday ', ' really ', ' really quick ', ' really easy ', ' really simple ', ' really nice ', ' really cool ', ' unique ', ' fast ', ' classic ', ' young ', ' fancy ', ' stylish ', ' awesome ', ' chic ', ' romantic ', ' sexiest ', ' gorgeous ', ' red carpet ', ' celebrity red carpet ', ' lazy ', ' easy lazy ', ' cute lazy ', ' overnight ', ' coolest ', ' cutest ', ' attractive ', ' youth ');
+$uniq_addings = array(' 2018 ', ' 2018 ', ' 2018 ', ' 2018 ', ' 2018 ', ' 2017 ', ' 2017 ', ' 2017 ', ' 2017 ', ' cute ', ' cute ', ' cute ', ' cute ', ' cute ', ' cute ', ' easy ', ' easy ', ' easy ', ' easy ', ' easy ', ' easy ', ' natural ', ' natural ', ' natural ', ' natural ', ' natural ', ' natural ', ' best ', ' best ', ' best ', ' best ', ' best ', ' best ', ' new ', ' new ', ' new ', ' cool ', ' cool ', ' cool ', ' cool ', ' quick ', ' quick ', ' quick ', ' latest ', ' latest ', ' latest ', ' formal ', ' formal ', ' formal ', ' pretty ', ' popular ', ' modern ', ' nice ', ' trendy ', ' teens ', ' elegant ', ' trending ', ' hot ', ' everyday ', ' really ', ' really quick ', ' really easy ', ' really simple ', ' really nice ', ' really cool ', ' unique ', ' fast ', ' classic ', ' young ', ' fancy ', ' stylish ', ' awesome ', ' chic ', ' romantic ', ' sexiest ', ' gorgeous ', ' red carpet ', ' celebrity red carpet ', ' lazy ', ' easy lazy ', ' cute lazy ', ' overnight ', ' coolest ', ' cutest ', ' attractive ', ' youth ');
 $uniq_addings_nch = array(' casual ', ' everyday ', ' super ', ' retro ', ' fancy ', ' mature ', ' stylish ', ' public ', ' hipster ', ' goddess ', ' perfect ', ' fifties ', ' hottest ', ' famous ', ' bohemian ', ' amazing ', ' romantic ', ' creative ', ' instagram ', ' mexican ', ' gorgeous ', ' ebony ', ' spanish ', ' sixties ', ' glamorous ', ' feminine ', ' ghetto ', ' easy lazy ', ' european ', ' glam ', ' recent ', ' gypsy ', ' universal ', ' sixteen ', 'you can afford ', ' affordable ' , ' salon ', ' divine ', ' attractive ', ' the most sexy ', ' neat ', ' marvelous ', ' you desire ', ' bohemian ', ' catchy ', ' excellent ', ' naturally ', ' urban ', ' unique ', ' hottest ', ' brides ', ' romantic ', ' fabulous ', ' salon ', ' simplicity ', ' adorable ', ' convenient ', ' fashionable ', ' seductive ', ' fantastic ', ' mature ', ' graceful ', ' sweet ', ' cutest ', ' exquisite ', ' goddess ', ' favorite ', ' impressive ', ' outstanding ', ' elegance ', ' relaxed ', ' superb ', ' alluring ', ' exceptional ', ' coolest ', ' magnificent ');
 //Здесь аккуратней с 2-3 буквенными словами, или придется вручную удалять категории потом, что наверное даже лучше
 $year_pattern = "/(201[0-9])/"; //Находим в заголовках год, чтобы его заменить

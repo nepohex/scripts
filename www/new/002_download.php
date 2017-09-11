@@ -11,9 +11,25 @@ mysqli_connect2($db_name_img);
 
 next_script(0, 1);
 
-$data = unserialize(file_get_contents($import_dir ."_dirty_". $import_file));
+$data = unserialize(file_get_contents($import_dir . "_dirty_" . $import_file));
 $total_imgs = count($data) * count($data[0]);
 echo2("Получили массив с картинками, всего $total_imgs предстоит закачать или найти на локале");
+
+// Приводим в порядок выборку чтобы URL был целиком
+foreach ($data as $top_key => $top_values) {
+    foreach ($top_values as $bot_key => $bot_values) {
+        switch (substr($data[$top_key][$bot_key]['domain'], 0, 1)) {
+            case 0:
+                $data[$top_key][$bot_key]['image_url'] = 'http://' . substr($data[$top_key][$bot_key]['domain'], 1, strlen($data[$top_key][$bot_key]['domain'])) . $data[$top_key][$bot_key]['image_url'];
+                unset($data[$top_key][$bot_key]['domain']);
+                break;
+            case 1:
+                $data[$top_key][$bot_key]['image_url'] = 'https://' . substr($data[$top_key][$bot_key]['domain'], 1, strlen($data[$top_key][$bot_key]['domain'])) . $data[$top_key][$bot_key]['image_url'];
+                unset($data[$top_key][$bot_key]['domain']);
+                break;
+        }
+    }
+}
 
 foreach ($data as $key_images) {
     foreach ($key_images as $image) {
@@ -22,6 +38,9 @@ foreach ($data as $key_images) {
         if ($file_ext = get_good_filename($image['image_url'])) {
             $filename = $image['image_id'] . "." . $file_ext;
             if (!is_file($global_images_dir . $filename)) {
+                if ($i % 1000 == 0) {
+                    echo_time_wasted($i);
+                }
                 $img_data = file_get_contents($image['image_url']);
                 if ($img_data) {
 //                $img_weight = strlen($img_data);
@@ -92,6 +111,7 @@ function get_bad_domain($image_url, $reason)
     global $bad_domains;
     $host = parse_url($image_url, PHP_URL_HOST);
     $bad_domains[$reason][$host] += 1;
+    arsort($bad_domains[$reason]);
 }
 
 function get_good_filename($image_url)
@@ -109,5 +129,6 @@ function get_good_filename($image_url)
 file_put_contents($work_file, serialize($data));
 $counter_unique_imgs = count(array_unique($good_imgs));
 echo_time_wasted(null, "Из $i картинок скачали и сохранили новых в глобальную папку $counter_written_imgs (" . convert($counter_downloaded_data) . "), ранее было $counter_already_got_imgs . Неуспешных: не смогли скачать / не смогли сохранить : $counter_cant_get_img / $counter_fail_write");
-echo2("Почистили файл импорта, и сохранили новый только с успешными парами ключ-картинка $keys_imgs_fin , уникальных картинок $counter_unique_imgs весом " . convert($counter_imgs_weight));
+echo2("Почистили файл импорта, и сохранили новый только с успешными парами ключ-картинка + прошедшие по размеру между ".convert($min_img_size)." и ".convert ($max_img_size)." = $keys_imgs_fin , уникальных картинок $counter_unique_imgs весом " . convert($counter_imgs_weight));
 echo2("Неудачные картинки и их причины:" . PHP_EOL . print_r($bad_domains, true));
+next_script();

@@ -53,12 +53,14 @@ dbquery($queries);
 
 // Начинаем делать меню из этих категорий, внимание ГОВНОКОД на соплях!
 $menu_order_counter[] = $i++; // Это мы добавляем количество чтобы еще стандартная 1ая категория тоже пошла по этапу, а не только вновь созданные.
-$c = 77776; // wp_postmeta.meta_id стартовый (+1)
+$c = $postmeta_id; // wp_postmeta.meta_id стартовый (+1)
 array_unshift($wp_terms_ids, 1);
 $menu_guid2 = $menu_guid;
 $query_menu[] = "INSERT INTO `wp_terms` ( `term_id` , `name` , `slug` , `term_group` ) VALUES ('" . $menu_guid . "','Mfa_Me_nu','mfa_me_nu','0');"; //Слеша добавлены чтобы MEN категория не определялась
 $query_menu[] = "INSERT INTO `wp_term_taxonomy` (`term_taxonomy_id`, `term_id`, `taxonomy`, `description`, `parent`, `count`) VALUES ('" . $menu_guid . "','" . $menu_guid . "','nav_menu','','0','0');";
+//Сработает 1 из 2х следующих запросов т.к. в базе обычно либо есть меню строка, либо ее надо добавить.
 $query_menu[] = "INSERT INTO `wp_options` (`option_id`, `option_name`, `option_value`, `autoload`) VALUES (" . $menu_guid . ", 'theme_mods_2017theme', 'a:2:{i:0;b:0;s:18:\"nav_menu_locations\";a:1:{s:7:\"primary\";i:$menu_guid;}}','yes');";
+$query_menu[] = "UPDATE `wp_options` SET `option_value` = 'a:2:{i:0;b:0;s:18:\"nav_menu_locations\";a:1:{s:7:\"primary\";i:$menu_guid;}}' WHERE `option_name` = 'theme_mods_2017theme';";
 foreach ($menu_order_counter as $num) {
     $wp_posts_menu_id[] = $menu_guid++;
     $query_menu[] = "INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (" . current($wp_posts_menu_id) . ", 1, '2016-11-19 00:05:53', '2016-11-18 21:05:53','', '', '', 'publish', 'closed', 'closed', ''," . current($wp_posts_menu_id) . ", '', '', '2016-11-19 00:05:53', '2016-11-18 21:05:53', '', 0, '" . $site_url . "?p=" . current($wp_posts_menu_id) . "', " . $num . ", 'nav_menu_item', '', 0);";
