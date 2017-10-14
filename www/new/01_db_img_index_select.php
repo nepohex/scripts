@@ -15,12 +15,12 @@ echo2("Будем выгружать из базы " . $db_name . " данные
 $pattern = '/-.?[0-9]\w+/i';
 
 // Блок для выгрузки из таблицы KK_KEYS, Если файла с выгрузкой по ключу с таким же количеством строк как в базе сейчас нету - выгружаем. Если есть - проходим мимо.
-$query = "SELECT COUNT(*) FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%';";
+$query = "SELECT COUNT(*) FROM `$tname[keys]` WHERE `key` LIKE '%" . $keyword . "%';";
 $db_results = dbquery($query);
 $res_kk = $selects_dir . '/' . $keyword . "_kk.csv";
 if (!(file_exists($res_kk))) {
     echo2("Ключей в таблице KK_KEYS по фразе " . $keyword . " всего " . $db_results . ". Файла с выгрузкой обнаружено не было, начинаем выгружать из базы одним запросом! Результат будет сохранен в файл " . $res_kk);
-    $query = "SELECT `key`,`adwords` FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%';";
+    $query = "SELECT `key`,`adwords` FROM `$tname[keys]` WHERE `key` LIKE '%" . $keyword . "%';";
     $tmp = dbquery($query);
     array_to_csv($res_kk, $tmp, false, "Успешно Записали файл с выгрузкой из KK");
     unset($tmp);
@@ -36,11 +36,11 @@ if ($google_images_mode == FALSE) {
         echo2("Файла для импорта картинок под ключ $keyword еще не создано, идем создавать.");
 // Создаем временную таблицу если результатов в таблице kk_keys относительно общего количества строк в базе мало (например, 20 тысяч из 330). Это должно ускорить процесс, временная таблица хранится в оперативной памяти
         if ($db_results < 100000) {
-            $query = "CREATE TEMPORARY TABLE `" . $res_kk . "` AS (SELECT `key`,`adwords` FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%');";
+            $query = "CREATE TEMPORARY TABLE `" . $res_kk . "` AS (SELECT `key`,`adwords` FROM `$tname[keys]` WHERE `key` LIKE '%" . $keyword . "%');";
             $sqlres = mysqli_query($link, $query);
             $table_to_select = $res_kk;
         } else {
-            $table_to_select = 'semrush_keys';
+            $table_to_select = $tname['keys'];
         }
 
         $query = "SELECT COUNT(*) FROM `images` WHERE `filename` LIKE '%" . $keyword . "%';";
@@ -112,7 +112,7 @@ if ($google_images_mode == FALSE) {
         }
         echo2("Файл импорта с адресами картинок создали.");
     } else {
-        echo2("Файл импорта с адресами картинок из таблицы semrush_keys для ключа $keyword уже создан, используем его!");
+        echo2("Файл импорта с адресами картинок из таблицы $tname[keys] для ключа $keyword уже создан, используем его!");
     }
 } else {
     echo2("Активирован новый модуль Google Images Mode -> Выборка будет идти от ключей к картинкам, а не наоборот.");
@@ -120,15 +120,15 @@ if ($google_images_mode == FALSE) {
         echo2("Файла для импорта картинок под ключ $keyword еще не создано, идем создавать.");
         // Создаем временную таблицу если результатов в таблице kk_keys относительно общего количества строк в базе мало (например, 20 тысяч из 330). Это должно ускорить процесс, временная таблица хранится в оперативной памяти
         if ($db_results < 100000) {
-            $query = "CREATE TEMPORARY TABLE `" . $res_kk . "` AS (SELECT `key`,`adwords` FROM `semrush_keys` WHERE `key` LIKE '%" . $keyword . "%');";
+            $query = "CREATE TEMPORARY TABLE `" . $res_kk . "` AS (SELECT `key`,`adwords` FROM `$tname[keys]` WHERE `key` LIKE '%" . $keyword . "%');";
             $sqlres = mysqli_query($link, $query);
             $table_to_select = $res_kk;
         } else {
-            $table_to_select = 'semrush_keys';
+            $table_to_select = $tname['keys'];
         }
 
     } else {
-        echo2("Файл импорта для Google Images Mode с адресами картинок из таблицы semrush_keys для ключа $keyword уже создан, используем его!");
+        echo2("Файл импорта для Google Images Mode с адресами картинок из таблицы $tname[keys] для ключа $keyword уже создан, используем его!");
     }
 }
 next_script();

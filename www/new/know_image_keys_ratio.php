@@ -27,7 +27,7 @@ mysqli_connect2($db_name);
 $replace_symbols = array('.', '_', 'min', 'eleganthairstyles', 'hairstyleceleb', 'inethair', 'hairstylesmen', 'hairstylerunew', 'hairvintage', 'hairstyleswell', 'upload', 'hairstyleceleb', 'stylebistro', 'maomaotxt', 'aliexpress', 'dailymotion', 'maxresdefault', 'stayglam', 'shorthairstyleslong', 'thehairstyler', 'that39ll', 'consistentwith', 'harvardsol', 'amp', 'dfemale', 'herinterest', 'iataweb', 'men39s', 'tumblr', 'deva', 'thumbs', 'women39s', 'page', 'blog', 'ngerimbat', 'hair1', 'hairstylehub', 'hairjos', '+', 'jpg', 'jpeg', 'png', 'gif', 'bmp', '-', '!', '-min', '$', '%', '^', '&', '(', ')', '=', '`', '~', '\'', ']', '[', '{', '}', ',', '"', '  '); // Эти символы будем менять при выгрузке из базы данных с картинками и менять их на пробелы чтобы были чистые названия
 
 $total_images = dbquery("SELECT COUNT(*) FROM `images`;");
-$total_keys = dbquery("SELECT COUNT(*) FROM `semrush_keys`;");
+$total_keys = dbquery("SELECT COUNT(*) FROM `keys`;");
 
 $counter_start_limit = 0;
 $counter_limit_queries = 1000;
@@ -60,7 +60,7 @@ echo2("Картинок с уникальными тайтлами для кот
 
 foreach ($global_arr as $key => $item) {
     $tmp = count($global_arr[$key]) - 1;
-    dbquery("UPDATE `semrush_keys` SET `images` = $tmp WHERE `key` = '$key';");
+    dbquery("UPDATE `keys` SET `images` = $tmp WHERE `key` = '$key';");
     $global_arr[$key]['checked'] > 0 ? $c_images_with_keys += $tmp : $c_images_no_keys += $tmp;
 }
 echo_time_wasted();
@@ -87,7 +87,7 @@ function index_doubles($array, $key_text, $key_id, $global_arr_return = null)
         $global_arr_return = array_merge_recursive($global_arr_return, $tmp_arr);
         foreach ($global_arr_return as $key => $item) {
             if (!isset($global_arr_return[$key]['checked'])) {
-                $query = "SELECT COUNT(`key_id`) FROM `semrush_keys` WHERE `key` = '$key';";
+                $query = "SELECT COUNT(`key_id`) FROM `keys` WHERE `key` = '$key';";
                 $global_arr_return[$key]['checked'] = dbquery($query);
                 $global_arr_return[$key]['checked'] > 0 ? $counter_has_keys++ : $counter_no_keys++;
             }

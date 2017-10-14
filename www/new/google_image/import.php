@@ -50,7 +50,7 @@ foreach ($json_list as $json) {
             $fp = fopen("no_key_id.txt", "a+");
             foreach ($data as $key => $result) {
                 $key = mysqli_real_escape_string($link, $key);
-                $key_id = dbquery("SELECT `key_id` FROM `semrush_keys` WHERE `key` = '$key';");
+                $key_id = dbquery("SELECT `key_id` FROM `keys` WHERE `key` = '$key';");
                 if ($key_id > 10) {
                     foreach ($result->results as $position) {
                         $item['key'] = $key;
@@ -99,7 +99,7 @@ foreach ($json_list as $json) {
             $images_total += $images_imported;
             $doubles_total += $doubles_images;
             $total_headers_time += $headers_time;
-            echo_time_wasted(null, "Закончили с $json, картинок добавили $images_imported, дублей $doubles_images , времени на headers $headers_time. Всего картинок $images_total , дублей $doubles_total . Failed headers $counter_fail_headers , success $counter_get_size . Ключей для которых не нашли key_id в таблице semrush_keys $no_keys_found");
+            echo_time_wasted(null, "Закончили с $json, картинок добавили $images_imported, дублей $doubles_images , времени на headers $headers_time. Всего картинок $images_total , дублей $doubles_total . Failed headers $counter_fail_headers , success $counter_get_size . Ключей для которых не нашли key_id в таблице keys $no_keys_found");
             unset ($images_imported, $doubles_images, $headers_time, $data);
         } else {
             echo2("Cant get json data!");

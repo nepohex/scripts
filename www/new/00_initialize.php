@@ -7,6 +7,11 @@
  * Не получается выводить статус этого файла т.к. путь лога создается позже чем идет вывод результатов
  */
 include "multiconf.php";
+if ($multi_int_mode) {
+    change_collation('utf8mb4', 'utf8mb4_unicode_ci', $db_name);
+    echo2("MULTI_INT_MODE = TRUE , меняем db collation каждой таблицы и базы данных на мультиязычную (utf8mb4_unicode_ci)");
+    next_script();
+}
 foreach ($project_dirs as $dir) {
     mkdir2($dir, 1);
 }
@@ -36,6 +41,10 @@ fwrite($installer_log, $installer['command'] . PHP_EOL);
 echo2($installer['command']);
 // Закончили
 
+import_db_instance();
+
+next_script();
+
 function import_db_instance()
 {
 
@@ -51,11 +60,16 @@ function import_db_instance()
     global $site_name;
     global $default_cat_slug;
     global $pwd_log;
+    global $int_mode;
 
     $link = mysqli_init();
 
 // Соединяемся с базой 1ый раз, создаем ее
     if (mysqli_real_connect($link, $db_host, $db_usr, $db_pwd, $db_name)) {
+        if ($int_mode) {
+            change_collation('utf8mb4', 'utf8mb4_unicode_ci', $db_name);
+            echo2("INT_MODE = TRUE , меняем db collation каждой таблицы и базы данных на мультиязычную (utf8mb4_unicode_ci)");
+        }
         echo2("База уже есть, больше ее не трогаем.");
     } else {
         mysqli_real_connect($link, $db_host, $db_usr, $db_pwd);
@@ -106,6 +120,13 @@ function import_db_instance()
     }
 }
 
-import_db_instance();
+function change_collation($charset, $collation, $dbname)
+{
+    $table_list = dbquery("SELECT `TABLE_NAME` FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='$dbname' AND `TABLE_TYPE`='BASE TABLE'");
+    dbquery("ALTER DATABASE `$dbname` CHARACTER SET $charset COLLATE $collation");
+    foreach ($table_list as $table) {
+        $table = $table['TABLE_NAME'];
+        dbquery("ALTER TABLE `$dbname`.`$table` CONVERT TO CHARACTER SET $charset COLLATE $collation;");
+    }
+}
 
-next_script();

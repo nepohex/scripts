@@ -32,7 +32,7 @@ if (!mysqli_real_connect($link, 'localhost', $db_usr, $db_pwd, $db_name)) {
         . mysqli_connect_error());
 }
 
-function dbquery($queryarr)
+function this_dbquery($queryarr)
 {
     global $link;
     if (is_array($queryarr)) {
@@ -129,7 +129,7 @@ while (($data = fgetcsv($fp)) !== FALSE) {
             $r = mysqli_fetch_row($sqlres);
             if ($r[0] == 0) {
                 $query = "INSERT INTO `images` VALUES (" . $images_offset . "," . $site_id . ",'" . $img_path_piece . "','" . $img_name[0] . "');";
-                dbquery($query);
+                this_dbquery($query);
                 $counter_new_images++;
                 unset($sqlres);
                 $images_offset++;
@@ -157,11 +157,11 @@ while (($data = fgetcsv($fp)) !== FALSE) {
                         $counter_new_images++;
                     }
                 }
-                dbquery($queries);
+                this_dbquery($queries);
             }
         } else {
             $query = "INSERT INTO `images` VALUES (" . $images_offset . "," . $site_id . ",'" . $img_path_piece . "','" . $img_name[0] . "');";
-            dbquery($query);
+            this_dbquery($query);
             $counter_new_images++;
             unset($sqlres);
             $images_offset++;

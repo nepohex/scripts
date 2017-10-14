@@ -30,17 +30,15 @@ foreach ($data as $top_key => $top_values) {
         }
     }
 }
-
 foreach ($data as $key_images) {
     foreach ($key_images as $image) {
-        $i++;
-        $unique_imgs[] = $image['image_url'];
         if ($file_ext = get_good_filename($image['image_url'])) {
+            $i++;
+            if ($i % 1000 == 0) {
+                echo_time_wasted($i);
+            }
             $filename = $image['image_id'] . "." . $file_ext;
             if (!is_file($global_images_dir . $filename)) {
-                if ($i % 1000 == 0) {
-                    echo_time_wasted($i);
-                }
                 $img_data = file_get_contents($image['image_url']);
                 if ($img_data) {
 //                $img_weight = strlen($img_data);
@@ -106,6 +104,14 @@ foreach ($data as $top_key => $top_values) {
     }
 }
 
+file_put_contents($work_file, serialize($data));
+$counter_unique_imgs = count(array_unique($good_imgs));
+echo_time_wasted(null, "Из $i картинок скачали и сохранили новых в глобальную папку $counter_written_imgs (" . convert($counter_downloaded_data) . "), ранее было $counter_already_got_imgs . Неуспешных: не смогли скачать / не смогли сохранить : $counter_cant_get_img / $counter_fail_write");
+echo2("Почистили файл импорта, и сохранили новый только с успешными парами ключ-картинка + прошедшие по размеру между " . convert($min_img_size) . " и " . convert($max_img_size) . " = $keys_imgs_fin , уникальных картинок $counter_unique_imgs весом " . convert($counter_imgs_weight));
+echo2("Неудачные картинки и их причины:" . PHP_EOL . print_r($bad_domains, true));
+next_script();
+
+
 function get_bad_domain($image_url, $reason)
 {
     global $bad_domains;
@@ -125,10 +131,3 @@ function get_good_filename($image_url)
         return $file_ext;
     }
 }
-
-file_put_contents($work_file, serialize($data));
-$counter_unique_imgs = count(array_unique($good_imgs));
-echo_time_wasted(null, "Из $i картинок скачали и сохранили новых в глобальную папку $counter_written_imgs (" . convert($counter_downloaded_data) . "), ранее было $counter_already_got_imgs . Неуспешных: не смогли скачать / не смогли сохранить : $counter_cant_get_img / $counter_fail_write");
-echo2("Почистили файл импорта, и сохранили новый только с успешными парами ключ-картинка + прошедшие по размеру между ".convert($min_img_size)." и ".convert ($max_img_size)." = $keys_imgs_fin , уникальных картинок $counter_unique_imgs весом " . convert($counter_imgs_weight));
-echo2("Неудачные картинки и их причины:" . PHP_EOL . print_r($bad_domains, true));
-next_script();

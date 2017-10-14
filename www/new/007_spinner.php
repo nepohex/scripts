@@ -9,6 +9,14 @@ include "multiconf.php";
 mysqli_connect2($db_name_spin);
 next_script(0, 1);
 
+$uniq_addings = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 0);
+$uniq_addings_nch = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 1);
+
+$used = '';
+$result = '';
+$variants = '';
+$spin_comments = '';
+
 echo2("Проверяем какие из шаблонов Спинтакса уже есть в базе, каких нет. Тех которых нет - просчитываем и загружаем.");
 $query = "SELECT `text`,`variants`,`used` FROM `my_spintax`";
 $sqlres = mysqli_query($link, $query);
@@ -76,17 +84,105 @@ if ($spin_comments) {
     }
 } else {
     //$query = "SELECT * FROM `my_spintax` WHERE `place` = 'any'";
-    $query = "SELECT * FROM `my_spintax`";
-    $sqlres = mysqli_query($link, $query);
-    while ($tmp = mysqli_fetch_assoc($sqlres)) {
-        $spin_rows[] = $tmp;
-        $actually_variants += $tmp['variants'];
+    if ($int_mode) {
+        $query = "SELECT `t1`.`id`, `t1`.`place`,`t1`.`variants`, `t1`.`avg_length`, `t2`.`text` 
+FROM `my_spintax` AS `t1` LEFT JOIN `my_spintax_translate` AS `t2` ON `t1`.`id` = `t2`.`spintax_id` 
+WHERE `t2`.`language_id` = $lang_id;";
+    } else {
+        $query = "SELECT * FROM `my_spintax`";
     }
+    if ($spin_rows = dbquery($query)) {
+        foreach ($spin_rows as $item) {
+            $actually_variants += $item['variants'];
+        }
+        echo2("Получили " . count($spin_rows) . " шаблонов обычного Spintax (если режим Int_mode, то это количество для данного языка), вариантов $actually_variants");
+    } else {
+        echo2("Не смогли получить шаблоны для обычного Spintax! выходим!");
+        exit();
+    }
+}
+
+if ($int_mode) {
+    if (is_file($result_dir . 'dump_before_spin.sql')) {
+        rename($result_dir . 'dump_before_spin.sql', $result_dir . 'default_dump_before_spin.sql');
+        echo2("Найден файл с базой данных $result_dir dump_before_spin.sql , переименовываем в default_dump_before_spin.sql");
+    }
+    $backup_name = 'dump_before_spin_' . $lang_id . '.sql';
+    if (!is_file($result_dir . $backup_name)) {
+        echo2("Сохраняем базу данных до спинтакса в файл $result_dir dump_before_spin_$lang_id.sql чтобы в случае чего продожить с этого шага");
+        Export_Database($db_host, $db_usr, $db_pwd, $db_name, $tables = false, $backup_name, $result_dir);
+    }
+    if (is_file($result_dir . "posts_spin_data.txt")) {
+        $mega_spin_used_ids = unserialize(file_get_contents($result_dir . "mega_spin_used_ids.txt"));
+        $posts_spin_data = unserialize(file_get_contents($result_dir . "posts_spin_data.txt"));
+        echo2("Получили массив с MegaSpin TPLs ID для ENG версии, которые будем использовать и для INT версий постов.");
+    } else {
+        echo2("Не можем получить MegaSpin инфо по использованным постам - выходим.");
+        exit();
+    }
+
+    $query = "SELECT `id`,`megaspin_id`, `text_template` FROM `$tname[megaspin_tr]` WHERE `megaspin_id` IN (" . implode(',', $mega_spin_used_ids) . ") AND `language_id` = $lang_id;";
+    $mega_spin_tpl_texts = dbquery($query);
+    mysqli_connect2();
+    foreach ($posts_spin_data as $key => $post) {
+        if (isset($post['mega_tpl_id'])) {
+            foreach ($mega_spin_tpl_texts as $mega_spin_tpl_text) {
+                if ($post['mega_tpl_id'] == $mega_spin_tpl_text['megaspin_id']) {
+                    $tmp = gen_text($spintax, '', $spin_fragments_separator, $mega_spin_tpl_text['text_template'], $post['post_title'], $posts_spintext_volume);
+                    //Если объем текста MegaSpin меньше необходимого объема, берем рандомный шаблон из Spin и добавляем его к тексту.
+                    if (strlen($tmp) < $posts_spintext_volume) {
+                        $rand_spin_tpl = $spin_rows[mt_rand(0, count($spin_rows) - 1)]['text'];
+                        $tmp .= gen_text($spintax, '', $spin_fragments_separator, $rand_spin_tpl, $post['post_title'], $posts_spintext_volume);
+                    }
+                    $tmp = mysqli_real_escape_string($link, $tmp);
+                    $query = "UPDATE `wp_posts` SET `post_content` = CONCAT(`post_content`,'$tmp') WHERE `ID` = '" . $post['ID'] . "';";
+                    dbquery($query);
+                    break;
+                }
+            }
+        } else {
+            while (strlen($tmp_spin) < $posts_spintext_volume) {
+                $tmp_doubles_arr = array('99999'); // Костыль чтобы не было ошибки
+                if (!(in_array($tmp_ind_spin_rows = rand(0, count($spin_rows) - 1), $tmp_doubles_arr))) {
+                    $tmp_doubles_arr[] = $tmp_ind_spin_rows;
+                    $tmp = $spin_rows[$tmp_ind_spin_rows];
+                    switch ($tmp['place']) {
+                        case 'any':
+                            $tmp_spin = gen_text($spintax, '', $spin_fragments_separator, $tmp['text'], $post['post_title'], $posts_spintext_volume);
+                            break;
+                        case 'tip':
+                            $tmp_spin = gen_text($spintax, '<b>Hair Tip:</b>', $spin_fragments_separator, $tmp['text'], $post['post_title'], $posts_spintext_volume);
+                            break;
+                        case 'not end':
+                            if ((strlen($tmp_spin) + $tmp['avg_length']) < $posts_spintext_volume) {
+                                $tmp_spin = gen_text($spintax, '', $spin_fragments_separator, $tmp['text'], $post['post_title'], $posts_spintext_volume);
+                                break;
+                            }
+                        case 'start':
+                            if (strlen($tmp_spin) == 0) {
+                                $tmp_spin = gen_text($spintax, '', $spin_fragments_separator, $tmp['text'], $post['post_title'], $posts_spintext_volume);
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+                } else {
+                    $tmp_ind_spin_rows = rand(0, count($spin_rows) - 1);
+                }
+            }
+            $tmp_spin = mysqli_real_escape_string($link, $tmp_spin);
+            $query = "UPDATE `wp_posts` SET `post_content` = CONCAT(`post_content`,'$tmp_spin') WHERE `ID` = '" . $post['ID'] . "';";
+            unset ($tmp_doubles_arr);
+            $tmp_spin = '';
+        }
+    }
+    echo2 ("Пробежали по всем постам, закончили заполнять Spin/MegaSpin.");
+    next_script();
 }
 
 //Реконнект к основной базе сайта.
 mysqli_connect2();
-echo2 ("Сохраняем базу данных до спинтакса в файл $result_dir dump_before_spin.sql чтобы в случае чего продожить с этого шага");
+echo2("Сохраняем базу данных до спинтакса в файл $result_dir dump_before_spin.sql чтобы в случае чего продожить с этого шага");
 Export_Database($db_host, $db_usr, $db_pwd, $db_name, $tables = false, $backup_name = 'dump_before_spin.sql', $result_dir);
 //Получаем список постов из основной базы.
 $query = "SELECT `ID`,`post_title` FROM `wp_posts` WHERE (`post_status` = 'publish' OR `post_status` = 'pending') AND `post_type` = 'post';";

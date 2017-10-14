@@ -10,10 +10,14 @@ if (!isset($start)) {
     $start = microtime(true);
 }
 //todo Дописать проверку переменных глобальных
-function mysqli_connect2($db_name = null, $db_host = 'localhost')
+/** Коннект к базе которая указана как дефолтная $db_name
+ * @param null $db_name
+ * @param string $db_host
+ */
+function mysqli_connect2($db_name = null, $db_host = 'localhost', $db_usr = 'root', $db_pwd = '')
 {
     //Возвращает $link - соединение с DB.
-    global $db_pwd, $db_usr, $link;
+    global $link;
     if ($db_name == null) {
         global $db_name;
         if ($db_name == false) {
@@ -133,6 +137,7 @@ function next_script($php_self = null, $start = null, $fin = null)
             $i++;
         }
         echo2("Не можем найти следующего скрипта после " . $php_self);
+        exit();
     }
 }
 
@@ -227,7 +232,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
                 }
             }
             //Если пустой результат
-            if (isset($result)){
+            if (isset($result)) {
                 // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
                 if (count($result) == 1 && count($result[0]) == 1) {
                     foreach ($result as $value) {
@@ -240,8 +245,8 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
                     echo2("У нас пустой SELECT получился, что-то не так! Возможно нет связи с DB.");
                 }
                 return $result;
-            } else if ($msg_if_empty_select == true){
-                echo2 ("Пустой SELECT получился");
+            } else if ($msg_if_empty_select == true) {
+                echo2("Пустой SELECT получился");
                 return null;
             }
         } else if ($return_affected_rows) {
@@ -555,11 +560,7 @@ class Spintax
 {
     public function process($text)
     {
-        return preg_replace_callback(
-            '/\{(((?>[^\{\}]+)|(?R))*)\}/x',
-            array($this, 'replace'),
-            $text
-        );
+        return preg_replace_callback('/\{(((?>[^\{\}]+)|(?R))*)\}/x', array($this, 'replace'), $text);
     }
 
     public function replace($text)
@@ -568,6 +569,21 @@ class Spintax
         $parts = explode('|', $text);
         return $parts[array_rand($parts)];
     }
+}
+
+//Упрощенная функция для генерации текста
+function gen_text($spintax_class, $spec_separator, $spin_fragments_separator, $spin_text, $title, $stlen = 0, $before_spin_html = '<div class="text-content">', $after_spin_html = '</div>')
+{
+    $tmp = '';
+    $tmp .= $spec_separator;
+    $tmp .= $spintax_class->process($spin_text);
+    $tmp .= $spin_fragments_separator;
+    $tmp = str_ireplace('%post_title%', $title, $tmp);
+    $tmp = str_replace('  ', ' ', $tmp);
+    if (strlen($tmp) >= $stlen) {
+        $tmp = $before_spin_html . $tmp . $after_spin_html;
+    }
+    return $tmp;
 }
 
 //todo функции нужна валидация
@@ -632,7 +648,7 @@ function Export_Database($host, $user, $pass, $name, $tables = false, $backup_na
     file_put_contents($result_dir . $backup_name, $content);
 //    echo $content;
     if (is_file($result_dir . $backup_name)) {
-        echo2("Дампнули базу данных в " . $result_dir . $backup_name);
+        echo2("Дампнули базу данных в " . $result_dir . $backup_name . " Вес базы " . convert(strlen($content)));
     } else {
         echo2("Дампнуть базу данных ИЛИ сохранить в папку $result_dir не получилось");
     }
@@ -649,4 +665,248 @@ function write_status($arr)
         $queries[] = "UPDATE `image_index`.`generated_sites` SET `$key` = '$item'";
     }
     dbquery($queries);
+}
+
+/** Функция генерит под каждый язык заданный в массиве Lang категорию и возвращает подробный массив о категориях.
+ * Если категории уже созданы то только возвращает.
+ * @param array $lang
+ * @return mixed
+ */
+function set_int_cats(array $lang)
+{
+    global $db_name;
+    $ai = get_ai('wp_terms');
+    $ai_term_taxonomy = get_ai('wp_term_taxonomy');
+    $i = 0;
+    foreach ($lang as $key => $lang_name) {
+        if ($tmp = dbquery("SELECT `term_id` FROM `wp_terms` WHERE `name` = '$lang_name' OR `slug` = '$lang_name'")) {
+            $res[$key]['language_id'] = $key;
+            $res[$key]['lang_name'] = $lang_name;
+            $res[$key]['term_id'] = $tmp;
+            $tmp = dbquery("SELECT `term_taxonomy_id` FROM `wp_term_taxonomy` WHERE `term_id` = $tmp;");
+            $res[$key]['term_taxonomy_id'] = $tmp;
+            $i++;
+        } else {
+            $cat_descr = "Parent category for $lang_name";
+            dbquery("INSERT INTO `wp_terms` (`term_id`, `name`, `slug`,`term_group`) VALUES ($ai,'$lang_name','$lang_name',$key);");
+            dbquery("INSERT INTO `wp_term_taxonomy` (`term_taxonomy_id`, `term_id`, `taxonomy`, `description`, `parent`, `count`) VALUES ($ai_term_taxonomy, $ai, 'category', '$cat_descr', '0', '0');");
+            $res[$key]['language_id'] = $key;
+            $res[$key]['lang_name'] = $lang_name;
+            $res[$key]['term_id'] = $ai;
+            $res[$key]['term_taxonomy_id'] = $ai_term_taxonomy;
+            $ai_term_taxonomy++;
+            $ai++;
+            $i++;
+        }
+    }
+    return $res;
+}
+
+/** На вход надо подать 1ым аргументом ID / имя языка категории (2 буквы), 2ой параметр массив ассоциативный полученный из set_int_cats функции с номераим катов.
+ * Можно также подать только lang_name / lang_id чтобы получить ID категории языка.
+ * @param $lang_id_or_name
+ * @param null $wp_lang_terms
+ * @return array|bool|int
+ */
+function get_termID_cat($lang_id_or_name, $get_term_taxonomy_id = FALSE, $wp_lang_terms = NULL)
+{
+    if ($wp_lang_terms) {
+        foreach ($wp_lang_terms as $item) {
+            if ($lang_id_or_name == $item['language_id'] OR $lang_id_or_name == $item['lang_name']) {
+                if ($get_term_taxonomy_id) {
+                    return $item['term_taxonomy_id'];
+                }
+                return $item['term_id'];
+            }
+        }
+    } else {
+        $tmp = dbquery("SELECT `term_id` FROM `wp_terms` WHERE `name` = '$lang_name' OR `slug` = '$lang_name';", TRUE);
+        if ($get_term_taxonomy_id) {
+            $tmp = dbquery("SELECT `term_taxonomy_id` FROM `wp_term_taxonomy` WHERE `term_id` = $tmp;");
+        }
+        return $tmp;
+    }
+    return false;
+}
+
+/** Генерим с любого языка название ЧПУ, при этом удаляя те которых нет в UTF (промучался день, так и не смог добиться полноценной транслитерации на Windows с заменой автоматической всех нестандартных символов)
+ * @param $text
+ * @param string $separator
+ * @return bool|mixed|string
+ */
+function str_to_url($text, $separator = '_')
+{
+    // replace non letter or digits by -
+    $text = preg_replace('~[^\pL\d]+~u', $separator, $text);
+
+    // transliterate
+    // Здесь стоит IGNORE вместо TRANSLIT потому что на Windows не работает корректно set_locale, целое дело, поэтому просто удаляем все лишнии символы
+    $text = iconv('utf-8', 'ASCII//IGNORE', $text);
+
+    // remove unwanted characters
+    $text = preg_replace('~[^-\w]+~', '', $text);
+
+    // trim
+    $text = trim($text, $separator);
+
+    // remove duplicate -
+    $text = preg_replace('~-+~', $separator, $text);
+
+    // lowercase
+    $text = strtolower($text);
+
+    if (empty($text)) {
+        return FALSE;
+    }
+
+    return $text;
+}
+
+function gen_new_title($title)
+{
+    global $uniq_addings, $year_pattern, $year_to_replace, $seasonal_add, $seasonal_titles, $year_end_percent, $bad_symbols;
+    static $i;
+    shuffle($uniq_addings);
+    $title = $uniq_addings[1] . ' ' . $title;
+    $title = preg_replace($year_pattern, $year_to_replace, $title);
+    $title = trim($title);
+    $title = str_replace($bad_symbols, ' ', $title);
+    $title = str_replace('  ', ' ', $title);
+    $tmp = explode(' ', $title);
+    $tmp = array_unique($tmp);
+    $title = implode(' ', $tmp);
+    if ($seasonal_add !== false && $i % $seasonal_titles == 0) {
+        $z = (rand(0, 10000) < $year_end_percent * 100) ? 1 : 2;
+        switch ($z) {
+            case 1:
+                $title .= ' ' . $year_to_replace;
+                break;
+            case 2:
+                $title = $year_to_replace . ' ' . $title;
+                break;
+        }
+    }
+    $i++;
+    $title = ucwords($title);
+    return $title;
+}
+
+function get_ai($table_name)
+{
+    global $dbname;
+    $query = "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '$dbname[wp]' AND TABLE_NAME = '$table_name';";
+    return dbquery($query);
+}
+
+/**
+ * Функция обновляет количество итемов принадлежащих определенной категории, не важно меню это или просто категория - нужно для корректной работы WP. На вход term_taxonomy_id
+ * @param $cat_id int wp_term_relationships.term_taxonomy_id
+ * @param bool $return_count
+ * @return array|int|void
+ */
+function update_cat_count_items($term_taxonomy_id, $return_count = FALSE, $only_return_count = FALSE)
+{
+    $cats_count_fact = dbquery("SELECT COUNT(*) FROM `wp_term_relationships` WHERE `term_taxonomy_id` = $term_taxonomy_id;");
+    if ($only_return_count) {
+        return $cats_count_fact;
+    }
+    dbquery("UPDATE `wp_term_taxonomy` SET `count` = $cats_count_fact WHERE `term_taxonomy_id` = $term_taxonomy_id;");
+
+    if ($return_count) {
+        return $cats_count_fact;
+    }
+}
+
+/** Получает на вход term_id категории INT, возвращает ID дочерних категорий (например для конкретного языка).
+ * @param $wp_lang_term_id
+ * @return array|int|void
+ */
+function get_child_cats($wp_lang_term_id, $columns = 'term_id')
+{
+    $columns = prepare_columns_string($columns, '`');
+    $created_cats = dbquery("SELECT $columns FROM `wp_term_taxonomy` WHERE `parent` = '$wp_lang_term_id';", TRUE);
+    if ($created_cats) {
+        return $created_cats;
+    } else {
+        echo2("Нет дочерних категорий для term_id $wp_lang_term_id");
+        return FALSE;
+    }
+}
+
+function get_int_addings($lang_id)
+{
+    global $int_mode, $uniq_tpls, $gen_addings, $uniq_addings, $uniq_addings_nch;
+    $uniq_addings = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 0);
+    $uniq_addings_nch = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 1);
+    switch ($gen_addings) {
+        case 1:
+            break;
+        case 2:
+            $uniq_addings = $uniq_addings_nch;
+            break;
+        case 3:
+            $uniq_addings = array_merge($uniq_addings, $uniq_addings_nch);
+            break;
+    }
+}
+
+/** Преобразует аргументы массива или строки к запросу в MYSQL, например колонки или поля которые надо запросить-обновить и т.п.
+ * @param $values
+ * @param string $separator
+ * @return string
+ */
+function prepare_columns_string($values, $separator = '\'')
+{
+    global $link;
+    $columns = '';
+    if (is_array($values)) {
+        foreach ($values as $column) {
+            if ($separator == '\'') {
+                $column = mysqli_real_escape_string($link, $column);
+            }
+            $columns .= $separator . $column . $separator . ',';
+        }
+    } else {
+        $columns .= $separator . $values . $separator . ',';
+    }
+    $columns = substr($columns, 0, -1);
+    return $columns;
+}
+
+/** Генератор чтобы небольшими порциями выгребать из wp_posts нужные данные. Внимание! Выгребает только со статусом Publish и Post!
+ * @param $term_taxonomy_id тега по которому доставать посты
+ * @param int $count сколько за раз постов доставать
+ * @param array $columns какие колонки из wp_posts доставать
+ * @param bool $iterator_mode выгружать со сдвигом все посты
+ * @return Generator
+ */
+function wp_get_posts($term_taxonomy_id, $count = 1000, $columns = array('post_title'), $iterator_mode = FALSE)
+{
+    $columns = prepare_columns_string($columns, '`');
+    if ($iterator_mode) {
+        if (empty($c_post_num)) {
+            $c_post_num = update_cat_count_items($term_taxonomy_id, TRUE, TRUE);
+        }
+        for ($i = 0; $i < $c_post_num; $i += $count) {
+            $post_ids = dbquery("SELECT `object_id` FROM `wp_term_relationships` WHERE `term_taxonomy_id` = $term_taxonomy_id LIMIT $count OFFSET $i;", TRUE);
+        }
+        $tmp = implode(",", $post_ids);
+        $post_titles = dbquery("SELECT $columns FROM `wp_posts` WHERE `post_type` = 'post' AND `post_status` = 'publish' AND `ID` IN ($tmp)", TRUE);
+        if ($post_titles) {
+            yield $post_titles;
+        } else {
+            RETURN;
+        }
+    } else {
+        while ($post_ids = dbquery("SELECT `object_id` FROM `wp_term_relationships` WHERE `term_taxonomy_id` = $term_taxonomy_id LIMIT $count;", TRUE)) {
+            $tmp = implode(",", $post_ids);
+            $post_titles = dbquery("SELECT $columns FROM `wp_posts` WHERE `post_type` = 'post' AND `post_status` = 'publish' AND `ID` IN ($tmp)", TRUE);
+            if ($post_titles) {
+                yield $post_titles;
+            } else {
+                RETURN;
+            }
+        }
+    }
+    RETURN;
 }

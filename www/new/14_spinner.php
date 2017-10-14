@@ -4,10 +4,14 @@
  * User: Max
  * Date: 15.01.2017
  * Time: 0:50
+ * #todo Минимальный объем MegaSpin добавить от 100 символов!
  */
 include "multiconf.php";
 mysqli_connect2($db_name_spin);
 next_script(0, 1);
+
+$uniq_addings = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 0);
+$uniq_addings_nch = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 1);
 
 echo2("Проверяем какие из шаблонов Спинтакса уже есть в базе, каких нет. Тех которых нет - просчитываем и загружаем.");
 $query = "SELECT `text`,`variants`,`used` FROM `my_spintax`";

@@ -14,7 +14,7 @@ $db_usr = 'root';
 $source_db = 'google';
 $source_table = 'search_analytics';
 $import_db = 'image_index';
-$import_table = 'semrush_keys';
+$import_table = 'keys';
 
 mysqli_connect2($source_db);
 $start_offset = 1000000;

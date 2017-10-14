@@ -5,11 +5,13 @@
  * Date: 02.09.2017
  * Time: 23:50
  */
+#todo Функционал тегов не дописан., по необходимости можно реализовать.
 include "multiconf.php";
 mysqli_connect2();
 next_script(0, 1);
 
 $data = unserialize(file_get_contents($work_file));
+//$data = unserialize(file_get_contents('F:\Dumps\short50000site.com\import\tmp_short_images_50000_rand_lines_lang_0.csv'));
 
 //07-09-2017 12:56:08 - Mysqli error 1 в запросе INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24168, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','', '80's ponytail hairstyles', '', 'inherit', 'closed', 'closed', '', '80's ponytail hairstyles', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 24169 , '/wp-content/uploads/2017/09/2847657.jpg', 0, 'attachment', 'image/jpeg', 0);
 //07-09-2017 12:56:08 - Mysqli error 1 в запросе INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (24169, 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','<img src="/wp-content/uploads/2017/09/2847657.jpg" alt="Fancy 80's Ponytail Hairstyles 2017" title="Fancy 80's Ponytail Hairstyles 2017" width="480" height="458" class="alignnone size-full wp-image-24168" />', 'Fancy 80's Ponytail Hairstyles 2017', '', 'publish', 'closed', 'closed', '', '2847657_fancy_80's_ponytail_hairstyles_2017', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 0, '/?p=24169', 0, 'post', '', 0);
@@ -32,6 +34,8 @@ $exmpl = unserialize('a:5:{s:5:"width";i:239;s:6:"height";i:239;s:4:"file";s:18:
 
 //$img_names = array_slice(scandir($img_dir), 2);
 
+$uniq_addings = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 0);
+$uniq_addings_nch = get_uniq_tpls($int_mode, $lang_id, $uniq_tpls, 1);
 switch ($gen_addings) {
     case 1:
         break;
@@ -58,11 +62,17 @@ foreach ($data as $key_top => $key_images) {
         $site_img_name = $image['image_id'] . "." . get_good_filename($image['image_url']);
         $local_img_path = $img_dir . $site_img_name;
         $relative_site_img_path = '/wp-content/uploads/' . $wp_image_upload_date_prefix . $site_img_name;
-        $image['key'] = addslashes($image['key']);
-        $gen_title = gen_new_title($image['key']);
-        $post_name = gen_post_name($image['image_id'], $gen_title, $bad_symbols);
-        $data[$key_top][$key_bot]['new_title'] = $gen_title;
-
+        if ($int_mode) {
+            $image['translated_key'] = addslashes($image['translated_key']);
+            $gen_title = gen_new_title($image['translated_key']);
+            $post_name = gen_post_name($image['image_id'], $gen_title, $bad_symbols);
+            $data[$key_top][$key_bot]['translated_new_title'] = $gen_title;
+        } else {
+            $image['key'] = addslashes($image['key']);
+            $gen_title = gen_new_title($image['key']);
+            $post_name = gen_post_name($image['image_id'], $gen_title, $bad_symbols);
+            $data[$key_top][$key_bot]['new_title'] = $gen_title;
+        }
         if (is_file($local_img_path) && stripos(mime_content_type($local_img_path), "image") === 0) {
             // Теги получает, но не дописана вставка и т.п.
 //            $post_tags = get_post_tags($image['image_url']);
@@ -74,7 +84,8 @@ foreach ($data as $key_top => $key_images) {
             $array_to_postmeta['height'] = $height;
             $data[$key_top][$key_bot]['width'] = $width;
             $data[$key_top][$key_bot]['height'] = $height;
-            $array_to_postmeta['file'] = $relative_site_img_path;
+            //В Postmeta нужен в формате 2017/09/img_name.jpg , иначе Udinra Sitemap неправильные ссылки генерит.
+            $array_to_postmeta['file'] = $wp_image_upload_date_prefix . $site_img_name;
             $array_to_postmeta['sizes']['thumbnail']['file'] = $cropped_img_name;
             $array_to_postmeta['sizes']['thumbnail']['width'] = $crop_width;
             $array_to_postmeta['sizes']['thumbnail']['height'] = $crop_height;
@@ -108,35 +119,6 @@ foreach ($data as $key_top => $key_images) {
 }
 next_script();
 
-function gen_new_title($title)
-{
-    global $uniq_addings, $year_pattern, $year_to_replace, $seasonal_add, $seasonal_titles, $year_end_percent;
-    static $i;
-    shuffle($uniq_addings);
-    $title = $uniq_addings[1] . $title;
-    $title = preg_replace($year_pattern, $year_to_replace, $title);
-    $title = trim($title);
-    $tmp = explode(' ', $title);
-    $tmp = array_unique($tmp);
-    $title = implode(' ', $tmp);
-    if ($seasonal_add !== false && $i % $seasonal_titles == 0) {
-        $z = (rand(0, 10000) < $year_end_percent * 100) ? 1 : 2;
-        switch ($z) {
-            case 1:
-                $title .= ' ' . $year_to_replace;
-                $counter_year_to_end++;
-                break;
-            case 2:
-                $title = $year_to_replace . ' ' . $title;
-                $counter_year_to_start++;
-                break;
-        }
-    }
-    $i++;
-    $title = ucwords($title);
-    return $title;
-}
-
 function get_good_filename($image_url)
 {
     $tmp = explode(".", $image_url);
@@ -152,11 +134,11 @@ function get_good_filename($image_url)
 // Пока не используется!
 function get_post_tags($image_url)
 {
-    global $db_name, $db_name_img;
+    global $db_name, $db_name_img, $tname;
     dbquery("USE `$db_name_img`");
     $query = "SELECT `t3`.`key` from `google_images_relations2` AS `t1`
 LEFT JOIN `google_images2` AS `t2` ON `t1`.`image_id` = `t2`.`image_id`
-LEFT JOIN `semrush_keys2` AS `t3` ON `t1`.`key_id` = `t3`.`key_id`
+LEFT JOIN `$tname[keys]` AS `t3` ON `t1`.`key_id` = `t3`.`key_id`
 WHERE `t2`.`image_url` = '$image_url'";
     $tags = dbquery($query, TRUE);
     dbquery("USE `$db_name`");
@@ -167,8 +149,9 @@ WHERE `t2`.`image_url` = '$image_url'";
     }
 }
 
-function gen_post_name($image_id, $post_title, $bad_symbols)
+function gen_post_name($image_id, $post_title, $bad_symbols = NULL)
 {
-    $post_name = strtolower($image_id . "_" . str_replace($bad_symbols, "_", $post_title));
+    $post_title = str_to_url($post_title);
+    $post_name = $image_id . "_" . $post_title;
     return $post_name;
 }
