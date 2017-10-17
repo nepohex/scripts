@@ -6,6 +6,7 @@
  * Time: 20:56
  * Здесь создаем родительские категории под каждый язык и закиываем туда все посты int поязычно.
  * //todo для постов-картинок можно попробовать 2 варианта: давать им alt / title уже сгенереные или стандартные. Сгенереные повысят уник сайтмапа имг.
+ * //todo генерить случайную даты модификации и публикации поста для большей видимости реальности $date = date('Y-m-d H:i:s',time()-rand(1,90*24*60*60));
  */
 include "multiconf.php";
 next_script(0, 1);
@@ -52,6 +53,7 @@ foreach ($csv2 as $key => $item) {
             //Получаем ID картинки как она сохранена после парсинга из Google где название - ID в базе картинок. ID картинки будет использован для URL.
             $global_img_id = stristr(hook_get_img_path($img_info['file'], FALSE, TRUE), ".", TRUE);
             $post_name = gen_post_name($global_img_id, $gen_title, $bad_symbols);
+            $date = gen_dates(150);
             //Если спинтакс текста нет - пропускаем ключ.
             isset($item['mega_tpl_id']) ? $tpl_id = $item['mega_tpl_id'] : $tpl_id = FALSE;
             if ($spintext = get_int_spintax($int_arr['language_id'], $tpl_id)) {
@@ -61,9 +63,9 @@ foreach ($csv2 as $key => $item) {
                 $post_content = mysqli_real_escape_string($link, $post_content);
                 $post_id = $ai + 1;
                 $queries[] = "INSERT INTO `$dbname[wp]`.`wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) 
-VALUES (" . $ai . ", 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','', '" . $gen_title . "', '', 'inherit', 'closed', 'closed', '', '" . $gen_title . "', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', $post_id , '$img_path', 0, 'attachment', '" . $img_info['sizes']['thumbnail']['mime_type'] . "', 0);";
+VALUES (" . $ai . ", 1, '$date[0]', '$date[0]','', '" . $gen_title . "', '', 'inherit', 'closed', 'closed', '', '" . $gen_title . "', '', '', '$date[1]', '$date[1]', '', $post_id , '$img_path', 0, 'attachment', '" . $img_info['sizes']['thumbnail']['mime_type'] . "', 0);";
                 $queries[] = "INSERT INTO `$dbname[wp]`.`wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) 
-VALUES (" . $post_id . ", 1, '2017-09-01 00:05:53', '2017-09-01 21:05:53','" . $post_content . "', '" . $gen_title . "', '', 'publish', 'closed', 'closed', '', '$post_name', '', '', '2017-09-01 00:05:53', '2017-09-01 21:05:53', '', 0, '/?p=" . $post_id . "', 0, 'post', '', 0);";
+VALUES (" . $post_id . ", 1, '$date[0]', '$date[0]','" . $post_content . "', '" . $gen_title . "', '', 'publish', 'closed', 'closed', '', '$post_name', '', '', '$date[1]', '$date[1]', '', 0, '/?p=" . $post_id . "', 0, 'post', '', 0);";
                 //Пост ложится в категорию с ID языка.
                 $queries[] = "INSERT INTO `$dbname[wp]`.`wp_term_relationships` (`object_id`, `term_taxonomy_id`, `term_order`) VALUES ($post_id, $term_taxonomy_id, 0);";
                 $queries[] = "INSERT INTO `$dbname[wp]`.`wp_postmeta` (`meta_id`, `post_id`, `meta_key` ,`meta_value`) VALUES ('',$ai,'_wp_attached_file', '$img_path');";
@@ -131,7 +133,7 @@ function get_int_spintax($lang_id, $mega_tpl_id = FALSE)
 {
     global $dbname, $tname, $spinstats;
     if ($mega_tpl_id) {
-        $text = dbquery("SELECT `text_template` FROM `$dbname[spin]`.`$tname[megaspin_tr]` WHERE `megaspin_id` = $mega_tpl_id AND `language_id` = $lang_id;");
+        $text = dbquery("SELECT `text_template` FROM `$dbname[spin]`.`$tname[megaspin_tr]` WHERE `megaspin_id` = $mega_tpl_id AND `language_id` = $lang_id LIMIT 1;");
         if (isset($spinstats[$lang_id]['spin'])) {
             $spinstats[$lang_id]['spin'] += 1;
         } else {
@@ -151,4 +153,11 @@ function get_int_spintax($lang_id, $mega_tpl_id = FALSE)
         return array_pop($text[0]);
     }
     return $text;
+}
+
+function gen_dates ($days_past = 90) {
+    $tmp = date('Y-m-d H:i:s',time()-rand(1,$days_past*24*60*60));
+    $date[] = $tmp;
+    $date[] = date('Y-m-d H:i:s',rand(strtotime($tmp),time()));
+    return ($date);
 }

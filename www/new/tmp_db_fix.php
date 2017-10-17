@@ -8,6 +8,8 @@
  */
 include "conf_new/short_conf_debug_config.php";
 
+$date = gen_dates();
+
 $query = "SELECT `posts`.`ID`,`posts`.`guid` FROM `wp_posts` AS `posts` WHERE
 `posts`.`post_type` = 'attachment' AND 
 NOT EXISTS (SELECT 1 FROM `wp_postmeta` AS `meta` WHERE 
@@ -21,3 +23,10 @@ while ($row = mysqli_fetch_row($result)) {
 }
 
 echo_time_wasted();
+
+function gen_dates ($days_past = 90) {
+    $tmp = date('Y-m-d H:i:s',time()-rand(1,$days_past*24*60*60));
+    $date['post_date'] = $tmp;
+    $date['post_mod'] = date('Y-m-d H:i:s',rand(strtotime($tmp),time()));
+    return ($date);
+}

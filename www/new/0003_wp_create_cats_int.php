@@ -60,7 +60,7 @@ function create_cats_int($words_used, $cats = 25, $lang_id = 0, $wp_lang_term_id
     foreach ($words_used as $key => $word) {
         //Ставим $i чтобы не создавались категории из топовых 3х слов, которые как правило значат основной ключ + слово прическа.
         $i++;
-        if (strlen($key) > 2 && (in_array($key, $exclude_words) === FALSE) && $i > 3) {
+        if (strlen($key) > 3 && (in_array($key, $exclude_words) === FALSE) && $i > 3) {
             $c_created++;
             $ai_taxonomy++;
             $ai_terms++;
