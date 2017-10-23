@@ -31,22 +31,47 @@
  * [0-9]{4}-[0-9]{2}-[0-9]{2}
  * [0-9]{2}:[0-9]{2}:[0-9]{2}
  * #todo PROXY - не получилось ни через CURL, ни через socket_connection
+ * todo Добавить проверку на ASIA регистраторов чтобы их сразу отсекать, примеры доменов :
+ * ASIA DOMAINS
+ * timmargh.net
+ * FortBowieVineyards.net
+ * Fx0418.net
+ * southcoastsports.net - now!
+ * summersvillememorial.org - now!
+ * ace2009.org - now!
+ * santedev.org
+ * freegeekmichiana.org
+ * bamiyanlaser.org
+ * php-resources.org
+ * images-strasbourg.org
+ * gpninc.org
+ * shoeman.org
+ * lvamohawkhudson.org
+ * SEPHICE.NET
  */
 include '../../vendor/autoload.php';
 include '../new/includes/functions.php';
-$debug_mode = 1;
-$double_log = 1;
-$fp_log = 'log.txt';
 use Cocur\Domain\Connection\ConnectionFactory;
 use Cocur\Domain\Data\DataLoader;
 use Cocur\Domain\Whois\Client as WhoisClient;
 
-$domainName = 'chinaie.info';
+$debug_mode = 1;
+$double_log = 1;
+$fp_log = 'log.txt';
+$tld_json = __DIR__ . '/tld.json';
+$list_fp = __DIR__ . '/list.txt';
+$rescsv_fp = __DIR__ . "/result.csv";
+$restxt_fp = fopen(__DIR__ . '/result.txt', "a+");
+
+$domains = array();
+
+//debug
+//$domainName = 'chinaie.info';
 
 //get_whois('com.whois-servers.net', $domainName, '46.8.228.139:3128:maxeremin53210:m0jgYeOm');
-$domains_list = file(__DIR__ . "/list.txt", FILE_IGNORE_NEW_LINES);
-$rescsv_fp = __DIR__ . "/result.csv";
-$domains = array();
+$domains_list = file($list_fp, FILE_IGNORE_NEW_LINES);
+$domains_list = clean_domains($domains_list);
+
 //Build header
 if (!is_file($rescsv_fp)) {
     $fp = fopen($rescsv_fp, "a+");
@@ -55,94 +80,96 @@ if (!is_file($rescsv_fp)) {
     $fp = fopen($rescsv_fp, "a+");
     $csv = csv_to_array2($rescsv_fp, ';', '', TRUE);
 }
-//debug
-$a = 'Domain Name: MURMURES.INFO
-Registry Domain ID: D503300000048152717-LRMS
-Registrar WHOIS Server:
-Registrar URL: http://www.burnsidedomains.com
-Updated Date: 2017-10-02T05:56:49Z
-Creation Date: 2017-10-01T10:11:54Z
-Registry Expiry Date: 2018-10-01T10:11:54Z
-Registrar Registration Expiration Date:
-Registrar: Burnsidedomains.com LLC
-Registrar IANA ID: 1168
-Registrar Abuse Contact Email:
-Registrar Abuse Contact Phone:
-Reseller:
-Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
-Domain Status: serverTransferProhibited https://icann.org/epp#serverTransferProhibited
-Domain Status: addPeriod https://icann.org/epp#addPeriod
-Registry Registrant ID: C209602494-LRMS
-Registrant Name: PERFECT PRIVACY, LLC
-Registrant Organization:
-Registrant Street: 12808 Gran Bay Parkway West
-Registrant City: Jacksonville
-Registrant State/Province: FL
-Registrant Postal Code: 32258
-Registrant Country: US
-Registrant Phone: +1.9027492701
-Registrant Phone Ext:
-Registrant Fax:
-Registrant Fax Ext:
-Registrant Email: 65cgio53lsi0qa97hsmhh0f6ue@domaindiscreet.com
-Registry Admin ID: C209602494-LRMS
-Admin Name: PERFECT PRIVACY, LLC
-Admin Organization:
-Admin Street: 12808 Gran Bay Parkway West
-Admin City: Jacksonville
-Admin State/Province: FL
-Admin Postal Code: 32258
-Admin Country: US
-Admin Phone: +1.9027492701
-Admin Phone Ext:
-Admin Fax:
-Admin Fax Ext:
-Admin Email: 65cgio53lsi0qa97hsmhh0f6ue@domaindiscreet.com
-Registry Tech ID: C209602494-LRMS
-Tech Name: PERFECT PRIVACY, LLC
-Tech Organization:
-Tech Street: 12808 Gran Bay Parkway West
-Tech City: Jacksonville
-Tech State/Province: FL
-Tech Postal Code: 32258
-Tech Country: US
-Tech Phone: +1.9027492701
-Tech Phone Ext:
-Tech Fax:
-Tech Fax Ext:
-Tech Email: 65cgio53lsi0qa97hsmhh0f6ue@domaindiscreet.com
-Registry Billing ID: C209602250-LRMS
-Billing Name: PERFECT PRIVACY, LLC
-Billing Organization:
-Billing Street: 12808 Gran Bay Parkway West
-Billing City: Jacksonville
-Billing State/Province: FL
-Billing Postal Code: 32258
-Billing Country: US
-Billing Phone: +1.9027492701
-Billing Phone Ext:
-Billing Fax:
-Billing Fax Ext:
-Billing Email: birg1sshpkjmoaphrjn2rujfa0@domaindiscreet.com
-Name Server: NS1.VOODOO.COM
-Name Server: NS2.VOODOO.COM
-DNSSEC: unsigned
-URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
->>> Last update of WHOIS database: 2017-10-03T06:41:08Z <<<
-
-For more information on Whois status codes, please visit https://icann.org/epp
-
-Access to AFILIAS WHOIS information is provided to assist persons in determining the contents of a domain name registration record in the Afilias registry database. The data in this record is provided by Afilias Limited for informational purposes only, and Afilias does not guarantee its accuracy.  This service is intended only for query-based access. You agree that you will use this data only for lawful purposes and that, under no circumstances will you use this data to(a) allow, enable, or otherwise support the transmission by e-mail, telephone, or facsimile of mass unsolicited, commercial advertising or solicitations to entities other than the data recipient\'s own existing customers; or (b) enable high volume, automated, electronic processes that send queries or data to the systems of Registry Operator, a Registrar, or Afilias except as reasonably necessary to register domain names or modify existing registrations. All rights reserved. Afilias reserves the right to modify these terms at any time. By submitting this query, you agree to abide by this policy.
-';
+////debug
+//$a = 'Domain Name: MURMURES.INFO
+//Registry Domain ID: D503300000048152717-LRMS
+//Registrar WHOIS Server:
+//Registrar URL: http://www.burnsidedomains.com
+//Updated Date: 2017-10-02T05:56:49Z
+//Creation Date: 2017-10-01T10:11:54Z
+//Registry Expiry Date: 2018-10-01T10:11:54Z
+//Registrar Registration Expiration Date:
+//Registrar: Burnsidedomains.com LLC
+//Registrar IANA ID: 1168
+//Registrar Abuse Contact Email:
+//Registrar Abuse Contact Phone:
+//Reseller:
+//Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
+//Domain Status: serverTransferProhibited https://icann.org/epp#serverTransferProhibited
+//Domain Status: addPeriod https://icann.org/epp#addPeriod
+//Registry Registrant ID: C209602494-LRMS
+//Registrant Name: PERFECT PRIVACY, LLC
+//Registrant Organization:
+//Registrant Street: 12808 Gran Bay Parkway West
+//Registrant City: Jacksonville
+//Registrant State/Province: FL
+//Registrant Postal Code: 32258
+//Registrant Country: US
+//Registrant Phone: +1.9027492701
+//Registrant Phone Ext:
+//Registrant Fax:
+//Registrant Fax Ext:
+//Registrant Email: 65cgio53lsi0qa97hsmhh0f6ue@domaindiscreet.com
+//Registry Admin ID: C209602494-LRMS
+//Admin Name: PERFECT PRIVACY, LLC
+//Admin Organization:
+//Admin Street: 12808 Gran Bay Parkway West
+//Admin City: Jacksonville
+//Admin State/Province: FL
+//Admin Postal Code: 32258
+//Admin Country: US
+//Admin Phone: +1.9027492701
+//Admin Phone Ext:
+//Admin Fax:
+//Admin Fax Ext:
+//Admin Email: 65cgio53lsi0qa97hsmhh0f6ue@domaindiscreet.com
+//Registry Tech ID: C209602494-LRMS
+//Tech Name: PERFECT PRIVACY, LLC
+//Tech Organization:
+//Tech Street: 12808 Gran Bay Parkway West
+//Tech City: Jacksonville
+//Tech State/Province: FL
+//Tech Postal Code: 32258
+//Tech Country: US
+//Tech Phone: +1.9027492701
+//Tech Phone Ext:
+//Tech Fax:
+//Tech Fax Ext:
+//Tech Email: 65cgio53lsi0qa97hsmhh0f6ue@domaindiscreet.com
+//Registry Billing ID: C209602250-LRMS
+//Billing Name: PERFECT PRIVACY, LLC
+//Billing Organization:
+//Billing Street: 12808 Gran Bay Parkway West
+//Billing City: Jacksonville
+//Billing State/Province: FL
+//Billing Postal Code: 32258
+//Billing Country: US
+//Billing Phone: +1.9027492701
+//Billing Phone Ext:
+//Billing Fax:
+//Billing Fax Ext:
+//Billing Email: birg1sshpkjmoaphrjn2rujfa0@domaindiscreet.com
+//Name Server: NS1.VOODOO.COM
+//Name Server: NS2.VOODOO.COM
+//DNSSEC: unsigned
+//URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
+//>>> Last update of WHOIS database: 2017-10-03T06:41:08Z <<<
+//
+//For more information on Whois status codes, please visit https://icann.org/epp
+//
+//Access to AFILIAS WHOIS information is provided to assist persons in determining the contents of a domain name registration record in the Afilias registry database. The data in this record is provided by Afilias Limited for informational purposes only, and Afilias does not guarantee its accuracy.  This service is intended only for query-based access. You agree that you will use this data only for lawful purposes and that, under no circumstances will you use this data to(a) allow, enable, or otherwise support the transmission by e-mail, telephone, or facsimile of mass unsolicited, commercial advertising or solicitations to entities other than the data recipient\'s own existing customers; or (b) enable high volume, automated, electronic processes that send queries or data to the systems of Registry Operator, a Registrar, or Afilias except as reasonably necessary to register domain names or modify existing registrations. All rights reserved. Afilias reserves the right to modify these terms at any time. By submitting this query, you agree to abide by this policy.
+//';
 
 //Счетчик сколько доменов изменили статус с прошлого запуска
 $c_changed_statuses = 0;
 //Счетчик сколько доменов уже перерегали
 $c_renewed = 0;
+//Сколько просто проверили и дали статус Checked
+$c_checked = 0;
 
 $factory = new ConnectionFactory();
 $dataLoader = new DataLoader();
-$data = $dataLoader->load('C:\OpenServer\domains\scripts.loc\vendor\cocur\domain\data\tld.json');
+$data = $dataLoader->load($tld_json);
 $client = new WhoisClient($factory, $data);
 
 //Проверяем надо ли чекать домен исходя из предыдущего статуса записанного в CSV.
@@ -165,6 +192,23 @@ if ($csv) {
             }
         }
     }
+    // Максимально угребищно! Надо делать кароче DB и чистить все это сраное гавно.
+    if (count($domains) > 0) {
+        foreach ($domains as $key => $domain) {
+            foreach ($csv as $item) {
+                if ($domain == $item[0]) {
+                    if (in_array(array('RENEWED', 'NO DATA'), $item)) {
+                        $to_clean[] = $domain;
+                        break;
+                    }
+                }
+            }
+        }
+        if (is_array($to_clean)) {
+            $domains = array_diff($domains, $to_clean);
+        }
+    }
+    $domains = array_unique($domains);
     if (count($domains) == 0) {
         echo2("No domains to check!");
         send_email("No domains to check!", "Gimme moar domains to check!");
@@ -179,21 +223,33 @@ foreach ($domains as $domainName) {
     sleep(2);
 //Check WHOIS
     $a = $client->query($domainName);
-    echo2("$a");
+    // debug
+    //echo2("$a");
     $b = get_expiry_date($a);
     if ($b) {
-        if (already_renewed($b[3], 30)) {
+        if (already_renewed($b[4], 30)) {
             echo2("Домен $domainName уже перерегистрировали!");
-            fputcsv($fp, array($domainName, 'RENEWED', $b[1], $b[2], $b[3], $b[4], date("Y-m-d"), date("H:i:s")), ";");
+            $res_arr = array($domainName, 'RENEWED', $b[1], $b[2], $b[4], $b[5], date("Y-m-d"), date("H:i:s"));
+            $pack_str = pack('A30A10A12A10A12A10A12A10', $res_arr[0], $res_arr[1], $res_arr[2], $res_arr[3], $res_arr[4], $res_arr[5], $res_arr[6], $res_arr[7]);
+            fputcsv($fp, $res_arr, ";");
+            // echo2($pack_str); //debug
+            fwrite($restxt_fp, $pack_str . PHP_EOL);
             $email[$domainName][] = "RENEWED";
             $c_renewed++;
         } else {
-            fputcsv($fp, array($domainName, 'CHECKED', $b[1], $b[2], $b[3], $b[4], date("Y-m-d"), date("H:i:s")), ";");
+            $res_arr = array($domainName, 'CHECKED', $b[1], $b[2], $b[4], $b[5], date("Y-m-d"), date("H:i:s"));
+            $pack_str = pack('A30A10A12A10A12A10A12A10', $res_arr[0], $res_arr[1], $res_arr[2], $res_arr[3], $res_arr[4], $res_arr[5], $res_arr[6], $res_arr[7]);
+            fputcsv($fp, $res_arr, ";");
+            fwrite($restxt_fp, $pack_str . PHP_EOL);
+            $c_checked++;
         }
     } else {
         $c_changed_statuses++;
         echo2("Домен $domainName не смогли получить из WHOIS даты Creation / Expiry регуляркой!");
-        fputcsv($fp, array($domainName, 'NO DATA', '-', '-', '-', '-', date("Y-m-d"), date("H:i:s")), ";");
+        $res_arr = array($domainName, 'NO DATA', '-', '-', '-', '-', date("Y-m-d"), date("H:i:s"));
+        $pack_str = pack('A30A10A12A10A12A10A12A10', $res_arr[0], $res_arr[1], $res_arr[2], $res_arr[3], $res_arr[4], $res_arr[5], $res_arr[6], $res_arr[7]);
+        fputcsv($fp, $res_arr, ";");
+        fwrite($restxt_fp, $pack_str . PHP_EOL);
         $email[$domainName][] = 'NO DATA';
     }
 }
@@ -203,10 +259,14 @@ if ($c_changed_statuses > 0) {
 if ($c_renewed == count($domains)) {
     send_email("$c_renewed - all domains in list already RENEWED!", print_r($email, true));
 }
-
+echo2("Проверили всего " . count($domains) . " доменов, из них $c_changed_statuses изменили статусы , $c_renewed уже обновлены. $c_checked доменов еще недоступны для регистрации.");
+fclose($fp);
+/* Каждый раз когда правим регулярку, особенно группы ( ) , нужно проверить после этого как обрабатываются и в каких индексах массива лежат данные
+ *
+ */
 function get_expiry_date($string)
 {
-    preg_match('/Creation Date.*([0-9]{4}-[0-9]{2}-[0-9]{2}).*([0-9]{2}:[0-9]{2}:[0-9]{2}).*\nRegistry Expiry Date.*([0-9]{4}-[0-9]{2}-[0-9]{2}).*([0-9]{2}:[0-9]{2}:[0-9]{2})/i', $string, $matches);
+    preg_match('/Creation Date.*([0-9]{4}-[0-9]{2}-[0-9]{2}).*([0-9]{2}:[0-9]{2}:[0-9]{2})(\t|.|\n)*Registry Expiry Date.*([0-9]{4}-[0-9]{2}-[0-9]{2}).*([0-9]{2}:[0-9]{2}:[0-9]{2})/i', $string, $matches);
     if ($matches) {
         return $matches;
     } else {
@@ -224,11 +284,15 @@ function get_expiry_date($string)
 function already_renewed($date, $days = 30)
 {
     $now = time();
-    $exp_date = strtotime($date);
-    if (($exp_date - $now) < ($days * 86400)) {
-        return false;
+    if ($exp_date = strtotime($date)) {
+        if (($exp_date - $now) < ($days * 86400)) {
+            return false;
+        } else {
+            return true;
+        }
     } else {
-        return true;
+        echo2("Полученное регуляркой значение не преобразуется в дату! Выходим!");
+        exit ();
     }
 }
 
@@ -248,6 +312,14 @@ function check_needed($status, $states_no_check = array('RENEWED', 'NO DATA'))
     } else {
         return TRUE;
     }
+}
+
+function clean_domains($domain_arr)
+{
+    $replace = array('www.', 'http://', '/');
+    $domain_arr = str_replace($replace, '', $domain_arr);
+    $domain_arr = array_map('trim', $domain_arr);
+    return $domain_arr;
 }
 
 /** Без прокси работает, с прокси - нет
