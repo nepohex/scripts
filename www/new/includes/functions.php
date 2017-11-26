@@ -53,6 +53,9 @@ function convert($memory_usage)
 function echo_time_wasted($i = null, $msg = null)
 {
     global $start;
+    if (!$start) {
+        $start = microtime(true);
+    }
     $time = microtime(true) - $start;
     $format = "сек";
     if ($time > 300) {
@@ -909,4 +912,31 @@ function wp_get_posts($term_taxonomy_id, $count = 1000, $columns = array('post_t
         }
     }
     RETURN;
+}
+
+/** Проверяет полный ли урл, есть ли в нем протокол http / https / etc
+ * @param $url
+ * @return bool
+ */
+function is_abs_url($url)
+{
+    $tmp = parse_url($url);
+    if ($tmp['scheme']) {
+        return TRUE;
+    } else
+        return FALSE;
+}
+
+/** Удаляет HTML теги, новые строки и двойные пробелы. Чисто вычислить контент.
+ * @param $string
+ * @return int
+ */
+function count_strlen_html($string, $return_content = FALSE)
+{
+    $string = trim(preg_replace('/\s+/', ' ', strip_tags($string)));;
+    if ($return_content) {
+        return $string;
+    } else {
+        return strlen($string);
+    }
 }
