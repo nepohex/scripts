@@ -14,7 +14,7 @@ if (!isset($start)) {
  * @param null $db_name
  * @param string $db_host
  */
-function mysqli_connect2($db_name = null, $db_host = 'localhost', $db_usr = 'root', $db_pwd = '')
+function mysqli_connect2($db_name = null, $db_host = 'localhost', $db_usr = 'root', $db_pwd = '', $silence = TRUE)
 {
     //Возвращает $link - соединение с DB.
     global $link;
@@ -40,7 +40,9 @@ function mysqli_connect2($db_name = null, $db_host = 'localhost', $db_usr = 'roo
         die('Ошибка подключения (' . mysqli_connect_errno() . ') '
             . mysqli_connect_error());
     } else {
-        echo2("Связь с базой $db_name есть.");
+        if (!$silence) {
+            echo2("Связь с базой $db_name есть.");
+        }
     }
 }
 
@@ -939,4 +941,22 @@ function count_strlen_html($string, $return_content = FALSE)
     } else {
         return strlen($string);
     }
+}
+
+/** Проверяет содержится ли в строке любое из слов массива
+ * @param $str
+ * @param array $arr
+ * @return bool
+ */
+function contains($str, array $arr)
+{
+    foreach ($arr as $a) {
+        if (stripos($str, $a) !== false) return TRUE;
+    }
+    return FALSE;
+}
+
+function prepare_dir($path)
+{
+    is_dir($path) ? true : mkdir($path, 0777, TRUE);
 }
