@@ -4,6 +4,7 @@
  * User: Max
  * Date: 29.12.2017
  * Time: 0:52
+ * Многопоточный скрипт для заливки под разными аккаунтами картинок из Instagram > Pinterest из базы
  */
 //todo merge synonims и разные словоформы
 //todo get multiple acc
@@ -57,14 +58,27 @@ $pin_pwd = 'xmi0aJByoB';
 //$z = words_weight($words_count, $valid_descs);
 
 ### Settings ###
+//например https://www.instagram.com/rapunzel_ekb/ (http:// вначале и / слеш на концце)
+$source_url = 'https://www.instagram.com/rapunzel_ekb/'; //Будет добавлен как новый источник, надо вручную править потом количество
 $img_dir = 'f:\Dumps\instagram\rapunzel_ekb\thumb';
 $get_related_images = 100; //сколько похожих фоток доставать, по стандарту идет 50, из них получается 5-6 валидных описаний всего.
 $get_max_description = 50; //максимальная длина описания фотки (со всеми спец символами) которую будем использовать для определения тематики
 
-//Кусок кода заливки картинок в базу
+////Кусок кода заливки картинок в базу
+// Запускать только когда новый источник добавляем, иначе будет куча попыток заливки в базу.
+//$files = array_slice(scandir($img_dir), 2);
+//$sourceid = pins_get_sourceid($source_url);
+//foreach ($files as $item) {
+//    dbquery("INSERT INTO `image_index`.`instagram_images`  (`fname`, `sourceid`) VALUES ('$item', $sourceid);");
+//}
+
+//
+////Кусок кода для выставления sourceid - вручную запускать и отлаживать когда надо
 //$files = array_slice(scandir('f:\Dumps\instagram\rapunzel_ekb\thumb'), 2);
-//foreach ( $files as $item) {
-//    dbquery("INSERT INTO `instagram`.`images`  (`fname`) VALUES ('$item');");
+//foreach ($files as $item) {
+//    if ($id = dbquery("SELECT `id` FROM `image_index`.`instagram_images` WHERE `fname` = '$item'")) {
+//        dbquery("UPDATE `image_index`.`instagram_images` SET `sourceid` = 2 WHERE `id` = $id;");
+//    }
 //}
 
 //done
@@ -86,7 +100,7 @@ while ($files = get_files_to_post(110)) {
                 $files[$key]['posted'] = 1;
                 $c_pins_created += 1;
                 dbquery("INSERT INTO `$db_name`.`$tname` (`pinid`, `fname`, `sourceid`) VALUES ('$pinid', '$file[1]',1);");
-                dbquery("UPDATE `instagram`.`images` SET `posted` = '1' WHERE `id` = '$file[0]';");
+                dbquery("UPDATE `image_index`.`instagram_images` SET `posted` = '1' WHERE `id` = '$file[0]';");
                 foreach ($bot->pins->related($pinid, $get_related_images) as $pin) {
                     if ($desc = pin_get_desc($pin, $get_max_description)) {
                         $descs[] = $desc;
@@ -140,13 +154,13 @@ get_pin_acc(1, $pin_acc);
 
 function get_files_to_post($count = 50)
 {
-    $last_posted = dbquery("SELECT `id`,`fname` FROM `instagram`.`images` WHERE `posted` = 0 ORDER BY `id` DESC LIMIT $count;", TRUE);
+    $last_posted = dbquery("SELECT `id`,`fname` FROM `image_index`.`instagram_images` WHERE `posted` = 0 ORDER BY `id` DESC LIMIT $count;", TRUE);
     if ($last_posted) {
         foreach ($last_posted as $item) {
             $ids[] = $item[0];
         }
         $id = implode(",", $ids);
-        dbquery("UPDATE `instagram`.`images` SET `posted` = '2' WHERE `id` IN ($id);");
+        dbquery("UPDATE `image_index`.`instagram_images` SET `posted` = '2' WHERE `id` IN ($id);");
         return $last_posted;
     }
 }
@@ -344,4 +358,15 @@ function pinterest_login_until()
             get_pin_acc(0, $pin_acc, 1);
         }
     } while ($login_success == FALSE);
+}
+
+function pins_get_sourceid($source_url)
+{
+    if ($id = dbquery("SELECT `id` FROM `image_index`.`instagram_sources` WHERE `url` = '$source_url';")) {
+        return $id;
+    } else {
+        dbquery("INSERT INTO `image_index`.`instagram_sources` (`url`) VALUES ('$source_url');");
+        echo2("Вставили в базу `image_index`.`instagram_sources` новый источник картинок $source_url , вручную надо пометить количество фоток всего и сколько взяли из них ");
+        return dbquery("SELECT `id` FROM `image_index`.`instagram_sources` WHERE `url` = '$source_url';");
+    }
 }

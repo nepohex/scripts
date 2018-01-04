@@ -198,7 +198,7 @@ function pwdgen($length, $include_punctuation = null)
  * Если результат SELECT - единичное поле - возвращает STRING с результатом.
  * Если SELECT - 1 столбец, возвращает 1уровневый массив.
  */
-function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null, $msg_if_empty_select = null, $stfu = null)
+function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows = null, $msg_if_empty_select = null, $stfu = null, $return_single_row = null)
 {
     global $link, $db_name;
 
@@ -235,10 +235,13 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
                 while ($tmp = mysqli_fetch_assoc($sqlres)) {
                     $result[] = $tmp;
                 }
+                if (count($result) == 1 && $return_single_row == TRUE) {
+                    return $result[0];
+                }
             }
             //Если пустой результат
             if (isset($result)) {
-                // Обработка результатов SELECT. Если единичная строка, то вернем как STRING.
+                // Обработка результатов SELECT. Если единичная строка и колонка, то вернем как STRING.
                 if (count($result) == 1 && count($result[0]) == 1) {
                     foreach ($result as $value) {
                         foreach ($value as $key => $item) {
@@ -958,5 +961,40 @@ function contains($str, array $arr)
 
 function prepare_dir($path)
 {
-    is_dir($path) ? true : mkdir($path, 0777, TRUE);
+    if (is_dir($path)) {
+        return TRUE;
+    } else {
+        if (@mkdir($path, 0777, TRUE)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+}
+
+/** Возвращает массив с imageinfo если картинка, если нет файла или не картинка - false.
+ * @param $local_img_path
+ * @return array|bool
+ */
+function is_image($local_img_path)
+{
+    if (@is_file($local_img_path)) {
+        if ($tmp = @getimagesize($local_img_path)) {
+            if (@is_array($tmp)) {
+                return $tmp;
+            } else {
+                return FALSE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+function get_table_max_id($table_name, $column_name = 'id', $db_name = FALSE)
+{
+    if ($db_name == FALSE) {
+        return dbquery("SELECT MAX(`$column_name`) FROM `$table_name`;");
+    } else {
+        return dbquery("SELECT MAX(`$column_name`) FROM `$db_name`.`$table_name`;");
+    }
 }
