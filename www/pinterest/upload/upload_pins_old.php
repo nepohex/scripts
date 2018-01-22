@@ -2,8 +2,9 @@
 /**
  * Created by PhpStorm.
  * User: Max
- * Date: 19.01.2018
- * Time: 19:45
+ * Date: 29.12.2017
+ * Time: 0:52
+ * Многопоточный скрипт для заливки под разными аккаунтами картинок из Instagram > Pinterest из базы
  */
 //todo merge synonims и разные словоформы
 //todo get multiple acc
@@ -39,70 +40,81 @@ $pin_pwd = 'xmi0aJByoB';
 //$z = words_weight($words_count, $valid_descs);
 
 ### Settings ###
+//например https://www.instagram.com/rapunzel_ekb/ (http:// вначале и / слеш на концце)
+$source_url = 'https://www.instagram.com/rapunzel_ekb/'; //Будет добавлен как новый источник, надо вручную править потом количество
+$img_dir = 'f:\Dumps\instagram\rapunzel_ekb\thumb';
 $get_related_images = 100; //сколько похожих фоток доставать, по стандарту идет 50, из них получается 5-6 валидных описаний всего.
 $get_max_description = 50; //максимальная длина описания фотки (со всеми спец символами) которую будем использовать для определения тематики
-$base_img_dir = 'f:\Dumps\instagram\all_inst\\';
+
+////Кусок кода заливки картинок в базу
+// Запускать только когда новый источник добавляем, иначе будет куча попыток заливки в базу.
+//$files = array_slice(scandir($img_dir), 2);
+//$sourceid = pins_get_sourceid($source_url);
+//foreach ($files as $item) {
+//    dbquery("INSERT INTO `image_index`.`instagram_images`  (`fname`, `sourceid`) VALUES ('$item', $sourceid);");
+//}
+
+//
+////Кусок кода для выставления sourceid - вручную запускать и отлаживать когда надо
+//$files = array_slice(scandir('f:\Dumps\instagram\rapunzel_ekb\thumb'), 2);
+//foreach ($files as $item) {
+//    if ($id = dbquery("SELECT `id` FROM `image_index`.`instagram_images` WHERE `fname` = '$item'")) {
+//        dbquery("UPDATE `image_index`.`instagram_images` SET `sourceid` = 2 WHERE `id` = $id;");
+//    }
+//}
 
 //done
 //Взял топовые 5к фраз с 5 сайтов из консоли google webmaster, отсортировал по словам которые употребляются чаще всего
 $allowed_words = file('../debug_data/good_words.txt', FILE_IGNORE_NEW_LINES);
 
-//$pin_acc = get_pin_acc();
+$pin_acc = get_pin_acc();
 $login_success = pinterest_login_until();
-//pinterest_local_login('b.toy@mail.ru','xom94ok');
 $board_id = get_board_id($bot);
 
 $i = 0;
 
 while ($files = get_files_to_post(110)) {
     foreach ($files as $key => $file) {
-        list($instagram_login, $img_id, $img_name) = $file;
         $i++;
         if (!$file['posted']) {
-            $fname = $base_img_dir . $instagram_login . '/thumb/' . $img_name;
-            if (is_file($fname)) {
-                $pinInfo = $bot->pins->create($fname, $board_id, '');
-                if ($pinid = $pinInfo['id']) {
-                    $files[$key]['posted'] = 1;
-                    $c_pins_created += 1;
-                    dbquery("INSERT INTO `$db_name`.`$tname` (`pinid`, `img_id`) VALUES ('$pinid', '$img_id');");
-                    dbquery("UPDATE `image_index`.`instagram_images` SET `posted` = '1' WHERE `id` = '$img_id';");
-                    foreach ($bot->pins->related($pinid, $get_related_images) as $pin) {
-                        if ($desc = pin_get_desc($pin, $get_max_description)) {
-                            $descs[] = $desc;
-                        }
+            $pinInfo = $bot->pins->create($img_dir . '/' . $file[1], $board_id, '');
+            if ($pinid = $pinInfo['id']) {
+                $files[$key]['posted'] = 1;
+                $c_pins_created += 1;
+                dbquery("INSERT INTO `$db_name`.`$tname` (`pinid`, `fname`, `sourceid`) VALUES ('$pinid', '$file[1]',1);");
+                dbquery("UPDATE `image_index`.`instagram_images` SET `posted` = '1' WHERE `id` = '$file[0]';");
+                foreach ($bot->pins->related($pinid, $get_related_images) as $pin) {
+                    if ($desc = pin_get_desc($pin, $get_max_description)) {
+                        $descs[] = $desc;
                     }
-                    if (!is_array($descs)) {
-                        //Ничего не выводит, просто нет похожих пинов.
+                }
+                if (!is_array($descs)) {
+                    //Ничего не выводит, просто нет похожих пинов.
 //                echo2($bot->getLastError());
-                    } else {
-                        $valid_descs = pin_filter_descs($descs, $allowed_words);
-                        if (is_array($valid_descs)) {
-                            $tmp = serialize(array_map('addslashes', $descs));
-                            $words_count = count_words($valid_descs);
-                            $auto_name = words_weight($words_count, $valid_descs);
-                            if ($auto_name) {
-                                $c_pins_named += 1;
-                                dbquery("UPDATE `$db_name`.`$tname` SET `related_descriptions` = '$tmp', `auto_name` = '$auto_name' WHERE `img_id` = $img_id;");
-                            } else {
-                                dbquery("UPDATE `$db_name`.`$tname` SET `related_descriptions` = '$tmp' WHERE `img_id` = $img_id;");
-                            }
+                } else {
+                    $valid_descs = pin_filter_descs($descs, $allowed_words);
+                    if (is_array($valid_descs)) {
+                        $tmp = serialize(array_map('addslashes', $descs));
+                        $words_count = count_words($valid_descs);
+                        $auto_name = words_weight($words_count, $valid_descs);
+                        if ($auto_name) {
+                            dbquery("UPDATE `$db_name`.`$tname` SET `related_descriptions` = '$tmp', `auto_name` = '$auto_name' WHERE `pinid` = '$pinid';");
+                        } else {
+                            dbquery("UPDATE `$db_name`.`$tname` SET `related_descriptions` = '$tmp' WHERE `pinid` = '$pinid';");
                         }
                     }
-                } else {
-                    $c_accs += 1;
-                    echo2($bot->getLastError());
-                    echo2("#$c_accs $pin_acc[0]:$pin_acc[1] Бан на час, в час 100 пинов можно только загрузить.");
-                    get_pin_acc(1, $pin_acc);
-                    $login_success = pinterest_login_until();
-                    $board_id = get_board_id($bot);
                 }
             } else {
-                dbquery("UPDATE `image_index`.`instagram_images` SET `deleted` = 1 WHERE `id` = $img_id;");
+                $c_accs += 1;
+                echo2($bot->getLastError());
+                echo2("#$c_accs $pin_acc[0]:$pin_acc[1] Бан на час, в час 100 пинов можно только загрузить.");
+                get_pin_acc(1, $pin_acc);
+                $login_success = pinterest_login_until();
+                $board_id = get_board_id($bot);
             }
             unset($descs);
             if ($i % 10 == 0) {
-                echo_time_wasted($i, "Создали всего пинов $c_pins_created , подписали $c_pins_named");
+                echo_time_wasted($i, "Создали всего пинов $c_pins_created");
             }
         }
     }
@@ -124,12 +136,10 @@ get_pin_acc(1, $pin_acc);
 
 function get_files_to_post($count = 50)
 {
-//    $last_posted = dbquery("SELECT `id`,`sourceid`,`fname` FROM `image_index`.`instagram_images` WHERE `posted` = 0 ORDER BY `id` DESC LIMIT $count;", TRUE);
-    $last_posted = dbquery("SELECT `t2`.`url`, `t1`.`id`, `t1`.`fname` FROM `instagram_images` AS `t1` JOIN `instagram_sources` AS `t2`
-ON `t1`.sourceid = `t2`.`id` WHERE `t2`.`clean` = 1 AND `t1`.`posted` = 0 AND `t1`.`deleted` = 0 ORDER BY `t1`.`id` ASC LIMIT $count;", TRUE);
+    $last_posted = dbquery("SELECT `id`,`fname` FROM `image_index`.`instagram_images` WHERE `posted` = 0 ORDER BY `id` DESC LIMIT $count;", TRUE);
     if ($last_posted) {
         foreach ($last_posted as $item) {
-            $ids[] = $item[1];
+            $ids[] = $item[0];
         }
         $id = implode(",", $ids);
         dbquery("UPDATE `image_index`.`instagram_images` SET `posted` = '2' WHERE `id` IN ($id);");
@@ -169,8 +179,6 @@ function get_pin_acc($finish = FALSE, $login_data = FALSE, $bad_acc = FALSE)
     }
     if ($bad_acc) {
         $login_data = implode(":", $login_data);
-        $tmp = dbquery("SELECT `used` FROM `pinterest`.`proxy2` WHERE `pin_acc` = '$login_data';");
-        echo2("=== Аккаунт $login_data сменил статус $tmp => 3 (не логинится!)");
         dbquery("UPDATE `pinterest`.`proxy2` SET `used` = 3, `finish_time` = NOW() WHERE `pin_acc` = '$login_data';");
         return FALSE;
     }
@@ -276,11 +284,8 @@ function pinterest_local_login($pin_acc, $pin_pwd)
 {
     global $bot;
     $bot = PinterestBot::create();
-    $bot->auth->login($pin_acc, $pin_pwd, FALSE);
-//    if ($bot->user->isBanned()) {
-//        echo2("BANNED! Local IP and $pin_acc:$pin_pwd");
-//    }
-    if ($bot->auth->isLoggedIn() && $bot->getLastError() == FALSE) {
+    $bot->auth->login($pin_acc, $pin_pwd);
+    if ($bot->auth->isLoggedIn()) {
         echo2("login success! Local IP and $pin_acc:$pin_pwd");
         return TRUE;
     } else {
