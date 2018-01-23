@@ -942,7 +942,7 @@ function count_strlen_html($string, $return_content = FALSE)
     if ($return_content) {
         return $string;
     } else {
-        return strlen($string);
+        return mb_strlen($string); //Считает реальное количество СИМВОЛОВ, а не байт и т.п.
     }
 }
 
