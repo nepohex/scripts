@@ -35,3 +35,14 @@ nail
 color
 brow
 manicure
+before
+after
+lips
+lipstick
+eyes
+makeup
+evening
+fashion
+nails
+hairstyle
+hairstyles

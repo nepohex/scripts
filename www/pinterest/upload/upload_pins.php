@@ -13,8 +13,9 @@ use seregazhuk\PinterestBot\Factories\PinterestBot;
 
 error_reporting('E_ERROR');
 //$console_mode = 1;
-$fp_log = 'debug_data/log.txt';
+$fp_log = __DIR__ . '/debug_data/' . time() . '_log.txt';
 $debug_mode = 1;
+$double_log = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'image_index';
@@ -22,6 +23,7 @@ $tname = 'instagram';
 mysqli_connect2($db_name);
 $pin_acc = 'inga.tarpavina.89@mail.ru';
 $pin_pwd = 'xmi0aJByoB';
+prepare_dir(dirname($fp_log));
 
 //$descs = array(
 //    3 => 'Ponytail Styles',
@@ -45,7 +47,7 @@ $base_img_dir = 'f:\Dumps\instagram\all_inst\\';
 
 //done
 //Взял топовые 5к фраз с 5 сайтов из консоли google webmaster, отсортировал по словам которые употребляются чаще всего
-$allowed_words = file('../debug_data/good_words.txt', FILE_IGNORE_NEW_LINES);
+$allowed_words = file(__DIR__ . '/debug_data/good_words.txt', FILE_IGNORE_NEW_LINES);
 
 //$pin_acc = get_pin_acc();
 $login_success = pinterest_login_until();

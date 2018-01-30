@@ -25,7 +25,7 @@ mysqli_connect2($db_name);
 
 $get_images = 3000; //Сколько фоток получить из аккаунта
 $sleep = 0; //В миллисекнудах запросы к инсте
-$logins = array('ryabchik.moscow','alena__famina','kalganovanasy','lenabogucharskaya','makeup_anme','talia.stylist','artstreetmoscow', 'timurbegichevstudio', 'gulevich.vladimir', '_yunusova_ekaterina', 'apropomakeup', 'matildainozemtseva', 'wazhmulya', 'spletnitca_com'
+$logins = array('stepanova_ek', 'kontierparis.tsvetnoy', 'strigasalon', 'alexkontier', 'victor.nadolsky', 'archi_svaryan_', 'allata_hair', 'dmitriy.oskin', 'kawaicat_salon', 'sheremetyevanton', 'toniandguy_moscow', 'polyninaluba', 'viktor__goncharenko', 'bugaevandrey', 'jul.bo__hair', 'studio_vg', 'steve_spb', 'mmtrfmv',  'hairgurunn', 'ryabchik.moscow','alena__famina','kalganovanasy','lenabogucharskaya','makeup_anme','talia.stylist','artstreetmoscow', 'timurbegichevstudio', 'gulevich.vladimir', '_yunusova_ekaterina', 'apropomakeup', 'matildainozemtseva', 'wazhmulya', 'spletnitca_com'
 , 'anastasy_d', 'alexeeva_victoria', 'afro.style.dp', 'hair_stylist_l.mostovich', 'ssellenna', 'naida_style', 'vlasova_elena_guru', 'olesy88', 'schwarzkopfproru', 'xenia_stylist', 'ayvazzovsky'
 , 'annapudra', 'nastya_mokk', 'marianna_hair_stylist', 'dyadkinaira', 'nastty_lisicina', 'bogdanovich.studio', 'elstile.models', 'eksnagustenko', 'olganova_mua','elstilespb');
 
