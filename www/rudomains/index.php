@@ -45,6 +45,6 @@ function regru_put_domaindata($array, $registrant_id)
     $tmp2 = explode('.', $tmp2);
     $tmp2 = array_last($tmp2);
     $tmp = implode("','", $array);
-    $query = "INSERT INTO `dev_rudomains`.`domains` VALUES ('','$tmp','$tmp2');";
+    $query = "INSERT INTO `dev_rudomains`.`domains` VALUES ('','$tmp','$tmp2','');";
     dbquery($query, null, null, null, 1);
 }
