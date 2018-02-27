@@ -998,3 +998,73 @@ function get_table_max_id($table_name, $column_name = 'id', $db_name = FALSE)
         return dbquery("SELECT MAX(`$column_name`) FROM `$db_name`.`$table_name`;");
     }
 }
+
+/** Mode 1 = check proxy, Mode 2 = return result
+ * @param $ip_port
+ * @param int $timeout
+ * @param int $mode
+ * @param bool $log
+ * @param bool $pwd
+ * @param bool $cookie
+ * @return bool
+ */
+function proxy_test($ip_port, $timeout = 2, $mode = 1, $log = FALSE, $pwd = FALSE, $cookie = FALSE)
+{
+// Тест через прокси
+    $ch = curl_init();
+    $url = 'http://ya.ru';
+    curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
+    curl_setopt($ch, CURLOPT_HEADER, 0); // пустые заголовки
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // возвратить то что вернул сервер
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);// таймаут4
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
+    curl_setopt($ch, CURLOPT_PROXY, $ip_port);
+    if ($log) {
+        $log_pwd = $log . ':' . $pwd;
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $log_pwd);
+    }
+    if ($cookie) {
+        curl_setopt($ch, CURLOPT_COOKIEJAR, $ip_port . 'cookie.txt'); // сохранять куки в файл
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $ip_port . 'cookie.txt');
+    }
+//    curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
+    $data = curl_exec($ch);
+    if ($data === FALSE) {
+        return FALSE;
+    } else if ($mode == 2) {
+        return $data;
+    } else {
+        return TRUE;
+    }
+}
+
+function proxy_get_data($ip_port, $url = '', $timeout = 3, $log = FALSE, $pwd = FALSE, $cookie = FALSE)
+{
+    if ($url == FALSE ) {
+        echo2 ("Не задан URL для CURL!!!");
+    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
+    curl_setopt($ch, CURLOPT_HEADER, 0); // пустые заголовки
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // возвратить то что вернул сервер
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // следовать за редиректами
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);// таймаут4
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// просто отключаем проверку сертификата
+    curl_setopt($ch, CURLOPT_PROXY, $ip_port);
+    if ($log) {
+        $log_pwd = $log . ':' . $pwd;
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $log_pwd);
+    }
+    if ($cookie) {
+        curl_setopt($ch, CURLOPT_COOKIEJAR, $ip_port . 'cookie.txt'); // сохранять куки в файл
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $ip_port . 'cookie.txt');
+    }
+//    curl_setopt($ch, CURLOPT_POST, 1); // использовать данные в post
+    $data = curl_exec($ch);
+    if ($data === FALSE) {
+        return FALSE;
+    } else {
+        return $data;
+    }
+}
