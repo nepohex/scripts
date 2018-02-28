@@ -26,10 +26,9 @@ $SocksClient = new \Socks5Socket\Client();
 //$tmp = whois_socks_proxy($SocksClient, $proxy, $tld_json, $domain);
 
 
-
 /** Поддержка нескольких серверов под каждую зону, рандомный порядок.
  * @param class $Client
- * @param mixed $proxy ip:port:login:pwd
+ * @param mixed $proxy Array Or String ip:port:login:pwd
  * @param json $tld_json decoded
  * @param $domain nohttp
  * @return array|mixed
@@ -45,8 +44,13 @@ function whois_socks_proxy($Client, $proxy, $tld_json, $domain)
     //Получаем сервер для коннекта по данной зоне
     $whois_server_class = tmp_tld_get_json_data($tld_json, $tmp);
 
+    //Если не нашлось Сервера для доменной зоны
+    if ($whois_server_class == FALSE) {
+        return 'NO TLD SERVER';
+    }
     //Нагородил чтобы под некоторые зоны было несколько серверов.
     if (is_object($whois_server_class->whoisServer)) {
+        //Преобразование элементов класса в массив
         $server = get_object_vars($whois_server_class->whoisServer);
         shuffle($server);
         $server = end($server);
@@ -76,4 +80,5 @@ function tmp_tld_get_json_data(array $json, $tld)
             return $data;
         }
     }
+    return FALSE;
 }
