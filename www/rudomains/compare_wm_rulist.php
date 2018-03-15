@@ -52,17 +52,19 @@ $allowed_zone = array('ru', 'su'); //Список доменных зон по �
 
 #### Алго 2
 $query1 = "SELECT `id`,`domain` FROM `dev_rudomains`.`domains` WHERE `webomer_checked` = 0 AND `id` >= 50000 AND `id` <= 100000;";
-$query1 = "SELECT `id`,`domain` FROM `dev_rudomains`.`domains` WHERE `webomer_checked` = 0 AND `id` >= 50000 AND `id` <= 550000;";
-$query1 = "SELECT `id`,`domain` FROM `dev_rudomains`.`domains` WHERE `webomer_checked` = 0;";
+$query1 = "SELECT `id`,`domain` FROM `dev_rudomains`.`domains` WHERE `tld_id` IN (2,41) AND `id` >= 5000000 AND `id` <= 5700000;";
+//$query1 = "SELECT `id`,`domain` FROM `dev_rudomains`.`domains` WHERE `webomer_checked` = 0 AND `id` >= 50000 AND `id` <= 550000;";
+//$query1 = "SELECT `id`,`domain` FROM `dev_rudomains`.`domains` WHERE `webomer_checked` = 0;";
 $res = mysqli_query($link, $query1);
 $i = 1;
 while ($row = mysqli_fetch_assoc($res)) {
     $i++;
 //    echo_time_wasted($i, "GET NEXT ROW");
-    $tmp = dbquery("SELECT `id` FROM `dev_rudomains`.`webomer` WHERE `whois_checked` != '1' AND `tld_id` IN ('2','41') AND `site_url` = '$row[domain]';");
+//    $tmp = dbquery("SELECT `id` FROM `dev_rudomains`.`webomer` WHERE `whois_checked` != '1' AND `tld_id` IN ('2','41') AND `site_url` = '$row[domain]';");
+    $tmp = dbquery("SELECT `id` FROM `dev_rudomains`.`webomer` WHERE `tld_id` IN ('2','41') AND `site_url` = '$row[domain]';");
 //    echo_time_wasted($i, "SELECT WEBOMER");
     if ($tmp) {
-        $query[] = "UPDATE `dev_rudomains`.`domains` SET `webomer_id` = '$row[id]', `webomer_checked` = '1' WHERE `id` ='$row[id]';";
+        $query[] = "UPDATE `dev_rudomains`.`domains` SET `webomer_id` = '$tmp', `webomer_checked` = '1' WHERE `id` ='$row[id]';";
         $query[] = "UPDATE `dev_rudomains`.`webomer` SET `whois_checked` = '1' WHERE `id` = $tmp;";
     } else {
         $query[] = "UPDATE `dev_rudomains`.`domains` SET `webomer_checked` = '1' WHERE `id` ='$row[id]';";
