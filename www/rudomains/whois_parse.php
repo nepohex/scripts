@@ -19,7 +19,7 @@ $proxy_list = file('f:\tmp\socks_proxy.txt', FILE_IGNORE_NEW_LINES);
 
 //$tmp = preg_match_all('/Creation Date.*([0-9]{4}-[0-9]{2}-[0-9]{2})/i', $tmp, $tmp2);
 
-$query1 = "SELECT * FROM `webomer` WHERE `whois_checked` = 0 AND `place` < 300000;";
+$query1 = "SELECT * FROM `webomer` WHERE `whois_checked` = 0 AND `place` < 300000 ORDER BY `place` ASC;";
 $res = mysqli_query($link, $query1);
 $i = 1;
 while ($row = mysqli_fetch_assoc($res)) {
