@@ -4,6 +4,21 @@
  * User: Max
  * Date: 15.03.2018
  * Time: 19:39
+ * Импорт контента (предварительно вручную создать рубрики)
+ * КОСТЫЛИ:
+ * 1. http://zapdoc.ru/ekstrennaya-patologiya-organov-bryushnoj-polosti/appendiczit.-gde-on-i-kak-lechit.html
+ * убрать точку! новый урл без точки, редирект в HTACCESS
+ * Все остальные урлы вручную прочекал все ок.
+ *
+ * 2. 2 поста в базе почему то дублируют URL, видимо старая-новая версия, актуальную определил по количеству комментов к ней
+ * в базе вручную выставил статус DRAFT вместо PUBLISH
+ * u-obraznaya-flegmona-kisti-ili-pochemu-obshhij-analiz-krovi-berut-iz-chetvertogo-palca
+ * lechenie-vrosshego-nogtya-narodnymi-sredstvami
+ *
+ * 3. /zadat-vopros.html > /voprosy/zadat-vopros-hirurgu.html
+ * Был пост где задают вопросы, хотел сделать страницей - не получается, комменты не выводятся, только постом можно.
+ * Пришлось создать отдельную рубрику и под нее пост.
+ * /voprosy/zadat-vopros-hirurgu.html
  */
 require_once '../new/includes/functions.php';
 ini_set("ERROR_REPORTING", E_ALL);
@@ -24,7 +39,8 @@ WHERE
 `uri` NOT LIKE 'auth/%' 
 AND `uri` NOT LIKE 'tech/%' 
 AND `content` != '' 
-AND `class_key` = 'TicketsSection'
+#AND `class_key` = 'TicketsSection'
+AND `template` = 4
 AND `t2`.tmplvarid = 1
 ORDER BY `t1`.`id` ASC;";
 
