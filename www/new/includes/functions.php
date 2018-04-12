@@ -221,6 +221,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
         $sqlres = mysqli_query($link, $queryarr);
         if ($error = mysqli_error($link) && $stfu == false) {
             echo2("Mysqli error $error в запросе $queryarr");
+            return FALSE;
         }
         if (strstr($queryarr, "SELECT")) {
             if ($fetch_row_not_assoc) {
@@ -1041,8 +1042,8 @@ function proxy_test($ip_port, $timeout = 2, $mode = 1, $log = FALSE, $pwd = FALS
 
 function proxy_get_data($ip_port, $url = '', $timeout = 3, $log = FALSE, $pwd = FALSE, $cookie = FALSE)
 {
-    if ($url == FALSE ) {
-        echo2 ("Не задан URL для CURL!!!");
+    if ($url == FALSE) {
+        echo2("Не задан URL для CURL!!!");
     }
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url); // отправляем на
@@ -1067,4 +1068,14 @@ function proxy_get_data($ip_port, $url = '', $timeout = 3, $log = FALSE, $pwd = 
     } else {
         return $data;
     }
+}
+
+//function last($array)
+//{
+//    return end($array);
+//}
+
+function first($array)
+{
+    return array_shift($array);
 }
