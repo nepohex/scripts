@@ -1000,10 +1000,12 @@ function get_table_max_id($table_name, $column_name = 'id', $db_name = FALSE)
     }
 }
 
-//function last($array)
-//{
-//    return end($array);
-//}
+if (!function_exists('last')) {
+    function last($array)
+    {
+        return end($array);
+    }
+}
 
 function first($array)
 {
