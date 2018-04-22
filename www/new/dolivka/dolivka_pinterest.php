@@ -4,14 +4,17 @@
  * User: Max
  * Date: 01.01.2018
  * Time: 23:04
+ * 1. Сначала нужно сохранить Debug Data (исходные данные таблиц если что то пойдет не так), все последующие прогоны надо закомментить этот блок.
  * FOR PHP 7.0 (list!)
  * Дозалитым постам выставим статус 'private' вместо 'publish' чтобы сделать по ним выборку и добавить им spintax
  */
 include "../includes/functions.php";
 //error_reporting('E_ERROR');
 //$console_mode = 1;
-$fp_log = 'log.txt';
+$fp_log = __DIR__ . '/debug_data/log.txt';
+prepare_dir(dirname($fp_log));
 $debug_mode = 1;
+$double_log = 1;
 $db_pwd = '';
 $db_usr = 'root';
 $db_name = 'dev_wp_dolivka';
@@ -25,9 +28,9 @@ prepare_dir($files_dir);
 $post_status = 'private';
 
 //debug to clean if needed
-//$debug_data['wp_posts'] = get_table_last_id('wp_posts', 'id', $db_name);
-//$debug_data['wp_postmeta'] = get_table_last_id('wp_postmeta', 'meta_id', $db_name);
-//$debug_data['wp_term_relationships'] = get_table_last_id('wp_term_relationships', 'object_id', $db_name);
+//$debug_data['wp_posts'] = get_table_max_id('wp_posts', 'id', $db_name);
+//$debug_data['wp_postmeta'] = get_table_max_id('wp_postmeta', 'meta_id', $db_name);
+//$debug_data['wp_term_relationships'] = get_table_max_id('wp_term_relationships', 'object_id', $db_name);
 //file_put_contents("debug_data.txt", serialize($debug_data));
 //DELETE
 //$debug_data = unserialize(file_get_contents("debug_data.txt"));
@@ -122,7 +125,12 @@ function gen_image_postmeta($img_full_path, $upload_path_img_dir, $img_data = FA
 //get imgs
 function dolivka_get_autoname_pinterest_imgs($limit = 1000)
 {
-    return dbquery("SELECT `id`,`fname`,`auto_name` FROM `image_index`.`instagram` WHERE `auto_name` IS NOT NULL GROUP BY `auto_name` ORDER BY `id` ASC LIMIT $limit;", TRUE);
+    return dbquery("SELECT `t1`.`id`, `t1`.`img_id`, `t1`.`auto_name`, `t2`.`fname`, `t3`.`url` FROM `image_index`.`instagram` AS `t1`
+JOIN `image_index`.`instagram_images` AS `t2` ON `t1`.`img_id` = `t2`.`id` 
+JOIN `image_index`.`instagram_sources` AS `t3` ON `t2`.`sourceid` = `t3`.`id`
+WHERE `t1`.`auto_name` !='' ORDER BY RAND() LIMIT $limit;", TRUE);
+//OLD
+//    return dbquery("SELECT `id`,`fname`,`auto_name` FROM `image_index`.`instagram` WHERE `auto_name` IS NOT NULL GROUP BY `auto_name` ORDER BY `id` ASC LIMIT $limit;", TRUE);
 }
 
 function gen_post_name($image_id, $post_title, $bad_symbols = NULL)
