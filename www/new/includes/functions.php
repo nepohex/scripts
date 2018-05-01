@@ -236,8 +236,10 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
                 while ($tmp = mysqli_fetch_assoc($sqlres)) {
                     $result[] = $tmp;
                 }
-                if (count($result) == 1 && $return_single_row == TRUE) {
-                    return $result[0];
+                if (isset($result)) {
+                    if (count($result) == 1 && $return_single_row == TRUE) {
+                        return $result[0];
+                    }
                 }
             }
             //Если пустой результат
@@ -581,7 +583,18 @@ class Spintax
 }
 
 //Упрощенная функция для генерации текста
-function gen_text($spintax_class, $spec_separator, $spin_fragments_separator, $spin_text, $title, $stlen = 0, $before_spin_html = '<div class="text-content">', $after_spin_html = '</div>')
+/**
+ * @param $spintax_class
+ * @param string $spec_separator доп сепаратор перед началом элемента
+ * @param $spin_fragments_separator если будет составной спин текст из нескольких шаблонов, какой спераратор между ними вставлять, например <br>
+ * @param $spin_text что спинить
+ * @param $title В тексте есть будет %post_title% на что заменить
+ * @param int $stlen минимальная длина текста чтобы считать текст завершенным
+ * @param string $before_spin_html
+ * @param string $after_spin_html
+ * @return mixed|string
+ */
+function gen_text($spintax_class, $spec_separator = '', $spin_fragments_separator, $spin_text, $title, $stlen = 0, $before_spin_html = '<div class="text-content">', $after_spin_html = '</div>')
 {
     $tmp = '';
     $tmp .= $spec_separator;
@@ -1010,4 +1023,142 @@ if (!function_exists('last')) {
 function first($array)
 {
     return array_shift($array);
+}
+
+/** Считает слова в строчке или массиве и возвращает ассоциативный массив где ключ - слово, значение - количество употреблений.
+ * @param $data
+ * @param string $words_separator
+ * @return array
+ */
+function count_words($data, $words_separator = ' ')
+{
+    $words_used = array();
+    if (is_array($data)) {
+        foreach ($data as $item) {
+            $words = explode($words_separator, $item);
+            foreach ($words as $word) {
+                $tmp = strtolower($word);
+                if (@$words_used[$tmp]) {
+                    $words_used[$tmp]++;
+                } else if ($tmp !== FALSE) {
+                    $words_used[$tmp] = 1;
+                }
+            }
+        }
+    } else {
+        $words = explode($words_separator, $data);
+        if (is_array($words)) {
+            foreach ($words as $word) {
+                $tmp = strtolower($word);
+                if (@$words_used[$tmp]) {
+                    $words_used[$tmp]++;
+                } else if ($tmp !== FALSE) {
+                    $words_used[$tmp] = 1;
+                }
+            }
+        } else {
+            return $words_used['$data'];
+        }
+    }
+    arsort($words_used);
+    return $words_used;
+}
+
+/** Суммирует значения элементов ассоциативных массивов. Можно на вход в цикле подавать $final к которому будут добавляться данные если нужно суммировать много массивов.
+ * @param $input
+ * @param $final
+ * @return mixed
+ */
+function named_arrays_summ($input, $final)
+{
+    array_walk_recursive($input, function ($item, $key) use (&$final) {
+        $final[$key] = isset($final[$key]) ? $item + $final[$key] : $item;
+    });
+    arsort($final);
+    return $final;
+}
+
+/** Генерит массив Image Postmeta для заливки в WP.
+ * @param $img_full_path Полный локальный путь к картинке.
+ * @param $upload_path_img_dir Путь в WP относительный начиная с /wp-content/
+ * @param bool $img_data Массив с ответом функции getimagesize или пустое значение с данными о картинке
+ * @param int $crop_width Размеры кропов-тумбов
+ * @param int $crop_height
+ * @return mixed
+ */
+function gen_image_postmeta($img_full_path, $upload_path_img_dir, $img_data = FALSE, $crop_width = 150, $crop_height = 150)
+{
+    //Это просто пример который будем использовать в PostMeta
+    $exmpl = unserialize('a:5:{s:5:"width";i:239;s:6:"height";i:239;s:4:"file";s:18:"2016/11/podves.jpg";s:5:"sizes";a:1:{s:9:"thumbnail";a:4:{s:4:"file";s:18:"podves-150x150.jpg";s:5:"width";i:150;s:6:"height";i:150;s:9:"mime-type";s:10:"image/jpeg";}}s:10:"image_meta";a:12:{s:8:"aperture";s:1:"0";s:6:"credit";s:0:"";s:6:"camera";s:0:"";s:7:"caption";s:0:"";s:17:"created_timestamp";s:1:"0";s:9:"copyright";s:0:"";s:12:"focal_length";s:1:"0";s:3:"iso";s:1:"0";s:13:"shutter_speed";s:1:"0";s:5:"title";s:0:"";s:11:"orientation";s:1:"0";s:8:"keywords";a:0:{}}}');
+    if (@is_array($img_data)) {
+        $tmp2 = $img_data;
+    } else {
+        $tmp2 = @getimagesize($img_full_path);
+    }
+    if (is_array($tmp2)) {
+        $width = $tmp2[0];
+        $height = $tmp2[1];
+        $tmp = explode(".", basename($img_full_path));
+        $cropped_img_name = $tmp[0] . "-" . $crop_width . "x" . $crop_height . '.' . $tmp[1];
+        $array_to_postmeta['width'] = $width;
+        $array_to_postmeta['height'] = $height;
+        //В Postmeta нужен в формате 2017/09/img_name.jpg , иначе Udinra Sitemap неправильные ссылки генерит.
+        $array_to_postmeta['file'] = $upload_path_img_dir;
+        $array_to_postmeta['sizes']['thumbnail']['file'] = $cropped_img_name;
+        $array_to_postmeta['sizes']['thumbnail']['width'] = $crop_width;
+        $array_to_postmeta['sizes']['thumbnail']['height'] = $crop_height;
+        $array_to_postmeta['sizes']['thumbnail']['mime_type'] = $tmp2['mime'];
+        $array_to_postmeta['image_meta'] = $exmpl['image_meta'];
+        return $array_to_postmeta;
+    } else {
+        return FALSE;
+    }
+}
+
+/** Простой генератор тайтла из названия картинки например, удаляет мусор (не слова, цифры, лишние пробелы)
+ * @param $string Из чего генерить тайтл (например название картинки, до точки)
+ * @param string $add_word Что добавить в конец строки (обычно сезон)
+ * @param bool $del_numbers Удалять ли цифры из строки (если до этого прогоняли по словарю - нет смысла)
+ * @return mixed|string
+ */
+function gen_easy_title($string, $add_word = '', $del_numbers = FALSE)
+{
+    if ($del_numbers) {
+        $regexp = array('/(\W|[_])+/', '/\s+/', '/\d/');
+    } else {
+        $regexp = array('/(\W|[_])+/', '/\s+/');
+    }
+    $string = preg_replace($regexp, ' ', $string);
+    $string = trim($string);
+    if ($add_word) {
+        $string = ucwords($string) . ' ' . $add_word;
+    } else {
+        $string = ucwords($string);
+    }
+    return $string;
+}
+
+function gen_post_name($image_id, $post_title, $bad_symbols = NULL)
+{
+    $post_title = str_to_url($post_title);
+    $post_name = $image_id . "_" . $post_title;
+    return $post_name;
+}
+
+/** Возвращает ID категории которая соответствует названию.
+ * @param $db_name
+ * @param $catname
+ * @return array|int
+ */
+function get_catid_by_name($db_name, $catname)
+{
+    if ($res = dbquery("SELECT `term_id` FROM `$db_name`.`wp_terms` WHERE `name` = '$catname' OR `slug` = '$catname' LIMIT 1;")) {
+        return dbquery("SELECT `term_taxonomy_id` FROM `$db_name`.`wp_term_taxonomy` WHERE `term_id` = $res;");
+    } else {
+        dbquery("INSERT INTO `$db_name`.`wp_terms` (`name`,`slug`) VALUES ('$catname','$catname');");
+        $res = dbquery("SELECT MAX(`term_id`) FROM `$db_name`.`wp_terms`;");
+        dbquery("INSERT INTO `$db_name`.`wp_term_taxonomy` (`term_id`, `taxonomy`) VALUES ($res, 'category');");
+        $res = dbquery("SELECT `term_taxonomy_id` FROM `$db_name`.`wp_term_taxonomy` WHERE `term_id` = $res;");
+        return $res;
+    }
 }
