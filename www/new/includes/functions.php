@@ -46,6 +46,10 @@ function mysqli_connect2($db_name = null, $db_host = 'localhost', $db_usr = 'roo
     }
 }
 
+/** Возвращает human readable размер цифр в mb/gb и тп
+ * @param $memory_usage Байты
+ * @return string
+ */
 function convert($memory_usage)
 {
     $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
@@ -264,6 +268,7 @@ function dbquery($queryarr, $fetch_row_not_assoc = null, $return_affected_rows =
             return mysqli_affected_rows($link);
         }
     }
+    return FALSE;
 }
 
 /**
@@ -1161,4 +1166,13 @@ function get_catid_by_name($db_name, $catname)
         $res = dbquery("SELECT `term_taxonomy_id` FROM `$db_name`.`wp_term_taxonomy` WHERE `term_id` = $res;");
         return $res;
     }
+}
+
+function striposa($haystack, $needle, $offset = 0)
+{
+    if (!is_array($needle)) $needle = array($needle);
+    foreach ($needle as $query) {
+        if (stripos($haystack, $query, $offset) !== FALSE) return TRUE; // stop on first true result
+    }
+    return FALSE;
 }
