@@ -5,17 +5,59 @@
  * Date: 07.05.2018
  * Time: 23:22
  * Удаляет из папки файлы кропов, ищет фотографии и их в отделькую папку.
+ * !ВНИМАНИЕ!
+ * Скрипт надо каждый раздел отдельно проверять нужно ли прогонять или нет!
  */
 include "includes/functions.php";
 $double_log = 1;
 $debug_mode = 1;
 //BAD FILES
-$dir = 'f:\Dumps\downloaded sites\https@humananatomychart.us\wp-content\uploads\2018';
+$dir = 'f:\Dumps\downloaded sites\timeless-miracle.com\wp-content\uploads'; //без слеша
 //Bad CROPS sizes
 $crops = array('570x320', '150x150');
+//!! Внимание!!
+$mandatory_words = array('coloring', 'print', 'colouring', 'color-page', 'clipart'); //Обязательные слова которые должны быть в названии файла!
 
 $movedir = $dir . '/' . 'photos';
+$movedir2 = $dir . '/' . 'no_mandatory';
 prepare_dir($movedir);
+
+
+if ($mandatory_words) {
+    prepare_dir($movedir2);
+//Удаляем фотки где нет указанных слов как хороших, то есть удаляются все файлы в названии которых нет указанных слов.
+    $files = scandir($dir);
+    $i = 0;
+    foreach ($files as $item) {
+        $i++;
+        $fullpath = $dir . '/' . $item;
+        $tmp = mb_strlen($item);
+        if (mb_strlen(str_ireplace($mandatory_words, '', $item)) == $tmp) {
+            @rename($fullpath, $movedir . '/' . $item);
+//        unlink($fullpath);
+//        echo2($item);
+            @$bad_name++;
+        } else {
+            @$good_name++;
+        }
+    }
+    echo2("Прошли файлы по маске плохих слов, удалили все файлы которые не содержат обязательных слов ($bad_name) / $i");
+}
+
+echo2("Начинаем переименовывать файлы удаляя лишние символы из названий и мусорные слова типа 5345k345hjg");
+$files = scandir($dir);
+$i = 0;
+foreach ($files as $item) {
+    $i++;
+    $fullpath = $dir . '/' . $item;
+    $new_name = tmp_clean_fname($item);
+    if (is_file($dir . '/' . $new_name)) {
+        $new_name = '1-' . $new_name;
+    }
+    @rename($fullpath, $dir . '/' . $new_name);
+    $i % 5000 == 0 ? echo_time_wasted($i) : '';
+}
+echo2("Переименовали ");
 
 $files = scandir($dir);
 echo2("Подали на проверку файлов в папке " . count($files));
@@ -64,7 +106,7 @@ foreach ($files as $item) {
     $i++;
     $fullpath = $dir . '/' . $item;
     $tmp2 = @exif_read_data($fullpath);
-    print_r($tmp2);
+//    print_r($tmp2);
     if (@key_exists('Model', $tmp2)) {
         copy($fullpath, $movedir . '/' . $item);
         unlink($fullpath);
@@ -72,3 +114,17 @@ foreach ($files as $item) {
     }
 }
 echo2("Проверили файлы, определили как фотографии $m / $i , перенесли в папку $movedir");
+
+function tmp_clean_fname($name)
+{
+    $tmp2 = pathinfo($name);
+    $tmp = $tmp2['filename'];
+    $tmp = str_replace('_', ' ', $tmp);
+    $tmp = preg_replace('/[^\w\d]/i', ' ', $tmp); //Замена всех не слов пробелами
+    $tmp = preg_replace('/\b(?=(?:\w*\d){2,})(\w+)/i', '', $tmp); // Ищет все слова с 2мя цифрами и более, треш типа 04Df9319F700.
+    $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+    $tmp = trim($tmp);
+    $tmp = trim($tmp) . '.' . $tmp2['extension'];
+    $tmp = str_replace(' ', '-', $tmp);
+    return $tmp;
+}
