@@ -1143,8 +1143,13 @@ function gen_easy_title($string, $add_word = '', $del_numbers = FALSE)
     return $string;
 }
 
-function gen_post_name($image_id, $post_title, $bad_symbols = NULL)
+function gen_post_name($image_id, $post_title, $bad_symbols = NULL, $limit_words = NULL)
 {
+    if ($limit_words) {
+        $tmp = explode(' ', $post_title);
+        @$post_title = array_slice($tmp, 0, $limit_words);
+        $post_title = implode(' ', $post_title);
+    }
     $post_title = str_to_url($post_title);
     $post_name = $image_id . "_" . $post_title;
     return $post_name;

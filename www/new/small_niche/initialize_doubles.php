@@ -19,7 +19,7 @@ foreach ($project_dirs as $dir) {
 #####################################
 define('NO_WORDS_CHECK', TRUE); // не проверять на Bad_words , использовать вместо этого $bad_words2
 define('REPLACE_NUMBERS', TRUE); // удалять цифры из названий файлов и как следствие тайтлов
-$bad_words2 = array('www', 'http', 'blogspot', 'youtube');
+$bad_words2 = array('www' => '', 'http' => '', 'blogspot' => '', 'youtube' => '', 'jpg' => '', 'png' => '', 'jpeg' => '', 'bmp' => '', 'gif' => '', 'p' => '', 'com' => ''); // BAD WORD = KEY, not VALUE
 $theme = 3; //Тематика дублей которую берем из базы (2 = human body)
 $db_parts = unserialize(file_get_contents(__DIR__ . '/includes/split_DB_items_theme' . $theme . '.txt')); //Разбитая на части база split_base.php
 $part = 1; //Часть массива которую берем после разделения базы на количество сайтов скриптом split_base.php
@@ -33,12 +33,13 @@ $default_cat_slug = 'new'; // URL категории default (1)
 $menu_guid = 299999; //Не трогать
 $postmeta_id = 277776; // не трогать
 //$debug_data = unserialize(file_get_contents(__DIR__ . "/debug_data/badimgs_$theme" . "_$part" . ".txt"));
-is_file($includes_dir . 'body_facts2.txt') ? $facts = file($includes_dir . 'body_facts2.txt', FILE_IGNORE_NEW_LINES) : '';
-$spfp = 'spin.txt';
+$fpfp = 'color_facts_facts.txt';
+is_file($includes_dir . $fpfp) ? $facts = file($includes_dir . $fpfp, FILE_IGNORE_NEW_LINES) : '';
+$spfp = 'color_facts_texts_spin.txt';
 is_file($includes_dir . $spfp) ? $spins = file($includes_dir . $spfp, FILE_IGNORE_NEW_LINES) : exit("Не нашли файл спинов $includes_dir" . $spfp . " Выходим!");
 
-$pwd_log = fopen(__DIR__ . '/passwords_log.txt', "a");
-$installer_log = fopen(__DIR__ . '/installer_command.txt', "a");
+$pwd_log = fopen($includes_dir . '/passwords_log.txt', "a");
+$installer_log = fopen($includes_dir . '/installer_command.txt', "a");
 
 echo2("Начинаем выполнять скрипт " . $_SERVER['SCRIPT_FILENAME']);
 
@@ -73,19 +74,25 @@ if (is_array($facts)) {
 //region STEP 1 #GET KEYS # FILTER # GET TOP WORDS
 ################ STEP 1 ##################
 echo2("Получили на вход родительских ID " . count($db_parts[$part]['ids']) . " начинаем выгружать из базы потомков");
-$i = 0;
-foreach ($db_parts[$part]['ids'] as $item) {
-    $tmp2 = dbquery("SELECT `id`, `old_name`, `new_name`, `size` FROM `$dbname[image]`.`image_doubles` WHERE `id` = $item[0] OR `parent_id` = $item[0] ORDER BY `new_name` DESC;");
-    if ($tmp2[0]['new_name'] == FALSE) {
-        @$f++;
-    } else {
-        $images[] = $tmp2;
-    }
+if (!is_file(__DIR__ . '/debug_data/images_part_' . $part . '_theme_' . $theme . '.txt')) {
+    $i = 0;
+    foreach ($db_parts[$part]['ids'] as $item) {
+        $tmp2 = dbquery("SELECT `id`, `old_name`, `new_name`, `size` FROM `$dbname[image]`.`image_doubles_copy` WHERE `id` = $item[0] OR `parent_id` = $item[0] ORDER BY `new_name` DESC;");
+        if ($tmp2[0]['new_name'] == FALSE) {
+            @$f++;
+        } else {
+            $images[] = $tmp2;
+        }
 //    if (count($images) % 5 == 0) { // debug
 //        break;
 //    }
-    $i++;
-    $i % 1000 == 0 ? echo_time_wasted($i) : '';
+        $i++;
+        $i % 1000 == 0 ? echo_time_wasted($i) : '';
+    }
+    file_put_contents(__DIR__ . '/debug_data/images_part_' . $part . '_theme_' . $theme . '.txt', serialize($images));
+} else {
+    echo2("File with parentID already exists! Saving time!");
+    $images = unserialize(file_get_contents(__DIR__ . '/debug_data/images_part_' . $part . '_theme_' . $theme . '.txt'));
 }
 foreach ($images as $item) {
     $tmp3 += count($item);
@@ -94,23 +101,28 @@ unset ($f, $db_parts);
 echo2("Начинаем считать использованные слова в названиях картинок, всего картинок из базы получили $tmp3 записей");
 $final = array();
 $i = 0;
-foreach ($images as $tmp3) {
-    foreach ($tmp3 as $row) {
-        $i++;
+if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt')) {
+    foreach ($images as $tmp3) {
+        foreach ($tmp3 as $row) {
+            $i++;
 //        $tmp = explode('.', $row['old_name']);
 //        $tmp4 = count_words($tmp[0], '-');
 //        $final = named_arrays_summ($final, $tmp4);
 
-        $tmp = preg_replace('/[^\w\d]/i', ' ', $row['old_name']); //Замена всех не слов пробелами
-        $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
-        $tmp = trim($tmp);
-        $tmp = count_words($tmp, ' ');
-        $final = named_arrays_summ($final, $tmp);
+            $tmp = preg_replace('/[^\w\d]/i', ' ', $row['old_name']); //Замена всех не слов пробелами
+            $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+            $tmp = trim($tmp);
+            $tmp = count_words($tmp, ' ');
+            $final = named_arrays_summ($final, $tmp);
 
-        $i % 5000 == 0 ? echo_time_wasted($i) : '';
+            $i % 5000 == 0 ? echo_time_wasted($i) : '';
+        }
     }
+    file_put_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt', serialize($final));
+} else {
+    echo2("File with TOPWords already exists! Saving time!");
+    $final = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
 }
-file_put_contents(__DIR__ . '/debug_data/srlz.txt', serialize($final));
 echo2("Топ ключей выводим, по количеству категорий которые планируем создать $cats (еще без учета good/bad)");
 echo2(print_r(array_slice($final, 0, $cats), true));
 unset ($final);
@@ -119,7 +131,7 @@ unset ($final);
 
 //region STEP 2 #GET BAD WORDS # GET GOOD WORDS #
 ##################STEP 2 #########################
-$words = unserialize(file_get_contents(__DIR__ . '/debug_data/srlz.txt'));
+$words = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
 
 $i = 0;
 foreach ($words as $word => $freq) {
@@ -426,7 +438,7 @@ echo2("Закончили со спинами, обновили строк ( $s 
 //region MIX & MASH DB
 ######### STEP 9 ##########
 # SHUFFLLE OLD TO NEW random POST ID #
-unset($tmp, $tmp2, $tmp3);
+unset ($tmp, $tmp2, $tmp3);
 $q1 = "SELECT `ID` FROM `$db_name`.`wp_posts` WHERE `post_type` = 'post' ORDER BY `ID` DESC;";
 $res = dbquery($q1);
 
