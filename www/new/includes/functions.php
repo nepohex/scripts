@@ -1173,6 +1173,12 @@ function get_catid_by_name($db_name, $catname)
     }
 }
 
+/** Проверяет на наличие вхождения массива значений в строке.
+ * @param $haystack строка для поиска
+ * @param $needle массив или стринг
+ * @param int $offset
+ * @return bool
+ */
 function striposa($haystack, $needle, $offset = 0)
 {
     if (!is_array($needle)) $needle = array($needle);
@@ -1180,4 +1186,81 @@ function striposa($haystack, $needle, $offset = 0)
         if (stripos($haystack, $query, $offset) !== FALSE) return TRUE; // stop on first true result
     }
     return FALSE;
+}
+
+/** Возвращает расширение для файла, без точки.
+ * На вход либо массив с данными о картинке, либо непосредственно данные Mime из этого массивв
+ * @param $getimagesize
+ * @return string - без точки!
+ */
+function get_mime_extension($getimagesize)
+{
+    if (is_array($getimagesize)) {
+        $tmp = $getimagesize['mime'];
+    } else {
+        $tmp = $getimagesize;
+    }
+    switch ($tmp) {
+        case "image/gif":
+            return "gif";
+        case "image/jpeg":
+            return "jpg";
+        case "image/png":
+            return "png";
+        case "image/bmp":
+            return "bmp";
+    }
+}
+
+function count_dup_values_multidim_arr(array $arr, $key)
+{
+    return array_count_values(array_column($arr, $key));
+}
+
+/** This method will fail on associative keys.
+ * This method will only work on indexed subarrays (starting from 0 and have consecutively ascending keys).
+ * @param array $arr
+ * @param $value
+ * @param $key
+ * @return mixed
+ */
+function multidim_arr_search_value(array $arr, $value, $key)
+{
+    $tmp = array_column($arr, $key);
+    return array_search($value, $tmp);
+}
+
+/** Рекурсивная функция поиска файлов в директориях. Возвращает абсолютные полные пути.
+ * @param $dir
+ * @param array $results
+ * @return array
+ */
+function getDirContents($dir, &$results = array())
+{
+    $files = scandir($dir);
+
+    foreach ($files as $key => $value) {
+        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+        if (!is_dir($path)) {
+            $results[] = $path;
+        } else if ($value != "." && $value != "..") {
+            getDirContents($path, $results);
+            if (!is_dir($path)) {
+                $results[] = $path;
+            }
+        }
+    }
+
+    return $results;
+}
+
+function debug_process_time()
+{
+    static $process_time; //Время начала выполнения текущей команды
+    if (!$process_time) {
+        $process_time = microtime(true); //Записываем текущее время
+    }
+    $tmp = number_format(microtime(true) - $process_time, 2); //Возвращаем разницу
+    $process_time = microtime(true);
+    return $tmp;
 }

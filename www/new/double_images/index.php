@@ -128,6 +128,7 @@ if ($mode == 1) {
                 }
                 if (dbquery($query, 0, 1) == 1) {
                     $parent_id = dbquery("SELECT MAX(`id`) FROM `$t_name`;");
+                    unlink($full_path);
                 } else {
                     echo2("Ошибка при добавлении записи в таблицу! Картинка не загрузилась в базу " . print_r($item, true) . " ");
                 }

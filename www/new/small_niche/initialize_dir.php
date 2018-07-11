@@ -2,13 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: Max
- * Date: 17.05.2018
- * Time: 20:40
- * Генерация маленьких ниш, берем из базы ключи
- * Берутся файлы картинок из базы (предварительно импортнутые), их имена используются как тайтлы.
- * Есть "родительские" картинки, и ключи к ним как отдельные строки.
- * Сделано для экономии места. Например, в анатомии из 100гб распределено на 10гб всего, картинки часто дублируются.
- * Также есть возможность брать не всю базу целиком, а только часть (для этого надо запустить double_images/split_base.php и подготовить файл импорта).
+ * Date: 13.06.2018
+ * Time: 0:22
+ * Генерация WP
+ *  * На вход нужны предварительные шаги:
+ * - Del_crops (Скачанные папки слить в одну, удалить и почистить левые файлы).
+ * - Visual Dup полученную в шаге 1 папку.
+ * - Check_wh_ratio.php - удалить плохие группы из CSV
+ * - split_dir - разбивка папки с исходниками на части.
+ *
  */
 include "config.php";
 foreach ($project_dirs as $dir) {
@@ -17,30 +19,36 @@ foreach ($project_dirs as $dir) {
 #####################################
 ###############CONFIG################
 #####################################
-define('NO_WORDS_CHECK', TRUE); // не проверять на Bad_words , использовать вместо этого $bad_words2
+define('NO_WORDS_CHECK', FALSE); // не проверять на Bad_words , использовать вместо этого $bad_words2
 define('REPLACE_NUMBERS', TRUE); // удалять цифры из названий файлов и как следствие тайтлов
 define('CAT_LENGTH', 3); // минимальное количество символов для названия категории
+define('LIMIT_TIME_WORDS_COUNT', 3600); //количество секунд максимум считать хорошие-плохие слова. Например, больше часа (~80000 строк считается) считать нет смысла. Для большой базы в 350к считает около 6 часов!
 $cats = 75; // Сколько категорий автоматом создать
 $max_posts_per_cat = 30; //20 означает максимум 5% постов в 1 категорию. Если активна Multicat, то лучше разрешить все посты в 1 категорию. По факту, лучше не становится другим категориям от уменьшения больших.
 $bad_words2 = array('www' => '', 'http' => '', 'blogspot' => '', 'youtube' => '', 'jpg' => '', 'png' => '', 'jpeg' => '', 'bmp' => '', 'gif' => '', 'p' => '', 'com' => ''); // BAD WORD = KEY, not VALUE
-$theme = 3; //Тематика дублей которую берем из базы (2 = human body)
-$db_parts = unserialize(file_get_contents(__DIR__ . '/includes/split_DB_items_theme' . $theme . '.txt')); //Разбитая на части база split_base.php
-$part = 1; //Часть массива которую берем после разделения базы на количество сайтов скриптом split_base.php
-$imgs_path = 'f:\Dumps\google_images\coloring\\'; //Путь к картинкам, привязка к тематике, менять обязательно!
+$theme = 4; //Тематика дублей которую берем из базы (2 = human body)
+$part = 3; //Номер папки (начиная с 1) из которой будем наполнять
+##### Важно чтобы папка соответствовала до символа папке в которой прогонялся CSV (диск - с большой буквы, в конце - слеш)
+$imgs_path_parent = 'F:\tmp\_tmp\\'; //Путь к картинкам, привязка к тематике, менять обязательно!
+####
+$imgs_path = $imgs_path_parent . 'pt' . $part;
+$csv_path = 'f:\tmp\_tmp\pt3\test_data\test.csv'; //Подготовленный после проверки WH_RATIO!
+$fpfp = 'color_facts_facts.txt'; //Путь фактов
+is_file($includes_dir . $fpfp) ? $facts = file($includes_dir . $fpfp, FILE_IGNORE_NEW_LINES) : '';
+$spfp = 'color_facts_texts_spin.txt'; //Путь спинов
+is_file($includes_dir . $spfp) ? $spins = file($includes_dir . $spfp, FILE_IGNORE_NEW_LINES) : exit("Не нашли файл спинов $includes_dir" . $spfp . " Выходим!");
+is_file($csv_path) ? '' : echo2("Не найден CSV от Visual Dups ! Выходим.") . exit();
+is_dir($imgs_path) ? '' : echo2("Не найдена папка с картинками! $imgs_path !") . exit();
 // Это слова которые будут исключены из автосоздания категорий. Исключение идет по маске!
 $autocat_exclude_words = array($keyword, $year_to_replace, 'length', 'choose', 'when', 'youtube', 'amp', 'inspir', 'gallery', 'view', 'pic', 'about', 'your', 'idea', 'design', 'hair', 'style', 'women', 'very', 'with', 'picture', 'image', 'pinterest', 'woman', 'tumblr', 'from', 'side', 'pictures', 'ideas', 'style', 'photos');
 //Строгое исключение данных слов в качестве категории
 $autocat_strict_word_exclude = array('a', 'you', 'it', 'cut', 'to', 'in', 'the', 'on', 'what', 'of', 'for', 'at', 'by', 'is', 'in', 'and', 'do', 'how', 'this', 'that', 'can', 'part', 'new', 'with', 'in', 'can', 'be', 'or', 'as', 'its', 'as', 'an', 'its', 'will', 'by', 'into', 'get', 'cuts', 'over', 'life', 'bring', 'make', 'human', 'body', 'anatomy', 'list', 'many', 'tag', 'all', 'are', 'my', 'their', 'its', 'about', 'color', 'coloring');
 $default_cat_name = 'New'; //Название и URL стандартной (1) категории WP, сюда попадет все что не попало в другие категории.
 $default_cat_slug = 'new'; // URL категории default (1)
-$menu_guid = 299999; //Не трогать
-$postmeta_id = 277776; // не трогать
-//$debug_data = unserialize(file_get_contents(__DIR__ . "/debug_data/badimgs_$theme" . "_$part" . ".txt"));
-$fpfp = 'color_facts_facts.txt';
-is_file($includes_dir . $fpfp) ? $facts = file($includes_dir . $fpfp, FILE_IGNORE_NEW_LINES) : '';
-$spfp = 'color_facts_texts_spin.txt';
-is_file($includes_dir . $spfp) ? $spins = file($includes_dir . $spfp, FILE_IGNORE_NEW_LINES) : exit("Не нашли файл спинов $includes_dir" . $spfp . " Выходим!");
+$menu_guid = 299999; //Не трогать (за исключением когда базы очень большие)
+$postmeta_id = 277776; // не трогать (за исключением когда базы очень большие)
 
+//region Не меняем, стандарт
 $pwd_log = fopen($includes_dir . '/passwords_log.txt', "a");
 $installer_log = fopen($includes_dir . '/installer_command.txt', "a");
 
@@ -63,62 +71,64 @@ gen_installer($includes_dir . 'installer_instance.txt', $work_dir . '/installer.
 echo2("Записываем команду инсталлера в лог __DIR__.'/installer_command.txt");
 fwrite($installer_log, $installer['command'] . PHP_EOL);
 echo2($installer['command']);
-// Закончили
 
 import_db_instance();
+//endregion
 
-//Импорт "фактов" в базу! Вручную, закомментить если не надо.
+//region Импорт "фактов" в базу! Вручную, закомментить если не надо.
 if (is_array($facts)) {
     foreach ($facts as $fact) {
         $fact = addslashes($fact);
         dbquery("INSERT INTO `$db_name`.`tips` VALUES ('','$fact');");
     }
 }
-//region STEP 1 #GET KEYS # FILTER # GET TOP WORDS
-################ STEP 1 ##################
-echo2("Получили на вход родительских ID " . count($db_parts[$part]['ids']) . " начинаем выгружать из базы потомков");
-if (!is_file(__DIR__ . '/debug_data/images_part_' . $part . '_theme_' . $theme . '.txt')) {
-    $i = 0;
-    foreach ($db_parts[$part]['ids'] as $item) {
-        $tmp2 = dbquery("SELECT `id`, `old_name`, `new_name`, `size` FROM `$dbname[image]`.`image_doubles` WHERE `id` = $item[0] OR `parent_id` = $item[0] ORDER BY `new_name` DESC;");
-        if ($tmp2[0]['new_name'] == FALSE) {
-            @$f++;
-        } else {
-            $images[] = $tmp2;
-        }
-//    if (count($images) % 5 == 0) { // debug
-//        break;
-//    }
-        $i++;
-        $i % 1000 == 0 ? echo_time_wasted($i) : '';
-    }
-    file_put_contents(__DIR__ . '/debug_data/images_part_' . $part . '_theme_' . $theme . '.txt', serialize($images));
-} else {
-    echo2("File with parentID already exists! Saving time!");
-    $images = unserialize(file_get_contents(__DIR__ . '/debug_data/images_part_' . $part . '_theme_' . $theme . '.txt'));
+//endregion
+
+//region Подсчет и вывод исходных данных
+$files = scandir($imgs_path);
+echo2("Просканировали папку, найдено файлов " . count($files));
+$csv = csv_to_array2($csv_path, ",", null, true);
+$tmp = count_dup_values_multidim_arr($csv, '0');
+echo2("Файлов в папке " . count($files) . " . Дублей В CSV " . count($csv) . " . Групп " . count($tmp) . " Спинов " . count($spins) . " Фактов " . count($facts));
+
+for ($i = 0; $i < 100; $i++) {
+    shuffle($files);
 }
-foreach ($images as $item) {
-    $tmp3 += count($item);
-}
-unset ($f, $db_parts);
-echo2("Начинаем считать использованные слова в названиях картинок, всего картинок из базы получили $tmp3 записей");
+//endregion
+
+//region Считаем все использованные слова
+//Если задан лимит по времени подсчета, и задана фильтрация по Bad_names, то лимит игнорируем - надо найти все плохие слова!
+echo2("Начинаем считать использованные слова в названиях картинок");
 $final = array();
 $i = 0;
 if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt')) {
-    foreach ($images as $tmp3) {
-        foreach ($tmp3 as $row) {
-            $i++;
-//        $tmp = explode('.', $row['old_name']);
-//        $tmp4 = count_words($tmp[0], '-');
-//        $final = named_arrays_summ($final, $tmp4);
+    foreach ($files as $item) {
+        $i++;
+        $tmp = preg_replace('/[^\w\d]/i', ' ', $item); //Замена всех не слов пробелами
+        $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+        $tmp = trim($tmp);
+        $tmp = count_words($tmp, ' ');
+        $final = named_arrays_summ($final, $tmp);
 
-            $tmp = preg_replace('/[^\w\d]/i', ' ', $row['old_name']); //Замена всех не слов пробелами
-            $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
-            $tmp = trim($tmp);
-            $tmp = count_words($tmp, ' ');
-            $final = named_arrays_summ($final, $tmp);
-
-            $i % 5000 == 0 ? echo_time_wasted($i) : '';
+        $i % 5000 == 0 ? echo_time_wasted($i) : '';
+        if (NO_WORDS_CHECK && LIMIT_TIME_WORDS_COUNT) {
+            if (!isset($limit_start_time)) {
+                $limit_start_time = number_format(microtime(true) - $start);
+            }
+            if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+                echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+                break;
+            }
+        }
+        //todo Шаг надо упразднить вообще. Это временное прерывание.
+        if (LIMIT_TIME_WORDS_COUNT) {
+            if (!isset($limit_start_time)) {
+                $limit_start_time = number_format(microtime(true) - $start);
+            }
+            if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+                echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+                break;
+            }
         }
     }
     file_put_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt', serialize($final));
@@ -128,12 +138,10 @@ if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $them
 }
 echo2("Топ ключей выводим, по количеству категорий которые планируем создать $cats (еще без учета good/bad)");
 echo2(print_r(array_slice($final, 0, $cats), true));
-unset ($final);
+unset ($final, $limit_start_time);
 //endregion
 
-
-//region STEP 2 #GET BAD WORDS # GET GOOD WORDS #
-##################STEP 2 #########################
+//region Good/Bad Words
 $words = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
 
 $i = 0;
@@ -146,6 +154,26 @@ foreach ($words as $word => $freq) {
         $good_words[$word] = $freq;
     }
     $i % 5000 == 0 ? echo_time_wasted($i) : '';
+
+    if (NO_WORDS_CHECK && LIMIT_TIME_WORDS_COUNT) {
+        if (!isset($limit_start_time)) {
+            $limit_start_time = number_format(microtime(true) - $start);
+        }
+        if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+            echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+            break;
+        }
+    }
+    //todo временно
+    if (LIMIT_TIME_WORDS_COUNT) {
+        if (!isset($limit_start_time)) {
+            $limit_start_time = number_format(microtime(true) - $start);
+        }
+        if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+            echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+            break;
+        }
+    }
 }
 arsort($good_words);
 arsort($bad_words);
@@ -153,60 +181,11 @@ echo_time_wasted("Посчитали хорошие " . count($good_words) . " �
 if (NO_WORDS_CHECK) {
     $bad_words = $bad_words2;
 }
-unset ($words);
+unset ($words, $limit_start_time);
 //endregion
 
-//region STEP 3 # CHECK SIZE / CHECK EXIST / UPLOAD IN WP DIP
-############## STEP 3 #####################
-echo2("Начинаем загружать картинки в IMGDIR");
-foreach ($images as $key1 => $parent_img) {
-    foreach ($parent_img as $key2 => $child) {
-        if ($child['new_name'] !== '') {
-            $source_img_path = $imgs_path . $child['new_name']; // Путь к картинке в скачанных директориях
-            if (($filesize = @filesize($source_img_path)) !== FALSE) {
-                if ($filesize > $min_img_size && $filesize < $max_img_size) {
-                    if (!is_file($img_dir . $child['new_name'])) {
-                        $tmp = file_get_contents($source_img_path);
-                        @$counter_img_filesize_total += file_put_contents($img_dir . $child['new_name'], $tmp);
-                        @$counter_file_written++;
-                    }
-                } else {
-                    @$counter_small_files++;
-                    $debug_data['bad_size'][$key1][$key2] = $child;
-                }
-            } else {
-                $debug_data['image_not_found'][$key1][$key2] = $child;
-            }
-        }
-    }
-}
-$counter_img_filesize_total = $counter_img_filesize_total / 1024 / 1024; // Размер в MB картинок
-
-echo2("Из них не прошли по размеру " . $counter_small_files);
-echo2("Не были найдены или не картинки " . $counter_image_not_found);
-echo2("Файлов которые были записаны в папку " . $counter_file_written . " общим размером " . $counter_img_filesize_total . " MB");
-#echo2("Файлов которые ранее использованы на других сайтах (есть инфа о размере в базе) " . $counter_used_images);
-#echo2("Сайты-доноры и сколько с них картинок взяли, также сохраняем результаты сюда " . $result_dir . $images_used_stat_filename);
-//endregion
-
-//region STEP 4 # IMPORT IN WP POSTS / IMAGES #
-########## STEP 4 ############
-//Крайне долго идет цикл заполнения! 60000 записей заполняются больше часа! Найти где ошибка или в чем задержка.
-//debug to clean if needed
-$debug_data['wp_posts'] = get_table_max_id('wp_posts', 'id', $db_name);
-$debug_data['wp_postmeta'] = get_table_max_id('wp_postmeta', 'meta_id', $db_name);
-$debug_data['wp_term_relationships'] = get_table_max_id('wp_term_relationships', 'object_id', $db_name);
-file_put_contents(__DIR__ . "/debug_data/debug_data.txt", serialize($debug_data));
-//DELETE
-//$debug_data = unserialize(file_get_contents(__DIR__ . "/debug_data/debug_data.txt"));
-//dbquery("DELETE FROM `$db_name`.`wp_posts` WHERE `id` > $debug_data[wp_posts];");
-//dbquery("DELETE FROM `$db_name`.`wp_postmeta` WHERE `meta_id` > $debug_data[wp_postmeta];");
-//if ($debug_data['wp_term_relationships']) {
-//    dbquery("DELETE FROM `$db_name`.`wp_term_relationships` WHERE `object_id` > $debug_data[wp_term_relationships];");
-//} else {
-//    dbquery("DELETE FROM `$db_name`.`wp_term_relationships` WHERE `object_id` > 0;");
-//}
-
+//region WP FILL: FILES + POSTS
+//Дикий код! 2 раза дублируется функция вставки в WP.
 $meta_id = get_table_max_id('wp_postmeta', 'meta_id', $db_name) + 1;
 $image_id = get_table_max_id('wp_posts', 'ID', $db_name) + 1;
 $post_id = $image_id + 1;
@@ -217,34 +196,164 @@ $i = 0;
 $z = 0;
 unset ($debug_data);
 echo2("Начинаем заполнять таблицу постами");
-foreach ($images as $key1 => $parent_img) {
-    foreach ($parent_img as $key2 => $child) {
-        @$r++;
-//        //Находим название родительской картинки => Обязательно должна быть 1ым элементом в массиве!
-        if ($img == FALSE) {
-            $img = $child['new_name'];
-        }
+foreach ($files as $img) {
+    $z++;
+    $full_path = $imgs_path . '/' . $img;
+    $full_path_inCsv = $imgs_path_parent . $img; //Путь по которому прогонялся Visual Dup, еще до перемещения в новую папку (pt1/2/3 etc)
+    $debug['is_file1'] += debug_process_time();
+    if (is_file($full_path)) {
+        $debug['is_file1'] += debug_process_time();
+        //Находим ID массива с дублем в CSV
+        $debug['multidim1'] += debug_process_time();
+        $tmp2 = multidim_arr_search_value($csv, $full_path_inCsv, 1); // 1 = номер колонки, где содержится FileName (полный путь)
+        $debug['multidim1'] += debug_process_time();
+        //Если есть дубли в CSV
+        if ($tmp2 !== FALSE) {
+            //Получили ID группы
+            $group_id = $csv[$tmp2]['0'];
+            //Получить ID массивов данной группы
+            $debug['array_column1'] += debug_process_time();
+            $tmp3 = array_column($csv, 0); //0 - номер колонки = группа
+            $debug['array_column1'] += debug_process_time();
+            $debug['array_keys1'] += debug_process_time();
+            $tmp3 = array_keys($tmp3, $group_id); //ID массивов CSV Файлов с дублями
+            $debug['array_keys1'] += debug_process_time();
+            //Работа с группой файлов-дублей. Внимание! Dimension в CSV может быть указан неверно, ориентироваться на размер!
+            //Находим самую большую картинку в группе
+            foreach ($tmp3 as $key => $tmp2) {
+                if ($top_size < $csv[$tmp2][2]) {
+                    $top_size = $csv[$tmp2][2]; // Не забыть потом Unset чтобы группа не пересеклась с другой группой! (Далее размер еще используется при импорте)
+                    $top_id = $tmp2;
+                    $top_key = $key;
+                }
+            }
+            //Удаляем сначала этот ID из группы
+            unset ($tmp3[$top_key]);
+            //Добавляем первым в массив группы
+            array_unshift($tmp3, $top_id);
 
-        if ($img !== FALSE) {
-            $local_img_path = $img_dir . $img;
+            foreach ($tmp3 as $tmp2) {
+                if (isset($trigger)) { //Идентификатор первой, родительской картинки для группы.
+
+                } else {
+                    $trigger = TRUE;
+                    //Отменяем сразу всю группу, если самый большой (который единственный будет скопирован) файл группы не подходит по параметрам
+                    if ($top_size > $min_img_size && $top_size < $max_img_size) {
+                        $img_name = basename($csv[$tmp2][1]);
+                        $parent_img_full_path = $imgs_path . '/' . $img_name;
+                        $site_path_dir = '/wp-content/uploads/' . $wp_image_upload_date_prefix . $img_name;
+                        $debug['copy'] += debug_process_time();
+                        copy($full_path, $img_dir . $img_name);
+                        $debug['copy'] += debug_process_time();
+                        @$counter_file_written++;
+                        @$c_group_imgs++;
+                        @$counter_img_filesize_total += $top_size;
+                    } else {
+                        @$counter_small_files++;
+                        break;
+                    }
+                }
+                $keys = basename($csv[$tmp2][1]); //Реальный текущий файл. Должно быть с точкой
+                $debug['is_image'] += debug_process_time();
+                if ($img_info = is_image($parent_img_full_path)) {
+                    $debug['is_image'] += debug_process_time();
+                    $array_to_postmeta = gen_image_postmeta($parent_img_full_path, $site_path_dir, $img_info);
+                    if (NO_WORDS_CHECK) {
+                        $debug['clean_fname'] += debug_process_time();
+                        $filtered_fname = tmp_clean_fname($keys, $bad_words2, '-', REPLACE_NUMBERS);
+                        $debug['clean_fname'] += debug_process_time();
+                    } else {
+                        $debug['dictionary_check'] += debug_process_time();
+                        $filtered_fname = dictionary_check($keys, '-', REPLACE_NUMBERS);
+                        $debug['dictionary_check'] += debug_process_time();
+                    }
+                    if ($filtered_fname !== FALSE && mb_strlen($filtered_fname) > 10) {
+                        $debug['gen_and_post'] += debug_process_time();
+                        $gen_title = gen_easy_title($filtered_fname);
+                        $post_name = gen_post_name($i, $gen_title, 0, 6);
+                        //Пропускаем картинку если в этой группе уже есть точно такой же тайтл
+                        $group_trigger_titles = count($group_titles);
+                        $group_titles[] = $gen_title;
+                        if (count(array_unique($group_titles)) > $group_trigger_titles) {
+                            $i++;
+                            $queries[] = "INSERT INTO  `wp_postmeta` ( `meta_id` , `post_id` , `meta_key` , `meta_value` ) VALUES (" . $meta_id . "," . $image_id . ",  '_wp_attached_file','" . $site_path_dir . "');";
+                            $meta_id++;
+                            //Example ARR a:1:{s:64:"/wp-content/uploads/2018/06/11b7666cceb23e98468bf0d5357a40c5.jpg";i:59562;}
+                            //$tmp = unserialize('a:1:{s:64:"/wp-content/uploads/2018/06/070bec7e6499449609a6cc5a6459f426.jpg";i:205420;}');
+                            //Ключ - адрес картинки, значение - ID в базе.
+                            $yoast_image_arr[$site_path_dir] = $image_id;
+                            $yoast_image_arr = serialize($yoast_image_arr);
+                            $queries[] = "INSERT INTO  `wp_postmeta` ( `meta_id` , `post_id` , `meta_key` , `meta_value` ) VALUES (" . $meta_id . "," . $post_id . ",  '_yoast_wpseo_post_image_cache','" . $yoast_image_arr . "');";
+
+                            $queries[] = "INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES ($image_id, 1, '2018-05-18 00:05:53', '2018-05-18 21:05:53','', '" . $gen_title . "', '', 'inherit', 'closed', 'closed', '', '" . $gen_title . "', '', '', '2018-05-18 00:05:53', '2018-05-18 21:05:53', '', $post_id , '$site_path_dir', 0, 'attachment', '" . $array_to_postmeta['sizes']['thumbnail']['mime_type'] . "', 0);";
+
+                            $post_content = "<img src=\"$site_path_dir\" alt=\"$gen_title\" title=\"$gen_title\" width=\"$array_to_postmeta[width]\" height=\"$array_to_postmeta[height]\" class=\"alignnone size-full wp-image-" . $image_id . "\" />";
+
+                            $queries[] = "INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES ($post_id, 1, '2018-05-18 00:05:53', '2018-05-18 21:05:53','" . $post_content . "', '" . $gen_title . "', '', 'publish', 'closed', 'closed', '', '$post_name', '', '', '2018-05-18 00:05:53', '2018-05-18 21:05:53', '', 0, '/?p=" . $post_id . "', 0, 'post', '', 0);";
+//INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`, `term_order`) VALUES (10000, 1, 0); - Для нулевого сайта, в стандартную категорию.
+                            $queries[] = "INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`, `term_order`) VALUES ($post_id, $cat_id, 0);";
+
+                            dbquery($queries);
+                            $meta_id++;
+                            $image_id += 2;
+                            $post_id += 2;
+                            @$p++;
+                            unset ($queries, $yoast_image_arr);
+                        } else {
+                            //Удаляем последний не уникальный элемент
+                            array_pop($group_titles);
+                        }
+                        $debug['gen_and_post'] += debug_process_time();
+                    }
+                } else {
+                    $debug['is_image'] += debug_process_time();
+                    @$counter_image_not_found++;
+                }
+            }
+            unset ($top_size, $trigger, $group_titles);
+            //Удаляем все файлы группы после ее закачки
+            $debug['unlink2'] += debug_process_time();
+            foreach ($tmp3 as $tmp2) {
+                $img_name = basename($csv[$tmp2][1]);
+                @unlink($imgs_path . '/' . $img_name);
+                unset ($csv[$tmp2]);
+            }
+            $debug['unlink2'] += debug_process_time();
+        } else {
+            $local_img_path = $full_path;
             $site_path_dir = '/wp-content/uploads/' . $wp_image_upload_date_prefix . $img;
-            $keys = $child['old_name']; //Должно быть с точкой!
-//            $tmp = explode('.', $keys); // 0 = название файла , 1 = расширение
-
+            $keys = $img; //Должно быть с точкой
             if ($img_info = is_image($local_img_path)) {
                 $i++;
+                $filesize = @filesize($local_img_path);
+                if ($filesize > $min_img_size && $filesize < $max_img_size) {
+                    copy($full_path, $img_dir . $img);
+                    @$counter_file_written++;
+                    @$c_uniq_imgs++;
+                    @$counter_img_filesize_total += $filesize;
+                } else {
+                    @$counter_small_files++;
+                    continue;
+                }
                 $array_to_postmeta = gen_image_postmeta($local_img_path, $site_path_dir, $img_info);
-//                $filtered_fname = tmp_check_filename($bad_words, $bad_symbols, $keys, '-');
-                $filtered_fname = tmp_clean_fname($keys, $bad_words, '-', REPLACE_NUMBERS);
+                if (NO_WORDS_CHECK) {
+                    $filtered_fname = tmp_clean_fname($keys, $bad_words2, '-', REPLACE_NUMBERS);
+                } else {
+                    $filtered_fname = dictionary_check($keys, '-', REPLACE_NUMBERS);
+                }
                 if ($filtered_fname !== FALSE && mb_strlen($filtered_fname) > 10) {
-//                    $filtered_fname = explode('.', $filtered_fname); //Hook для функции чтобы не переписывать ее, т.к. она возвращает с расширением файла
                     $gen_title = gen_easy_title($filtered_fname);
                     $post_name = gen_post_name($i, $gen_title, 0, 6);
 
                     $queries[] = "INSERT INTO  `wp_postmeta` ( `meta_id` , `post_id` , `meta_key` , `meta_value` ) VALUES (" . $meta_id . "," . $image_id . ",  '_wp_attached_file','" . $site_path_dir . "');";
                     $meta_id++;
-                    //MetaData без тумбов, не нужна нифига, но можно и оставить. Только базу засирает.
-                    //$queries[] = "INSERT INTO  `wp_postmeta` ( `meta_id` , `post_id` , `meta_key` , `meta_value` ) VALUES ($meta_id,$image_id,  '_wp_attachment_metadata','" . addslashes(serialize($array_to_postmeta)) . "');";
+                    //Example ARR a:1:{s:64:"/wp-content/uploads/2018/06/11b7666cceb23e98468bf0d5357a40c5.jpg";i:59562;}
+                    //$tmp = unserialize('a:1:{s:64:"/wp-content/uploads/2018/06/070bec7e6499449609a6cc5a6459f426.jpg";i:205420;}');
+                    //Ключ - адрес картинки, значение - ID в базе.
+                    $yoast_image_arr[$site_path_dir] = $image_id;
+                    $yoast_image_arr = serialize($yoast_image_arr);
+                    $queries[] = "INSERT INTO  `wp_postmeta` ( `meta_id` , `post_id` , `meta_key` , `meta_value` ) VALUES (" . $meta_id . "," . $post_id . ",  '_yoast_wpseo_post_image_cache','" . $yoast_image_arr . "');";
+
                     $queries[] = "INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES ($image_id, 1, '2018-05-18 00:05:53', '2018-05-18 21:05:53','', '" . $gen_title . "', '', 'inherit', 'closed', 'closed', '', '" . $gen_title . "', '', '', '2018-05-18 00:05:53', '2018-05-18 21:05:53', '', $post_id , '$site_path_dir', 0, 'attachment', '" . $array_to_postmeta['sizes']['thumbnail']['mime_type'] . "', 0);";
 
                     $post_content = "<img src=\"$site_path_dir\" alt=\"$gen_title\" title=\"$gen_title\" width=\"$array_to_postmeta[width]\" height=\"$array_to_postmeta[height]\" class=\"alignnone size-full wp-image-" . $image_id . "\" />";
@@ -257,27 +366,29 @@ foreach ($images as $key1 => $parent_img) {
                     $meta_id++;
                     $image_id += 2;
                     $post_id += 2;
-                    unset ($queries);
+                    @$p++;
+                    unset ($queries, $yoast_image_arr);
                 } else {
-                    $debug_data['short_name'][$key1][$key2] = $child;
                     @$b++; //Плохое название файла было, и как следствие тайтл и прочее - не заполняем в базу, пропускаем.
                 }
             } else {
-                $debug_data['not_image'][$key1][$key2] = $child;
                 @$f++; //Не найден файл картинки!
             }
-        } else {
-            $debug_data['no_parent_img_name'][$key1][$key2] = $child;
         }
-        $r % 5000 == 0 ? echo_time_wasted($r, " Постов записали $i") : '';
-        unset($z);
+    } else {
+        $debug['is_file1'] = debug_process_time();
+        @$counter_image_not_found++;
     }
-    unset ($img);
+    $debug['unlink'] = debug_process_time();
+    @unlink($full_path);
+    $debug['unlink'] = debug_process_time();
+    $z % 10000 == 0 ? echo_time_wasted($z) : '';
 }
+echo2("Debug time " . print_r($debug, TRUE));
 echo2("Плохое название файла пропустили картинку или запись ( $b ) раз , не найден файл картинки ( $f ) раз");
-echo2("Пропущенные картинки записали в debug_data " . file_put_contents(__DIR__ . "/debug_data/badimgs_$theme" . "_$part" . ".txt", serialize($debug_data)));
+echo2("Циклов $z. Постов ( $p ). Закачали $c_uniq_imgs уникальных и $c_group_imgs групповых картинок. Всего $counter_file_written файлов записали весом " . convert($counter_img_filesize_total));
+echo2("Не прошли по размеру картинки и группы - $counter_small_files .");
 
-unset ($images);
 //endregion
 
 //region STEP 5 #CREATE CATS # CREATE MENU #
@@ -503,6 +614,68 @@ foreach ($tmp3 as $item) {
     $i % 5000 == 0 ? echo_time_wasted($i) : '';
 }
 //endregion
+/** Bad_words => КЛЮЧ массива = плохое слово, а не содержание!
+ * @param $fname
+ * @param $bad_words
+ * @param string $separator
+ * @return mixed|string
+ */
+function tmp_clean_fname($fname, $bad_words, $separator = '_', $replace_numbers)
+{
+    //5 утра было...
+    $tmp = preg_replace('/[^\w\d]/i', ' ', $fname); //Замена всех не слов пробелами
+    $tmp = str_replace('_', ' ', $tmp); //Замена Нижних подсчеркиваний (underscore) потому как \w\d не воспринимает!
+    if ($replace_numbers) {
+        $tmp = preg_replace('/\d/', ' ', $tmp); //цифры
+    }
+    $tmp = trim($tmp);
+    $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+    $arr = explode(' ', $tmp);
+    foreach ($arr as $key => &$item) {
+        foreach ($bad_words as $key2 => $bad_word) {
+            if (strtolower($item) == strtolower($key2)) {
+                $arr[$key] = '';
+                break;
+            }
+        }
+    }
+    if (count($arr) > 0) {
+        $tmp = implode($separator, $arr);
+        return $tmp;
+    } else {
+        return FALSE;
+    }
+}
+
+/** На вход строка, проверка по словарю каждого слова, удаление лишних, и склейка слов сепаратором.
+ * @param $string
+ * @param string $separator
+ * @param $replace_numbers
+ * @return bool|mixed|string
+ */
+function dictionary_check($string, $separator = '_', $replace_numbers)
+{
+    global $dbname;
+    $tmp = preg_replace('/[^\w\d]/i', ' ', $string); //Замена всех не слов пробелами
+    $tmp = str_replace('_', ' ', $tmp); //Замена Нижних подсчеркиваний (underscore) потому как \w\d не воспринимает!
+    if ($replace_numbers) {
+        $tmp = preg_replace('/\d/', ' ', $tmp); //цифры
+    }
+    $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+    $tmp = trim($tmp);
+    $arr = explode(' ', $tmp);
+    foreach ($arr as $key => &$word) {
+        if (($tmp2 = dbquery("SELECT `id` FROM `$dbname[image]`.`dictionary` WHERE `word` = '$word';")) == FALSE) {
+            unset ($arr[$key]);
+        }
+    }
+    if (count($arr) > 0) {
+        $tmp = implode($separator, $arr);
+        return $tmp;
+    } else {
+        return FALSE;
+    }
+}
 
 function import_db_instance()
 {
@@ -588,102 +761,4 @@ function change_collation($charset, $collation, $dbname)
         $table = $table['TABLE_NAME'];
         dbquery("ALTER TABLE `$dbname`.`$table` CONVERT TO CHARACTER SET $charset COLLATE $collation;");
     }
-}
-
-/** Проверяет и удаляет плохие слова из названия файла. Плохия слова идут как ключ входного массива.
- * @param array $bad_words Массив с ключом = плохим слово
- * @param array $bad_symbols Массив с левыми символами подлежащими замене в имени файла на другой символ
- * @param $filename
- * @param string $separator Символ Пробел между словами в имени файла
- * @return string
- */
-function tmp_check_filename(array $bad_words, array $bad_symbols, $filename, $separator = '_')
-{
-    $tmp = explode('.', $filename);
-    if (count($tmp) == 2) {
-        $tmp[0] = str_replace($bad_symbols, $separator, $tmp[0]);
-//        $tmp[0] = str_replace($separator, ' ', $tmp[0]); //временно пробелы между словами
-    } else if (count($tmp) > 2) {
-        $tmp2 = strripos($filename, '.');
-        $tmp3 = substr($filename, 0, -$tmp2); // file_name
-        $tmp[0] = str_replace($bad_symbols, $separator, $tmp3);
-        $tmp[1] = last($tmp);
-//        $tmp[0] = str_replace($separator, ' ', $tmp[0]); //временно пробелы между словами
-    } else {
-        return FALSE;
-    }
-
-    foreach ($bad_words as $word => $value) {
-        if (isset($tmp2)) {
-            if (($pos = stripos($separator . $tmp2 . $separator, $separator . $word . $separator)) !== (0 || FALSE)) {
-                $tmp2 = str_replace($word, '', $tmp2);
-            }
-        } else {
-            if (($pos = stripos($separator . $tmp[0] . $separator, $separator . $word . $separator)) !== (0 || FALSE)) {
-                if (isset($tmp2)) {
-                    $tmp2 = str_replace($word, '', $tmp2);
-                } else {
-                    $tmp2 = str_replace($word, '', $tmp[0]);
-                }
-            }
-        }
-    }
-
-    if ($tmp2) {
-        return $tmp2 . '.' . $tmp[1];
-    } else {
-        return $tmp[0] . '.' . $tmp[1];
-    }
-
-}
-
-/** Bad_words => КЛЮЧ массива = плохое слово, а не содержание!
- * @param $fname
- * @param $bad_words
- * @param string $separator
- * @return mixed|string
- */
-function tmp_clean_fname($fname, $bad_words, $separator = '_', $replace_numbers)
-{
-    //5 утра было...
-    $tmp = preg_replace('/[^\w\d]/i', ' ', $fname); //Замена всех не слов пробелами
-    if ($replace_numbers) {
-        $tmp = preg_replace('/\d/', ' ', $tmp); //цифры
-    }
-    $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
-    $tmp = trim($tmp);
-    $arr = explode(' ', $tmp);
-    foreach ($arr as $key => &$item) {
-        foreach ($bad_words as $key2 => $bad_word) {
-            if (strtolower($item) == strtolower($key2)) {
-                $arr[$key] = '';
-                break;
-            }
-        }
-    }
-    $tmp = implode(' ', $arr);
-    $tmp = preg_replace('/\s{2,}/', ' ', $tmp);
-    $tmp = trim($tmp);
-    $tmp = str_replace(' ', $separator, $tmp);
-    return $tmp;
-}
-
-/** Проверяет в папке дубли файлов, если есть то заменяет название на filename+++456456454(microtime)+++.jpg
- * @param $dir
- * @param $fname
- * @return string
- */
-function tmp_check_double_files($dir, $fname)
-{
-    // Так сложно все и убого потому что точки могут быть в названии файла
-    $tmp = scandir($dir);
-    if (in_array($fname, $tmp)) {
-//        $tmp = strripos($fname, '.');
-//        $tmp2 = substr($fname, $tmp); // file_extension
-//        $tmp3 = substr($fname, 0, -$tmp2); // file_name
-//        $fname = $tmp3 . '+++' . microtime(true) . '+++' . $tmp2;
-        $tmp = explode('.', $fname);
-        $fname = $tmp[0] . '+++' . microtime() . '+++.' . $tmp[1];
-    }
-    return $fname;
 }

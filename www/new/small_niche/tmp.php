@@ -9,6 +9,167 @@ include "../includes/functions.php";
 $double_log = 1;
 $debug_mode = 1;
 
+$files = scandir('f:\Dumps\google_images\coloring');
+shuffle($files);
+foreach ($files as $file) {
+    $i++;
+//    is_file('f:\Dumps\google_images\coloring\\' . $file);
+//    $debug['is_file1'] += debug_process_time();
+
+    file_exists('f:\Dumps\google_images\coloring\\' . $file);
+    $debug['file_ex'] += debug_process_time();
+
+    if ($i % 2000 == 0) {
+        echo_time_wasted();
+        break;
+    }
+}
+shuffle($files);
+foreach ($files as $file) {
+    $i++;
+    is_file('f:\Dumps\google_images\coloring\\' . $file);
+    $debug['is_file1'] += debug_process_time();
+
+//    file_exists('f:\Dumps\google_images\coloring\\' . $file);
+//    $debug['file_ex'] += debug_process_time();
+
+    if ($i % 2000 == 0) {
+        echo_time_wasted();
+        break;
+    }
+}
+
+for ($i = 0; $i < 1000; $i++) {
+    is_file('f:\tmp\\' . rand(0, 10000000) . '.txt');
+    $debug['is_file1'] += debug_process_time();
+    file_exists('f:\tmp\\' . rand(0, 10000000) . '.txt');
+    $debug['file_ex'] += debug_process_time();
+}
+$db_name = $site_name;
+// База данных с картинками
+$db_name_img = 'image_index';
+$db_host = 'localhost';
+$db_pwd = '';
+$wp_conf_tpl = 'wp_conf_empty.txt';
+$wp_conf_cache_tpl = 'wp-cache-conf_empty.txt';
+// База со спинами
+$db_name_spin = 'hair_spin';
+$dbname['image'] = 'image_index';
+mysqli_connect2($dbname['image']);
+
+
+$tmp = 'car 345345baby zina-s-magasinz|dgdfig|idet^fgfgh|bnbn+ghfgh .jpg obama car money';
+$tmp = preg_replace('/[^\w\d]/i', ' ', $tmp); //Замена всех не слов пробелами
+$tmp = dictionary_check($tmp, '-', TRUE);
+
+/** На вход строка, проверка по словарю каждого слова, удаление лишних, и склейка слов сепаратором.
+ * @param $string
+ * @param string $separator
+ * @param $replace_numbers
+ * @return bool|mixed|string
+ */
+function dictionary_check($string, $separator = '_', $replace_numbers)
+{
+    global $dbname;
+    $tmp = preg_replace('/[^\w\d]/i', ' ', $string); //Замена всех не слов пробелами
+    $tmp = str_replace('_', ' ', $tmp); //Замена Нижних подсчеркиваний (underscore) потому как \w\d не воспринимает!
+    if ($replace_numbers) {
+        $tmp = preg_replace('/\d/', ' ', $tmp); //цифры
+    }
+    $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+    $tmp = trim($tmp);
+    $arr = explode(' ', $tmp);
+    foreach ($arr as $key => &$word) {
+        if (($tmp2 = dbquery("SELECT `id` FROM `$dbname[image]`.`dictionary` WHERE `word` = '$word';")) == FALSE) {
+            unset ($arr[$key]);
+        }
+    }
+    if (count($arr) > 0) {
+        $tmp = implode($separator, $arr);
+        return $tmp;
+    } else {
+        return FALSE;
+    }
+}
+
+//region Prepare Texts
+$tmp = file('F:/tmp/babyshower_texts.txt', FILE_IGNORE_NEW_LINES);
+//^[\d]{1}\.  Regex для замены нумерации строк, менял в блокноте!
+$tmp = array_unique($tmp);
+foreach ($tmp as $key => $item) {
+    $item = preg_replace('/^[0-9]+./', '', $item);
+    $item = trim(preg_replace('/\s{2,}/', '', $item));
+    if (count_strlen_html($item) < 30) {
+        unset($tmp[$key]);
+        @$low_len++;
+    } else {
+        if (striposa($item, array('getty', 'istock', 'shutterstock', 'photograph:', 'flickr', 'image via', 'image source', 'www', '.com'))) {
+            unset($tmp[$key]);
+            @$bad_words++;
+        }
+    }
+    if ($tmp[$key]) {
+        mb_strlen($tmp[$key]) < 150 ? $facts[] = $tmp[$key] : $texts[] = $tmp[$key];
+    }
+}
+echo2("$low_len < Del low len / Bad words > $bad_words ");
+echo2(count($facts) . " < Facts / Texts > " . count($texts));
+$tmp = implode(PHP_EOL, $tmp);
+$tmp2 = implode(PHP_EOL, $facts);
+$tmp3 = implode(PHP_EOL, $texts);
+file_put_contents('F:/tmp/babyshower_all_clean.txt', $tmp);
+file_put_contents('F:/tmp/babyshower_facts_clean.txt', $tmp2);
+file_put_contents('F:/tmp/babyshower_texts_clean.txt', $tmp3);
+//endregion
+
+
+$post_id = 3554506;
+$rand_posts_ids = range($post_id - 2000, $post_id + 2000);
+$tmp = unserialize('a:1:{s:64:"/wp-content/uploads/2018/06/070bec7e6499449609a6cc5a6459f426.jpg";i:205420;}');
+$arr[] = '213';
+$arr[] = '213';
+$arr2[] = '213';
+$z = array_unique($arr);
+$z = count(array_unique($arr2));
+$checksum = crc32("T56456hgm6456mnhe quick dfgdfgdfbrowndfgdfgd fox 7676jumpdgdfgdfgdfged overhjhgjgh the lhgjghjazy dog.");
+printf("%u\n", $checksum);
+
+$csv[$tmp2][2] = 1000130;
+if ($top_size < $csv[$tmp2][2]) {
+    $top_size = $csv[$tmp2][2];
+    $top_id = $tmp2;
+}
+
+$tmp = array('and', 'print', 'coloring', 'colorings', 'page', 'pages', '0', 'jpg', 'page', 'free', 'printable', 'for', 'with', 'kids', 'of', 'to', 'color', 'the', 'on', 'gif', 'book', 'colouring', 'png', 'adults', 'in', 'sheets', 'pictures', 'ideas', 'online', 'best', 'download', 'disney', 'christmas', 'a', 'day', 'design', 'adult', 'baby', 'images', 'cute', 'princess', 'new', 'halloween', 'little', 'books', 'picture', 'animals', 'animal', 'your', '1', 'sheet', 'by', 'beautiful', 'my', 'com', 'amazing', 'lego', 'cool', 'girl', 'me', 'awesome', 'mouse', 'at', 'monster', 'easter', 'games', 'truck', 'letter', 'star', 'printables', 'preschool', 'about', 'happy', 'pony', 'bible', 'cartoon', 'mandala');
+
+foreach ($tmp as $key => &$item) {
+    $reg = "/^$item" . '[a-z]{0,3}$/i';
+//    preg_match($reg, $tmp, $matches);
+    $matches = preg_grep($reg, $tmp);
+    if (count($matches) > 1) {
+        $del[] = $item;
+        $del[$item] = $matches;
+        unset ($tmp[$key]);
+    }
+}
+
+
+$num = rand(100, 999);
+$dir = 'f:\Dumps\downloaded sites\babyshowerpin.com';
+
+$fnames = getDirContents($dir);
+
+foreach ($fnames as $fname) {
+    $tmp2 = pathinfo($fname);
+    $tmp = $tmp2['filename'];
+    if (is_file($new_dir . '/' . $tmp)) {
+        $new_name = rand(100, 999) . '_' . $tmp;
+    } else {
+        $new_name = $tmp;
+    }
+    rename($fname, $new_dir . '/' . $new_name);
+}
+echo_time_wasted();
 //region
 $db_name = 'image_index2';
 $t_name = 'image_doubles';
@@ -40,36 +201,6 @@ if ($result = mysqli_query($link, $query)) {
         $i % 5000 == 0 ? echo_time_wasted($i, "Битых связей ( $f ) | Есть возможность их поправить ( $s )") : '';
     }
 }
-//endregion
-
-//region Prepare Texts
-$tmp = file('F:/tmp/color_facts.txt', FILE_IGNORE_NEW_LINES);
-//^[\d]{1}\.  Regex для замены нумерации строк, менял в блокноте!
-$tmp = array_unique($tmp);
-foreach ($tmp as $key => $item) {
-    $item = preg_replace('/^[0-9]+./', '', $item);
-    $item = trim(preg_replace('/\s{2,}/', '', $item));
-    if (count_strlen_html($item) < 30) {
-        unset($tmp[$key]);
-        @$low_len++;
-    } else {
-        if (striposa($item, array('getty', 'istock', 'shutterstock', 'photograph:', 'flickr', 'image via', 'image source', 'www', '.com'))) {
-            unset($tmp[$key]);
-            @$bad_words++;
-        }
-    }
-    if ($tmp[$key]) {
-        mb_strlen($tmp[$key]) < 150 ? $facts[] = $tmp[$key] : $texts[] = $tmp[$key];
-    }
-}
-echo2("$low_len < Del low len / Bad words > $bad_words ");
-echo2(count($facts) . " < Facts / Texts > " . count($texts));
-$tmp = implode(PHP_EOL, $tmp);
-$tmp2 = implode(PHP_EOL, $facts);
-$tmp3 = implode(PHP_EOL, $texts);
-file_put_contents('F:/tmp/color_facts_all.txt', $tmp);
-file_put_contents('F:/tmp/color_facts_facts.txt', $tmp2);
-file_put_contents('F:/tmp/color_facts_texts.txt', $tmp3);
 //endregion
 
 
