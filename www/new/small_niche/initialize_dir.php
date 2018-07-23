@@ -19,7 +19,7 @@ foreach ($project_dirs as $dir) {
 #####################################
 ###############CONFIG################
 #####################################
-define('NO_WORDS_CHECK', FALSE); // не проверять на Bad_words , использовать вместо этого $bad_words2
+define('NO_WORDS_CHECK', FALSE); // не проверять на Bad_words , использовать вместо этого $bad_words2. На больших объемах типа 500к записей занимает 14 часов подсчет!
 define('REPLACE_NUMBERS', TRUE); // удалять цифры из названий файлов и как следствие тайтлов
 define('CAT_LENGTH', 3); // минимальное количество символов для названия категории
 define('LIMIT_TIME_WORDS_COUNT', 3600); //количество секунд максимум считать хорошие-плохие слова. Например, больше часа (~80000 строк считается) считать нет смысла. Для большой базы в 350к считает около 6 часов!
@@ -98,19 +98,65 @@ for ($i = 0; $i < 100; $i++) {
 
 //region Считаем все использованные слова
 //Если задан лимит по времени подсчета, и задана фильтрация по Bad_names, то лимит игнорируем - надо найти все плохие слова!
-echo2("Начинаем считать использованные слова в названиях картинок");
-$final = array();
-$i = 0;
-if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt')) {
-    foreach ($files as $item) {
-        $i++;
-        $tmp = preg_replace('/[^\w\d]/i', ' ', $item); //Замена всех не слов пробелами
-        $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
-        $tmp = trim($tmp);
-        $tmp = count_words($tmp, ' ');
-        $final = named_arrays_summ($final, $tmp);
+//Если указан no_words_check слова не проверяем по базе, на больших объемах типа 500к записей занимает 14 часов.
+if (!NO_WORDS_CHECK) {
+    echo2("Начинаем считать использованные слова в названиях картинок");
+    $final = array();
+    $i = 0;
+    if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt')) {
+        foreach ($files as $item) {
+            $i++;
+            $tmp = preg_replace('/[^\w\d]/i', ' ', $item); //Замена всех не слов пробелами
+            $tmp = preg_replace('/\s{2,}/', ' ', $tmp); //Двойные и более пробелы на пробел
+            $tmp = trim($tmp);
+            $tmp = count_words($tmp, ' ');
+            $final = named_arrays_summ($final, $tmp);
 
+            $i % 5000 == 0 ? echo_time_wasted($i) : '';
+            if (NO_WORDS_CHECK && LIMIT_TIME_WORDS_COUNT) {
+                if (!isset($limit_start_time)) {
+                    $limit_start_time = number_format(microtime(true) - $start);
+                }
+                if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+                    echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+                    break;
+                }
+            }
+            //todo Шаг надо упразднить вообще. Это временное прерывание.
+            if (LIMIT_TIME_WORDS_COUNT) {
+                if (!isset($limit_start_time)) {
+                    $limit_start_time = number_format(microtime(true) - $start);
+                }
+                if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+                    echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+                    break;
+                }
+            }
+        }
+        file_put_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt', serialize($final));
+    } else {
+        echo2("File with TOPWords already exists! Saving time!");
+        $final = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
+    }
+    echo2("Топ ключей выводим, по количеству категорий которые планируем создать $cats (еще без учета good/bad)");
+    echo2(print_r(array_slice($final, 0, $cats), true));
+    unset ($final, $limit_start_time);
+//endregion
+
+//region Good/Bad Words
+    $words = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
+
+    $i = 0;
+    foreach ($words as $word => $freq) {
+        $i++;
+        $word = addslashes(strtolower($word));
+        if (($tmp = dbquery("SELECT `id` FROM `$dbname[image]`.`dictionary` WHERE `word` = '$word';")) == FALSE) {
+            $bad_words[$word] = $freq;
+        } else {
+            $good_words[$word] = $freq;
+        }
         $i % 5000 == 0 ? echo_time_wasted($i) : '';
+
         if (NO_WORDS_CHECK && LIMIT_TIME_WORDS_COUNT) {
             if (!isset($limit_start_time)) {
                 $limit_start_time = number_format(microtime(true) - $start);
@@ -120,7 +166,7 @@ if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $them
                 break;
             }
         }
-        //todo Шаг надо упразднить вообще. Это временное прерывание.
+        //todo временно
         if (LIMIT_TIME_WORDS_COUNT) {
             if (!isset($limit_start_time)) {
                 $limit_start_time = number_format(microtime(true) - $start);
@@ -131,61 +177,21 @@ if (!is_file(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $them
             }
         }
     }
-    file_put_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt', serialize($final));
+    arsort($good_words);
+    arsort($bad_words);
+    echo_time_wasted("Посчитали хорошие " . count($good_words) . " и плохие " . count($bad_words) . " слова по словарю");
+    if (NO_WORDS_CHECK) {
+        $bad_words = $bad_words2;
+    }
+    unset ($words, $limit_start_time);
 } else {
-    echo2("File with TOPWords already exists! Saving time!");
-    $final = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
+    echo2("Указана переменная NO_WORDS_CHECK - не проверяем хорошие-плохие слова, пропускаем шаг");
 }
-echo2("Топ ключей выводим, по количеству категорий которые планируем создать $cats (еще без учета good/bad)");
-echo2(print_r(array_slice($final, 0, $cats), true));
-unset ($final, $limit_start_time);
-//endregion
-
-//region Good/Bad Words
-$words = unserialize(file_get_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt'));
-
-$i = 0;
-foreach ($words as $word => $freq) {
-    $i++;
-    $word = addslashes(strtolower($word));
-    if (($tmp = dbquery("SELECT `id` FROM `$dbname[image]`.`dictionary` WHERE `word` = '$word';")) == FALSE) {
-        $bad_words[$word] = $freq;
-    } else {
-        $good_words[$word] = $freq;
-    }
-    $i % 5000 == 0 ? echo_time_wasted($i) : '';
-
-    if (NO_WORDS_CHECK && LIMIT_TIME_WORDS_COUNT) {
-        if (!isset($limit_start_time)) {
-            $limit_start_time = number_format(microtime(true) - $start);
-        }
-        if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
-            echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
-            break;
-        }
-    }
-    //todo временно
-    if (LIMIT_TIME_WORDS_COUNT) {
-        if (!isset($limit_start_time)) {
-            $limit_start_time = number_format(microtime(true) - $start);
-        }
-        if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
-            echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
-            break;
-        }
-    }
-}
-arsort($good_words);
-arsort($bad_words);
-echo_time_wasted("Посчитали хорошие " . count($good_words) . " и плохие " . count($bad_words) . " слова по словарю");
-if (NO_WORDS_CHECK) {
-    $bad_words = $bad_words2;
-}
-unset ($words, $limit_start_time);
 //endregion
 
 //region WP FILL: FILES + POSTS
 //Дикий код! 2 раза дублируется функция вставки в WP.
+//Нельзя делать ниаких UNSET для CSV - иначе все сломается (array_column / keys ) !
 $meta_id = get_table_max_id('wp_postmeta', 'meta_id', $db_name) + 1;
 $image_id = get_table_max_id('wp_posts', 'ID', $db_name) + 1;
 $post_id = $image_id + 1;
@@ -213,10 +219,12 @@ foreach ($files as $img) {
             $group_id = $csv[$tmp2]['0'];
             //Получить ID массивов данной группы
             $debug['array_column1'] += debug_process_time();
-            $tmp3 = array_column($csv, 0); //0 - номер колонки = группа
+            if (!isset($array_column)) {
+                $array_column = array_column($csv, 0); //0 - номер колонки = группа
+            }
             $debug['array_column1'] += debug_process_time();
             $debug['array_keys1'] += debug_process_time();
-            $tmp3 = array_keys($tmp3, $group_id); //ID массивов CSV Файлов с дублями
+            $tmp3 = array_keys($array_column, $group_id); //ID массивов CSV Файлов с дублями
             $debug['array_keys1'] += debug_process_time();
             //Работа с группой файлов-дублей. Внимание! Dimension в CSV может быть указан неверно, ориентироваться на размер!
             //Находим самую большую картинку в группе
@@ -316,7 +324,6 @@ foreach ($files as $img) {
             foreach ($tmp3 as $tmp2) {
                 $img_name = basename($csv[$tmp2][1]);
                 @unlink($imgs_path . '/' . $img_name);
-                unset ($csv[$tmp2]);
             }
             $debug['unlink2'] += debug_process_time();
         } else {
@@ -665,7 +672,12 @@ function dictionary_check($string, $separator = '_', $replace_numbers)
     $tmp = trim($tmp);
     $arr = explode(' ', $tmp);
     foreach ($arr as $key => &$word) {
-        if (($tmp2 = dbquery("SELECT `id` FROM `$dbname[image]`.`dictionary` WHERE `word` = '$word';")) == FALSE) {
+        //Удаляем артикли в любом случае, без исключения
+        if (mb_strlen($word) > 1 && $word !== 'a') {
+            if (($tmp2 = dbquery("SELECT `id` FROM `$dbname[image]`.`dictionary` WHERE `word` = '$word';")) == FALSE) {
+                unset ($arr[$key]);
+            }
+        } else {
             unset ($arr[$key]);
         }
     }

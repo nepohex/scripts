@@ -14,90 +14,13 @@ $double_log = 1;
 $debug_mode = 1;
 
 //Директории-источники картинок, без слеша
-$source_dirs = array('C:\download\https@dbzaddict.com',
-    'C:\download\https@assettoaddons.club',
-    'C:\download\https@masausturesimleri.info',
-    'C:\download\https@kanvamath.org',
-    'C:\download\https@szliachta.org',
-    'C:\download\https@dogboi.info',
-    'C:\download\https@afif.me',
-    'C:\download\https@perkypetes.club',
-    'C:\download\https@www.fasett.info',
-    'C:\download\https@blurts.me',
-    'C:\download\https@mainetreasurechest.com',
-    'C:\download\https@compromisu.com',
-    'C:\download\https@safetrack.co',
-    'C:\download\https@www.squished.me',
-    'C:\download\curiosum.club',
-    'C:\download\blasphe.me',
-    'C:\download\britishpanto.org',
-    'C:\download\autoenginediagrams.info',
-    'C:\download\trumpgrets.club',
-    'C:\download\cerca-farmacie.net',
-    'C:\download\jialong.me',
-    'C:\download\anewgencla.org',
-    'C:\download\potrero-fut.com',
-    'C:\download\heroinrehabs.club',
-    'C:\download\mihella.me',
-    'C:\download\capecodcottagerental.us',
-    'C:\download\awhitu.info',
-    'C:\download\thoritsolutions.com',
-    'C:\download\fharates.info',
-    'C:\download\detoxicrecenze.com',
-    'C:\download\nickfayos.club',
-    'C:\download\foodscam.info',
-    'C:\download\teamninjaz.me',
-    'C:\download\coachedby.me',
-    'C:\download\kgt.me',
-    'C:\download\gonews.site',
-    'C:\download\teenwolfonline.org',
-    'C:\download\easyhomeview.com',
-    'C:\download\sbrowne.me',
-    'C:\download\thespartanchronicle.com',
-    'C:\download\cathology.info',
-    'C:\download\yellowdir.info',
-    'C:\download\gnoss.us',
-    'C:\download\purelying.info',
-    'C:\download\videojourneysrentals.com',
-    'C:\download\philgrenart.com',
-    'C:\download\altaoakridge.com',
-    'C:\download\wiringdiagramstemplates.me',
-    'C:\download\wheathill.co',
-    'C:\download\www.curiosum.club',
-    'C:\download\www.blasphe.me',
-    'C:\download\www.britishpanto.org',
-    'C:\download\www.autoenginediagrams.info',
-    'C:\download\www.trumpgrets.club',
-    'C:\download\www.cerca-farmacie.net',
-    'C:\download\www.jialong.me',
-    'C:\download\www.anewgencla.org',
-    'C:\download\www.potrero-fut.com',
-    'C:\download\www.heroinrehabs.club',
-    'C:\download\www.mihella.me',
-    'C:\download\www.capecodcottagerental.us',
-    'C:\download\www.awhitu.info',
-    'C:\download\www.thoritsolutions.com',
-    'C:\download\www.fharates.info',
-    'C:\download\www.detoxicrecenze.com',
-    'C:\download\www.nickfayos.club',
-    'C:\download\www.foodscam.info',
-    'C:\download\www.teamninjaz.me',
-    'C:\download\www.coachedby.me',
-    'C:\download\www.kgt.me',
-    'C:\download\www.gonews.site',
-    'C:\download\www.teenwolfonline.org',
-    'C:\download\www.easyhomeview.com',
-    'C:\download\www.sbrowne.me',
-    'C:\download\www.thespartanchronicle.com',
-    'C:\download\www.cathology.info',
-    'C:\download\www.yellowdir.info',
-    'C:\download\www.gnoss.us',
-    'C:\download\www.purelying.info',
-    'C:\download\www.videojourneysrentals.com',
-    'C:\download\www.philgrenart.com',
-    'C:\download\www.altaoakridge.com',
-    'C:\download\www.wiringdiagramstemplates.me',
-    'C:\download\www.wheathill.co');
+$source_dirs = array('f:\Dumps\downloaded sites\24.media.tumblr.com', 'f:\Dumps\downloaded sites\40.media.tumblr.com');
+
+//Файл куда будут заливаться ключи из всех папок
+$keys_csv = 'F:\tmp\_tmp.csv';
+$keys_csv_fp = fopen($keys_csv, 'a');
+$keys_csv_separator = '$$$$$$$$$$$$$$$'; //сепаратор между папками
+
 //Директория куда будут сливаться все.
 $dir = 'F:\tmp\_tmp'; //без слеша
 prepare_dir($dir);
@@ -127,6 +50,15 @@ DEL_SIMILAR_NAMES ? echo2("Активирована функция чистки 
 foreach ($source_dirs as $source_dir) {
     if (is_dir($source_dir)) {
         echo2("Nachinaem Obhod papki $source_dir");
+        ###Запись папок из родительской папки, там обычно ключи находятся
+        $keys_in_dir = scandir($source_dir);
+        fputs($keys_csv_fp, $source_dir . $keys_csv_separator . PHP_EOL);
+        foreach ($keys_in_dir as $row) {
+            if (strpos($row, '.') == FALSE) { //Пишем только без точки, чтобы файлы не попадались
+                fputs($keys_csv_fp, $row . PHP_EOL);
+            }
+        }
+        ####
         $fnames = getDirContents($source_dir);
         echo2("Founded " . count($fnames) . " files");
         foreach ($fnames as $fname) {

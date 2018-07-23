@@ -9,6 +9,47 @@ include "../includes/functions.php";
 $double_log = 1;
 $debug_mode = 1;
 
+$site_name = 'mfa_babyshower1.com'; // Без слешей, только домен
+$db_name = $site_name;
+$dbname = array(
+    'spin' => 'hair_spin',
+    'image' => 'image_index',
+    'keys' => 'image_index',
+    'key' => 'image_index',
+    'wp' => $db_name,
+);
+
+$tmp = 'car 345345baby zina-s-magasinz|dgdfig|idet^fgfgh|bnbn+ghfgh .jpg obama car money';
+$tmp = preg_replace('/[^\w\d]/i', ' ', $tmp); //Замена всех не слов пробелами
+$tmp = dictionary_check($tmp, '-', TRUE);
+
+define('LIMIT_TIME_WORDS_COUNT', '20');
+$files = array_fill(1, 100, rand(1, 100));
+foreach ($files as $item) {
+    //todo Шаг надо упразднить вообще. Это временное прерывание.
+    if (LIMIT_TIME_WORDS_COUNT) {
+        if (!isset($limit_start_time)) {
+            $limit_start_time = number_format(microtime(true) - $start);
+        }
+        if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+            echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+            break;
+        }
+    }
+}
+file_put_contents(__DIR__ . '/debug_data/top_words_part_' . $part . '_theme_' . $theme . '_srlz.txt', serialize($final));
+
+
+if (LIMIT_TIME_WORDS_COUNT) {
+    if (!isset($limit_start_time)) {
+        $limit_start_time = number_format(microtime(true) - $start);
+    }
+    if (number_format(microtime(true) - $start + $limit_start_time) > LIMIT_TIME_WORDS_COUNT) {
+        echo_time_wasted("Прерываем подсчет Использованных слов по ограничителю времени");
+        echo2("fin!");
+    }
+}
+
 $files = scandir('f:\Dumps\google_images\coloring');
 shuffle($files);
 foreach ($files as $file) {
