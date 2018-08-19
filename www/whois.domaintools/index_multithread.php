@@ -13,16 +13,22 @@ include("C:/OpenServer/domains/scripts.loc/www/new/includes/proxy.php");
 include("C:/OpenServer/domains/scripts.loc/www/parser/simpledom/simple_html_dom.php");
 $debug_mode = TRUE;
 define('EXCLUDE_FAIL_PROXY', TRUE); //если с данной прокси не получили результата (не важно - каптча ли, или просто прокси лежит - ее исключаем из парсинга дальше)
+define('SAVE_SCREENS', TRUE); // по возможности сохранять скрины сайта из сервиса
+$proxy_timeout = 3; //задержка для получения данных от прокси
+
 echo2("Многопоточная проверкп на whois.domaintools доменов. Можно запускать много дублей скрипта = иммитация мультипоточности.");
 
 #########
 $fname_input = 'domains_my_test.txt'; //уникальное имя нужно, от него будем отталкиваться в названиях остальных
-$list = file('f:\tmp\proxy_rus_hidemyname.txt', FILE_IGNORE_NEW_LINES);
+$list = file('f:\tmp\proxy_mix_hidemyname.txt', FILE_IGNORE_NEW_LINES);
 $urls = file('f:\tmp/' . $fname_input, FILE_IGNORE_NEW_LINES); //список доменов без http и т.п.
+$fname_result = './debug/result_domaintools' . date('d-m-Y-H-i') . '_.csv';
+$fname_result2 = 'f:\tmp/result_domaintools' . date('d-m-Y-H-i') . '_.csv';
 #########
 
 echo2("Подано на проверку " . count($list) . " прокси и " . count($urls) . " доменов");
-
+$list = tmp_synch_bad_proxy($debug['bad_proxies'], "./debug/bad_proxies.txt", $list);
+echo2("Синхронизируем список плохих сохраненных прокси, удаляем их перед началом работы. Осталось прокси " . count($list));
 foreach ($urls as $url) {
     $fname_domain_res = "./debug/$url";
     $fp = fopen($fname_domain_res, "a+");
@@ -30,23 +36,39 @@ foreach ($urls as $url) {
         while (!$data) {
             $proxy_id = rand(0, count($list));
             $rnd_proxy = $list[$proxy_id];
-            $data = proxy_get_data($rnd_proxy, 'http://whois.domaintools.com/' . $url, 3, FALSE, TRUE);
+            $data = proxy_get_data($rnd_proxy, 'http://whois.domaintools.com/' . $url, $proxy_timeout, FALSE, TRUE);
+            //debug
+//            $data = file_get_contents("./debug/medwrite.biz.html");
+//            $url = 'medwrite.biz';
+            //debug
+            if ($debug['query_times'] && $debug['query_times'] % 10 == 0) {
+                $list = tmp_synch_bad_proxy($debug['bad_proxies'], "./debug/bad_proxies.txt", $list);
+                //бывает такое что домен из самого сервиса отдается с задержкой 10+ секунд! В таком случае ставим 10 сек таймаут временный до следующего домена
+                $proxy_timeout = 15;
+            }
             if (domaintools_check_valid_answer($data, $url)) { // Валидный ответ выглядит вот так ./debug/DEBUG_dont_delete_vallid_answer.txt
                 //debug
                 echo2($url);
-                echo2("Query tries " . $debug['query_times'] . " / Excluded proxies Total " . $debug['excluded_proxies']);
+                echo2("Query tries " . $debug['query_times'] . " // Excluded proxies " . $debug['excluded_proxies'] . " // Bad proxies " . $debug['bad_proxy'] . " // Banned proxies " . $debug['proxy_banned']);
                 unset ($debug['query_times']);
                 //debug
                 //Parser первичный HTML, таблицы с данными по домену. 40kb > 3.5kb
+                file_put_contents("./debug/$url" . ".html", $data);
                 $data = str_get_html($data);
                 $res = domaintools_html_scrape1($data, $url);
+                $proxy_timeout = 3;
+                if ($res[$url]['Screen'] && SAVE_SCREENS) {
+                    file_put_contents('./debug/' . basename($res[$url]['Screen']), file_get_contents($res[$url]['Screen']));
+                }
             } else {
                 tmp_prepare_report($data);
+                unset ($data);
             }
         }
         @$i++;
         if ($i % 10 == 0) {
-            echo_time_wasted($i, " Total $i / " . count($urls) . " done . Query tries " . $debug['query_times'] . " / Excluded proxies Total " . $debug['excluded_proxies'] . " / " . count($list) . " Proxy left");
+            $list = tmp_synch_bad_proxy($debug['bad_proxies'], "./debug/bad_proxies.txt", $list);
+            echo_time_wasted($i, " This thread $i / " . count($urls) . " done // Total Threads Done Of Current Task = " . tmp_get_total_progress($urls) . " // Query tries " . $debug['query_times'] . " // Excluded proxies " . $debug['excluded_proxies'] . " // " . count($list) . " Proxy left");
         }
         file_lock($fp, 1);
         file_put_contents($fname_domain_res, serialize($res));
@@ -55,7 +77,7 @@ foreach ($urls as $url) {
     }
 }
 echo_time_wasted();
-
+file_lock($fp, 1);
 $dir = scandir("./debug");
 $res = array();
 foreach ($dir as $file) {
@@ -68,22 +90,56 @@ foreach ($dir as $file) {
         }
     }
 }
-domaintools_parse_result_put_csv($res, $fname_input, $urls);
+domaintools_parse_result_put_csv($res, $fname_result, $urls);
+copy($fname_result, $fname_result2);
 
-function domaintools_parse_result_put_csv($res, $fname_input, $urls)
+//todo Дописать заись плохих проксей для потока, и синхронизацию с другими потоками
+function tmp_synch_bad_proxy($bad_proxy_array, $fp, $current_proxy_list)
+{
+    if (is_file($fp)) {
+        $bad_proxy_saved = file($fp, FILE_IGNORE_NEW_LINES);
+        if (@count($bad_proxy_saved) > 0) {
+            //Удаляем из текущего листа нерабочие сохраненные в папке прокси.
+            $list = array_diff($current_proxy_list, $bad_proxy_saved);
+            $list = array_values($list);
+        } else {
+            $bad_proxy_saved = FALSE;
+        }
+    }
+    if (@count($bad_proxy_array) > 0) {
+        if (@is_array($bad_proxy_saved)) {
+            $total_bad_proxies = array_merge($bad_proxy_saved, $bad_proxy_array);
+            $list = array_diff($current_proxy_list, $total_bad_proxies);
+            file_put_contents($fp, implode(PHP_EOL, $total_bad_proxies));
+        } else {
+            file_put_contents($fp, implode(PHP_EOL, $bad_proxy_array));
+        }
+    }
+    if ($list == FALSE) {
+        $list = $current_proxy_list;
+    }
+    $list = array_values($list);
+    return $list;
+}
+
+function domaintools_parse_result_put_csv($res, $fname_result, $urls)
 {
 //Подробная таблица результатов даже для всех зареганых доменов, универсальный код
     if ($res) {
-        $fname = './debug/result_' . $fname_input . ".csv";
+        $fname = $fname_result;
         $fp = fopen($fname, "w");
         $dup = $res; //чтобы не нарушать порядок итемов в массиве и не ВПРить в Excel с остальными данными
 
         array_multisort(array_map('count', $dup), SORT_DESC, $dup); //получаем массив с самым большим количеством элементов (например о домене много инфы (зареган = 16 элементов) , не зареган и дроп = 5 )
         $header_csv = array_keys(first($dup)); //на основе самого длинного массива делаем шапку и по ней будем ориентироваться дальше
 //Добавляем дополнительные колонки которые ниже в глубоком парсинге добавили (если тут менять - то и ниже не забыть!)
+        $header_csv[] = 'Registrant';
+        $header_csv[] = 'Registrar History'; //Иногда этой колонке может не быть в списке!
         $header_csv[] = 'IP History_years';
         $header_csv[] = 'DROP';
         $header_csv[] = 'Name Servers Changed'; //!!
+        $header_csv[] = 'Screen';
+        $header_csv = array_unique($header_csv);
 
         fputcsv($fp, $header_csv, ";"); //пишем шапку
         foreach ($res as $row) {
@@ -140,6 +196,9 @@ function domaintools_parse_result_put_csv($res, $fname_input, $urls)
                     }
                 }
             }
+            if ($cur_item['DROP'] === '') {
+                $cur_item['DROP'] = 0;
+            }
             fputcsv($fp, array_map('trim', $cur_item), ";");
             unset ($cur_item);
         }
@@ -195,6 +254,7 @@ function tmp_prepare_report($data)
     }
     $data = FALSE;
     if (EXCLUDE_FAIL_PROXY) {
+        $debug['bad_proxies'][] = $list[$proxy_id];
         unset($list[$proxy_id]);
         $list = array_values($list);
         $debug['excluded_proxies'] += 1;
@@ -211,5 +271,23 @@ function domaintools_html_scrape1($data, $url)
         $res[$url][$row_label->plaintext] = $row_label->next_sibling()->innertext();
 //                    echo2($row_label->plaintext . '   ' . $row_label->next_sibling()->innertext()); //debug
     }
+    $screen = $data->find("div.thumbnail img");
+    if (@count($screen) > 0) {
+        $thumb = 'http:' . $screen[0]->src; //http приставка потому что нету изначально и идет в таком виде //thumbnails.domaintools.com/domaintools/2018-08-09T13:27:31.000Z/xewGLw_1IEa-0FjEXKZ4KqkkFno=/medwrite.biz/thumbnail/current/medwrite.jpg
+        $res[$url]['Screen'] = $thumb;
+    }
     return $res;
+}
+
+function tmp_get_total_progress($urls)
+{
+    $i = 0;
+    $dir = scandir("./debug");
+    $res = array();
+    foreach ($dir as $file) {
+        if (in_array($file, $urls)) {
+            $i++;
+        }
+    }
+    return $i;
 }
