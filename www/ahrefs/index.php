@@ -7,7 +7,6 @@
  * Ahrefs Batch Domain Analytics
  */
 $time = microtime(true);
-include("C:/OpenServer/domains/scripts.loc/www/new/includes/functions.php");
 $debug_mode = TRUE;
 
 $url_list = file("./debug/input.txt", FILE_IGNORE_NEW_LINES);
@@ -32,7 +31,7 @@ for ($i = 0; $i < 3; $i++) {
             //Если токен нашли, логинимся
             if (@count($matches) > 0) {
                 $token = $matches[1];
-                $data = ahrefs_login($proxy_ip, $proxy_port, $useragent, $token, $email, $pwd);
+                $data = ahrefs_login($proxy_ip, $proxy_port, FALSE, $useragent, $token, $email, $pwd);
                 sleep(5);
             }
         }
@@ -194,4 +193,40 @@ function ahrefs_get_batch(array $url_list)
     $res['body'] = $body;
 
     return $res;
+}
+
+/** $fp_log задать как file handle (fopen) или название файла куда писать, файл будет создан по пути который указан в переменной.
+ * @param $str Строка которую вывести
+ * @param bool $double_log Метод логирования
+ */
+function echo2($str, $double_log = false)
+{
+    global $fp_log, $debug_mode, $double_log, $console_mode;
+    if ($console_mode == false) {
+        if ($double_log && $fp_log) {
+            echo date("d-m-Y H:i:s") . " - " . $str . PHP_EOL;
+            flush();
+            if (is_resource($fp_log)) {
+                fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+                return;
+            } else {
+                $fp = fopen($fp_log, 'a+');
+                fwrite($fp, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+                return;
+            }
+        }
+        if ($debug_mode == true) {
+            echo date("d-m-Y H:i:s") . " - " . $str . PHP_EOL;
+            flush();
+            return;
+        }
+        if ($fp_log) {
+            if (is_resource($fp_log)) {
+                fwrite($fp_log, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            } else {
+                $fp = fopen($fp_log, 'a+');
+                fwrite($fp, date("d-m-Y H:i:s") . " - " . $str . PHP_EOL);
+            }
+        }
+    }
 }
