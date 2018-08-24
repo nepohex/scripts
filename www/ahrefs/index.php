@@ -16,7 +16,7 @@ $useragent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:61.0) Gecko/20100101 F
 //SOCKS4 only! (fix in code if another!)
 $proxy_ip = '92.63.195.131';
 $proxy_port = '5055';
-$proxy_log_pwd = 'usr8100691:59f09b5b2c05e'; //Если нет логин-пароля, закомментировать строку
+//$proxy_log_pwd = 'usr8100691:59f09b5b2c05e'; //Если нет логин-пароля, закомментировать строку
 
 $urls_chunk = array_chunk($url_list, 200);
 
@@ -31,7 +31,7 @@ for ($i = 0; $i < 3; $i++) {
             //Если токен нашли, логинимся
             if (@count($matches) > 0) {
                 $token = $matches[1];
-                $data = ahrefs_login($proxy_ip, $proxy_port, FALSE, $useragent, $token, $email, $pwd);
+                $data = ahrefs_login($proxy_ip, $proxy_port, $proxy_log_pwd, $useragent, $token, $email, $pwd);
                 sleep(5);
             }
         }
