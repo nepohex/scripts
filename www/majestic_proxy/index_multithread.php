@@ -57,8 +57,11 @@ foreach ($urls as $url) {
         while (!$data) {
             $proxy_id = rand(0, count($list));
             $rnd_proxy = $list[$proxy_id];
+//            $rnd_proxy = '213.81.238.168:4145'; //debug
             $html = proxy_get_data($rnd_proxy, 'https://majestic.com', 3, TRUE, TRUE); // debug
-            $html = proxy_get_data($rnd_proxy, "https://majestic.com/reports/site-explorer?q=$url&oq=$url&IndexDataSource=F", 3, TRUE, TRUE);
+            if ($html !== false) {
+                $html = proxy_get_data($rnd_proxy, "https://majestic.com/reports/site-explorer?q=$url&oq=$url&IndexDataSource=F", 3, TRUE, TRUE);
+            }
             if ($debug['query_times'] % 10 == 0) {
                 $list = tmp_synch_bad_proxy($debug['bad_proxies'], "./debug/bad_proxies.txt", $list);
             }
