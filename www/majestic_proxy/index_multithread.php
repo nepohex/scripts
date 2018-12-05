@@ -366,10 +366,14 @@ function majestic_build_csv_row($url, $tf_cf, $languages, $anchors, $crawled_url
     $row['HTTP Links'] = $link_sources['HTTP'];
     $row['HTTPS Links'] = $link_sources['HTTPS'];
 
-    foreach ($anchors['anchors'] as $k => $anchor) {
-        @$row_anchors .= $anchor . ' - ' . $anchors['total links'][$k] . " || ";
+    if (is_array($anchors['anchors'])) {
+        foreach ($anchors['anchors'] as $k => $anchor) {
+            @$row_anchors .= $anchor . ' - ' . $anchors['total links'][$k] . " || ";
+        }
+        $row['Anchors'] = $row_anchors;
+    } else {
+        $row['Anchors'] = '';
     }
-    $row['Anchors'] = $row_anchors;
 
     foreach ($row as &$r) {
         if ($r == '') {
